@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="Assets/css/styles.css" rel="stylesheet" />
     <style>
-            body {
+                body {
             background-color: #ffffff;
             font-family: 'Poppins', sans-serif;
             margin: 0;
@@ -20,7 +20,7 @@
         .left-panel {
             flex: 1;
             position: relative;
-            height: 120vh; /* Fixed height equal to viewport height */
+            height: 100vh; /* Fixed height equal to viewport height */
             overflow: hidden; /* Prevent scrolling */
         }
 
@@ -35,20 +35,20 @@
 
         .right-panel {
             width: 450px;
-            padding: 40px;
+            padding: 60px 40px; /* Increased top padding to make space for the logo */
             background-color: #ffffff;
             display: flex;
             flex-direction: column;
             justify-content: center;
             box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
             z-index: 1;
-            overflow-y: auto; /* Allow scrolling only for the right panel */
+            overflow: hidden;
             height: 100vh; /* Match the height of the left panel */
         }
 
         .logo-container {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: -140px; /* Adjusted margin to bring the logo down */
         }
 
         .logo {
@@ -62,9 +62,11 @@
             width: 100%;
         }
 
-        .login-header {
-            text-align: center;
+            .login-header {
+            text-align: left; /* Already left-aligned, but let's ensure proper spacing */
             margin-bottom: 30px;
+            margin-top: 0; /* Remove negative margin */
+            margin-right: 100px;
         }
 
         .login-header h1 {
@@ -72,28 +74,28 @@
             font-size: 1.8rem;
             font-weight: 600;
             margin: 0;
-        }
+            text-align: left; /* Explicit left alignment */
+        }   
 
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
+            .form-group label {
             display: block;
             margin-bottom: 8px;
+            margin-right: 100px;
             color: #555;
             font-weight: 500;
             font-size: 14px;
+            text-align: left; /* Ensure label left alignment */
         }
 
         .form-control {
-            width: 100%;
+            width: 150%;
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
             transition: border-color 0.2s;
             box-sizing: border-box;
+            text-align: left; /* Explicit left alignment for input text */
         }
 
         .form-control:focus {
@@ -174,7 +176,8 @@
             margin-bottom: 10px;
         }
 
-                @media (max-width: 1200px) {
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
             .left-panel {
                 flex: 2;
             }
@@ -201,13 +204,13 @@
 </head>
 <body>
     <div class="left-panel">
-        <img src="Uploads/misc/3eb76a9a-6ffb-4e4a-9f22-888678793bfd.jpg" alt="Fire Extinguisher Background">
+        <img src="Uploads\misc\front-gate.jpg" alt="Left Panel Background">
     </div>
 
     <div class="right-panel">
         <form id="form1" runat="server">
             <div class="logo-container">
-                <img src="Assets/images/fets-logo.png" alt="FETS Logo" class="logo" />
+                <img src="Uploads\misc\logo.jpeg" alt="FETS Logo" class="logo" />
             </div>
 
             <div class="login-container">
