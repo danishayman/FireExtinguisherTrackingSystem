@@ -19,7 +19,7 @@
         }
 
         .login-container {
-            background-color: white;
+            background-color: black;
             padding: 2rem;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
