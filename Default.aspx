@@ -68,6 +68,7 @@
 
         .login-header {
             margin-bottom: 30px;
+            text-align: center;
         }
 
         .login-header h1 {
@@ -173,7 +174,7 @@
 
             <div class="login-container">
                 <div class="login-header">
-                    <h1>FETS LOGIN</h1>
+                    <h1>FETS LOGIN SITE</h1>
                 </div>
 
                 <asp:Label ID="lblMessage" runat="server" CssClass="message" Visible="false"></asp:Label>
