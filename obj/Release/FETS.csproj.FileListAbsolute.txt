@@ -1,7 +1,0 @@
-C:\Users\HP\OneDrive\Desktop\FETS\FETS\bin\FETS.dll.config
-C:\Users\HP\OneDrive\Desktop\FETS\FETS\bin\FETS.dll
-C:\Users\HP\OneDrive\Desktop\FETS\FETS\bin\FETS.pdb
-C:\Users\HP\OneDrive\Desktop\FETS\FETS\obj\Release\FETS.csproj.AssemblyReference.cache
-C:\Users\HP\OneDrive\Desktop\FETS\FETS\obj\Release\FETS.csproj.CoreCompileInputs.cache
-C:\Users\HP\OneDrive\Desktop\FETS\FETS\obj\Release\FETS.dll
-C:\Users\HP\OneDrive\Desktop\FETS\FETS\obj\Release\FETS.pdb
