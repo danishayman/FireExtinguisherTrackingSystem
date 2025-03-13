@@ -36,7 +36,7 @@
         }
 
         .right-panel {
-            width: 450px;
+            width: 451px;
             padding: 40px;
             background-color: #ffffff;
             display: flex;
