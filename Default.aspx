@@ -7,27 +7,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="Assets/css/styles.css" rel="stylesheet" />
     <style>
-                body {
+        body {
             background-color: #ffffff;
             font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             min-height: 100vh;
-            overflow: hidden; /* Prevent body scrolling */
+            overflow: hidden;
+            justify-content: center;
+            align-items: center;
         }
 
         .left-panel {
             flex: 1;
             position: relative;
-            height: 100vh; /* Fixed height equal to viewport height */
-            overflow: hidden; /* Prevent scrolling */
+            height: 105vh;
+            overflow: hidden;
         }
 
         .left-panel img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Ensures the image covers the panel without distortion */
+            object-fit: cover;
             position: absolute;
             top: 0;
             left: 0;
@@ -35,72 +37,68 @@
 
         .right-panel {
             width: 450px;
-            padding: 60px 40px; /* Increased top padding to make space for the logo */
+            padding: 40px;
             background-color: #ffffff;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
             box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
             z-index: 1;
             overflow: hidden;
-            height: 100vh; /* Match the height of the left panel */
+            height: auto;
+            border-radius: 8px;
         }
 
         .logo-container {
             text-align: center;
-            margin-bottom: -140px; /* Adjusted margin to bring the logo down */
+            margin-bottom: -250px;
         }
 
         .logo {
-            max-width: 200px;
+            max-width: 150px;
             height: auto;
         }
 
         .login-container {
             background-color: #ffffff;
-            padding: 0;
             width: 100%;
+            text-align: center;
         }
 
-            .login-header {
-            text-align: left; /* Already left-aligned, but let's ensure proper spacing */
+        .login-header {
             margin-bottom: 30px;
-            margin-top: 0; /* Remove negative margin */
-            margin-right: 100px;
         }
 
         .login-header h1 {
-            color: #333;
-            font-size: 1.8rem;
-            font-weight: 600;
+            color: #3052a0;
+            font-size: 2rem;
+            font-weight: 700;
             margin: 0;
-            text-align: left; /* Explicit left alignment */
-        }   
+            text-transform: uppercase;
+        }
 
-            .form-group label {
+        .form-group {
+            text-align: left;
+            width: 100%;
+        }
+
+        .form-group label {
             display: block;
             margin-bottom: 8px;
-            margin-right: 100px;
             color: #555;
             font-weight: 500;
             font-size: 14px;
-            text-align: left; /* Ensure label left alignment */
         }
 
         .form-control {
-            width: 150%;
+            width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
             transition: border-color 0.2s;
             box-sizing: border-box;
-            text-align: left; /* Explicit left alignment for input text */
-        }
-
-        .form-control:focus {
-            border-color: #3052a0;
-            outline: none;
         }
 
         .btn-login {
@@ -117,26 +115,7 @@
         }
 
         .btn-login:hover {
-            background-color: #253d7a;
-        }
-
-        .message {
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-
-        .message.error {
-            background-color: #fee2e2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-        }
-
-        .message.success {
-            background-color: #dcfce7;
-            color: #16a34a;
-            border: 1px solid #bbf7d0;
+            background-color: #243b78;
         }
 
         .password-actions {
@@ -144,18 +123,14 @@
             flex-direction: column;
             gap: 8px;
             margin-top: 20px;
+            text-align: center;
         }
 
-        .password-link {
-            color: #3052a0;
+        .password-actions a {
             text-decoration: none;
+            color: #3052a0;
             font-size: 14px;
-            transition: color 0.2s;
-        }
-
-        .password-link:hover {
-            color: #253d7a;
-            text-decoration: underline;
+            font-weight: 500;
         }
 
         .footer {
@@ -165,31 +140,14 @@
             color: #777;
         }
 
-        .help-section {
-            margin-top: 30px;
-            text-align: center;
-        }
-
-        .help-title {
-            color: #3052a0;
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 1200px) {
-            .left-panel {
-                flex: 2;
-            }
-        }
-
         @media (max-width: 992px) {
             body {
                 flex-direction: column;
+                justify-content: flex-start;
             }
 
             .left-panel {
-                height: 40vh; /* Adjust height for smaller screens */
+                height: 40vh;
                 width: 100%;
             }
 
@@ -197,25 +155,25 @@
                 width: 100%;
                 box-sizing: border-box;
                 padding: 30px 20px;
-                height: auto; /* Allow the right panel to grow as needed */
+                height: auto;
             }
         }
     </style>
 </head>
 <body>
     <div class="left-panel">
-        <img src="Uploads\misc\front-gate.jpg" alt="Left Panel Background">
+        <img src="Uploads/misc/front-gate.jpg" alt="Left Panel Background">
     </div>
 
     <div class="right-panel">
         <form id="form1" runat="server">
             <div class="logo-container">
-                <img src="Uploads\misc\logo.jpeg" alt="FETS Logo" class="logo" />
+                <img src="Uploads/misc/logo.jpeg" alt="FETS Logo" class="logo" />
             </div>
 
             <div class="login-container">
                 <div class="login-header">
-                    <h1>FETS LOGIN PAGE</h1>
+                    <h1>FETS LOGIN</h1>
                 </div>
 
                 <asp:Label ID="lblMessage" runat="server" CssClass="message" Visible="false"></asp:Label>
@@ -223,23 +181,11 @@
                 <div class="form-group">
                     <asp:Label ID="lblUsername" runat="server" Text="Username:" AssociatedControlID="txtUsername"></asp:Label>
                     <asp:TextBox ID="txtUsername" runat="server" CssClass="form-control" placeholder="Enter your username"></asp:TextBox>
-                    <asp:RequiredFieldValidator ID="rfvUsername" runat="server"
-                        ControlToValidate="txtUsername"
-                        ErrorMessage="Username is required"
-                        Display="Dynamic"
-                        CssClass="message error">
-                    </asp:RequiredFieldValidator>
                 </div>
 
                 <div class="form-group">
                     <asp:Label ID="lblPassword" runat="server" Text="Password:" AssociatedControlID="txtPassword"></asp:Label>
-                    <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" CssClass="form-control" placeholder="Fill Your Password Here"></asp:TextBox>
-                    <asp:RequiredFieldValidator ID="rfvPassword" runat="server"
-                        ControlToValidate="txtPassword"
-                        ErrorMessage="Password is required"
-                        Display="Dynamic"
-                        CssClass="message error">
-                    </asp:RequiredFieldValidator>
+                    <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" CssClass="form-control" placeholder="Enter your password"></asp:TextBox>
                 </div>
 
                 <div class="form-group">
@@ -247,20 +193,7 @@
                 </div>
 
                 <div class="password-actions">
-                    <asp:LinkButton ID="lnkChangePassword" runat="server" CssClass="password-link" CausesValidation="false">
-                        Change Password
-                    </asp:LinkButton>
-                    <asp:LinkButton ID="lnkForgotPassword" runat="server" CssClass="password-link" OnClick="lnkForgotPassword_Click" CausesValidation="false">
-                        Forgot Account ID
-                    </asp:LinkButton>
-                </div>
-
-                <div class="help-section">
-                    <div class="help-title">Need Help?</div>
-                </div>
-
-                <div class="footer">
-                    <div>www.fets.com | Privacy</div>
+                    <asp:LinkButton ID="lnkForgotPassword" runat="server" OnClick="lnkForgotPassword_Click">Forgot password?</asp:LinkButton>
                 </div>
             </div>
         </form>
