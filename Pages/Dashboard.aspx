@@ -8,74 +8,51 @@
     <link href="../Assets/css/styles.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fc;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
+        .nav-bar {
             position: fixed;
-            left: 0;
             top: 0;
-            bottom: 0;
-            width: 250px;
+            left: 0;
+            right: 0;
             background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
-            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             z-index: 1000;
+            padding: 10px 20px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .sidebar-brand {
-            padding: 20px 15px;
-            color: white;
-            font-size: 20px;
-            font-weight: 600;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar-menu {
+        .nav-buttons {
             display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-            flex-grow: 1;
+            gap: 15px;
+            align-items: center;
         }
 
-        .sidebar-menu .btn {
-            background-color: transparent;
-            border: none;
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-size: 14px;
-            border-left: 3px solid transparent;
-            transition: all 0.3s ease;
-            margin-bottom: 5px;
-        }
-
-        .sidebar-menu .btn:hover, .sidebar-menu .btn.active {
+        .nav-buttons .btn {
             background-color: rgba(255, 255, 255, 0.1);
-            border-left: 3px solid white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: all 0.3s ease;
         }
 
-        .user-controls {
-            padding: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        .nav-buttons .btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
             color: white;
             font-size: 14px;
         }
 
         .btn-logout {
+            padding: 8px 16px;
             background-color: rgba(220, 53, 69, 0.1);
             border: 1px solid rgba(220, 53, 69, 0.2);
             color: white;
-            padding: 8px 16px;
-            width: 100%;
-            margin-top: 10px;
             transition: all 0.3s ease;
         }
 
@@ -84,19 +61,14 @@
             border-color: rgba(220, 53, 69, 0.3);
         }
 
-        /* Main Content Styles */
         .main-content {
-            margin-left: 250px;
-            padding: 20px;
+            margin-top: 60px;
         }
 
         .dashboard-container {
+            padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
-        }
-
-        .header {
-            margin-bottom: 30px;
         }
 
         .chart-section {
@@ -174,27 +146,30 @@
         .stat-value.under-service { color: #ffc107; }
         .stat-value.expired { color: #dc3545; }
         .stat-value.expiring-soon { color: #fd7e14; }
+
+        .buttons-section {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+        }
     </style>
 </head>
 <body>
     <form id="form1" runat="server">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-brand">
-                F.E.T.S.
-            </div> 
-            <div class="sidebar-menu">
-                <asp:Button ID="btnDashboard" runat="server" Text="Dashboard" CssClass="btn active" />
-                <asp:Button ID="btnDataEntry" runat="server" Text="Data Entry" OnClick="btnDataEntry_Click" CssClass="btn" />
-                <asp:Button ID="btnViewSection" runat="server" Text="View Section" OnClick="btnViewSection_Click" CssClass="btn" />
-                <asp:Button ID="btnMapLayout" runat="server" Text="Map Layout" OnClick="btnMapLayout_Click" CssClass="btn" />
-                <asp:Button ID="btnProfile" runat="server" Text="Profile Management" OnClick="btnProfile_Click" CssClass="btn" />
+        <!-- Navigation Bar -->
+        <nav class="nav-bar">
+            <div class="nav-buttons">
+                <asp:Button ID="btnDataEntry" runat="server" Text="Data Entry" OnClick="btnDataEntry_Click" CssClass="btn btn-primary" />
+                <asp:Button ID="btnViewSection" runat="server" Text="View Section" OnClick="btnViewSection_Click" CssClass="btn btn-primary" />
+                <asp:Button ID="btnMapLayout" runat="server" Text="Map Layout" OnClick="btnMapLayout_Click" CssClass="btn btn-primary" />
+                <asp:Button ID="btnProfile" runat="server" Text="Profile Management" OnClick="btnProfile_Click" CssClass="btn btn-primary" />
             </div>
-            <div class="user-controls">
+            <div class="user-info">
                 Welcome, <asp:Label ID="lblUsername" runat="server"></asp:Label>
                 <asp:LinkButton ID="btnLogout" runat="server" OnClick="btnLogout_Click" CssClass="btn btn-logout">Logout</asp:LinkButton>
             </div>
-        </div>
+        </nav>
 
         <div class="main-content">
             <div class="dashboard-container">
@@ -296,4 +271,4 @@
         });
     </script>
 </body>
-</html>
+</html> 
