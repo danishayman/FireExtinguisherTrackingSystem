@@ -27,7 +27,7 @@ namespace FETS
             }
             else
             {
-                lblMessage.Text = "Invalid username or password.";
+                lblMessage.Text = "Invalid username or password!";
                 lblMessage.CssClass = "message error";
                 lblMessage.Visible = true;
             }
