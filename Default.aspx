@@ -67,8 +67,8 @@
                 /* max-width: 120px; */
                 height: auto;
                 display: block;
-                position: absolute;
-                top: 200%;
+                position: relative;
+                top: 6rem;
                 width: 50%;
             }
 
@@ -194,45 +194,50 @@
                 width: 100%;
             }
 
-            /* Responsive Adjustments */
-            @media (max-width: 1200px) {
-                .right-panel {
-                    padding: 0 40px;
-                }
-            }
-
-            @media (max-width: 992px) {
-                body {
-                    flex-direction: column;
-                }
-
-                .left-panel {
-                    height: 35vh;
-                }
-
-                .right-panel {
-                    width: 100%;
-                    height: 65vh;
-                    padding: 40px;
-                }
-                
-                .logo-container {
-                    position: static;
-                    margin-bottom: 30px;
-                }
-                
+            @media (min-width: 1600px) {
                 .logo {
-                    margin: 0 auto;
+                    width: 50%; /* Slightly larger logo for big screens */
+                    top: 12rem; /* Adjust position slightly */
                 }
             }
 
-            @media (max-width: 480px) {
-                .right-panel {
-                    padding: 30px 20px;
+            /* Standard Desktop Screens */
+            @media (max-width: 1440px) {
+                .logo {
+                    width: 50%; /* Standard size */
+                    top: 8rem;
                 }
-                
-                .login-header h1 {
-                    font-size: 1.8rem;
+            }
+
+            /* Small Desktops and Laptops */
+            @media (max-width: 1080px) {
+                .logo {
+                    width: 50%; /* Slightly smaller for smaller desktops */
+                    top: 6rem;
+                }
+            }
+
+            /* Tablets and Small Laptops */
+            @media (max-width: 1024px) {
+                .logo {
+                    width: 40%; /* Reduce size */
+                    top: 5rem;
+                }
+            }
+
+            /* Mobile Screens */
+            @media (max-width: 768px) {
+                .logo {
+                    width: 140px;
+                    top: 10px;
+                }
+            }
+
+            /* Very Small Phones */
+            @media (max-width: 480px) {
+                .logo {
+                    width: 120px;
+                    top: 5px;
                 }
             }
         </style>
