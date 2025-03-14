@@ -1,42 +1,24 @@
 using System;
-using System.Web;
 using System.Web.UI;
 using System.Web.Security;
-using System.IO;
-
 
 namespace FETS
 {
-    public partial class SiteMaster : System.Web.UI.MasterPage
+    public partial class SiteMaster : MasterPage
     {
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                // Check if user is logged in
-                if (Session["Username"] != null)
-                {
-                    lblUsername.Text = Session["Username"].ToString();
-                }
-                else if (Context.User.Identity.IsAuthenticated)
+                if (Context.User.Identity.IsAuthenticated)
                 {
                     lblUsername.Text = Context.User.Identity.Name;
                 }
                 else
                 {
-                    // Redirect to login page if not logged in
                     Response.Redirect("~/Default.aspx");
                 }
             }
-        }
-
-        protected void btnLogout_Click(object sender, EventArgs e)
-        {
-            // Clear session and redirect to login page
-            Session.Clear();
-            Session.Abandon();
-            FormsAuthentication.SignOut();
-            Response.Redirect("~/Default.aspx");
         }
 
         protected void btnDashboard_Click(object sender, EventArgs e)
@@ -44,7 +26,6 @@ namespace FETS
             Response.Redirect("~/Pages/Dashboard.aspx");
         }
 
-        // These event handlers need to match exactly what's in the markup
         protected void btnDataEntry_Click(object sender, EventArgs e)
         {
             Response.Redirect("~/Pages/DataEntry/DataEntry.aspx");
@@ -63,6 +44,12 @@ namespace FETS
         protected void btnProfile_Click(object sender, EventArgs e)
         {
             Response.Redirect("~/Pages/Profile/Profile.aspx");
+        }
+
+        protected void btnLogout_Click(object sender, EventArgs e)
+        {
+            FormsAuthentication.SignOut();
+            Response.Redirect("~/Default.aspx");
         }
     }
 }

@@ -120,15 +120,15 @@
         <!-- Navigation Bar -->
         <nav class="nav-bar" id="navBar" runat="server" visible="true">
             <div class="nav-buttons">
-                <asp:Button ID="btnDashboard" runat="server" Text="Dashboard" OnClick="btnDashboard_Click" CssClass="btn btn-primary" EnableViewState="true" />
-                <asp:Button ID="btnDataEntry" runat="server" Text="Data Entry" OnClick="btnDataEntry_Click" CssClass="btn btn-primary" EnableViewState="true" />
-                <asp:Button ID="btnViewSection" runat="server" Text="View Section" OnClick="btnViewSection_Click" CssClass="btn btn-primary" EnableViewState="true" />
-                <asp:Button ID="btnMapLayout" runat="server" Text="Map Layout" OnClick="btnMapLayout_Click" CssClass="btn btn-primary" EnableViewState="true" />
-                <asp:Button ID="btnProfile" runat="server" Text="Profile Management" OnClick="btnProfile_Click" CssClass="btn btn-primary" EnableViewState="true" />
+                <asp:Button ID="btnDashboard" runat="server" Text="Dashboard" OnClick="btnDashboard_Click" CssClass="btn btn-primary" EnableViewState="true" CausesValidation="false" />
+                <asp:Button ID="btnDataEntry" runat="server" Text="Data Entry" OnClick="btnDataEntry_Click" CssClass="btn btn-primary" EnableViewState="true" CausesValidation="false" />
+                <asp:Button ID="btnViewSection" runat="server" Text="View Section" OnClick="btnViewSection_Click" CssClass="btn btn-primary" EnableViewState="true" CausesValidation="false" />
+                <asp:Button ID="btnMapLayout" runat="server" Text="Map Layout" OnClick="btnMapLayout_Click" CssClass="btn btn-primary" EnableViewState="true" CausesValidation="false" />
+                <asp:Button ID="btnProfile" runat="server" Text="Profile Management" OnClick="btnProfile_Click" CssClass="btn btn-primary" EnableViewState="true" CausesValidation="false" />
             </div>
             <div class="user-info">
                 Welcome, <asp:Label ID="lblUsername" runat="server" EnableViewState="true"></asp:Label>
-                <asp:LinkButton ID="btnLogout" runat="server" OnClick="btnLogout_Click" CssClass="btn btn-logout" EnableViewState="true">Logout</asp:LinkButton>
+                <asp:LinkButton ID="btnLogout" runat="server" OnClick="btnLogout_Click" CssClass="btn btn-logout" EnableViewState="true" CausesValidation="false">Logout</asp:LinkButton>
             </div>
         </nav>
 
