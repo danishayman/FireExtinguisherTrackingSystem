@@ -25,7 +25,7 @@ namespace FETS
                 else
                 {
                     // Redirect to login page if not logged in
-                    Response.Redirect("~/Login.aspx");
+                    Response.Redirect("~/Default.aspx");
                 }
             }
         }
@@ -36,7 +36,7 @@ namespace FETS
             Session.Clear();
             Session.Abandon();
             FormsAuthentication.SignOut();
-            Response.Redirect("~/Login.aspx");
+            Response.Redirect("~/Default.aspx");
         }
 
         protected void btnDashboard_Click(object sender, EventArgs e)
