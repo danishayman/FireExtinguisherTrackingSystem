@@ -57,7 +57,6 @@ namespace FETS.Pages.ViewSection
 
             if (!IsPostBack)
             {
-                lblUsername.Text = User.Identity.Name;
                 LoadDropDownLists();
                 LoadMonitoringPanels();
                 LoadFireExtinguishers();
@@ -244,26 +243,6 @@ namespace FETS.Pages.ViewSection
             ddlFilterStatus.SelectedIndex = 0;
             txtSearch.Text = "";
             LoadFireExtinguishers();
-        }
-
-        /// <summary>
-        /// Event handler for the logout button.
-        /// Signs out the user and redirects to login page.
-        /// </summary>
-        protected void btnLogout_Click(object sender, EventArgs e)
-        {
-            FormsAuthentication.SignOut();
-            Session.Clear();
-            Response.Redirect("~/Default.aspx");
-        }
-
-        /// <summary>
-        /// Event handler for the back button.
-        /// Returns to the dashboard page.
-        /// </summary>
-        protected void btnBack_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("~/Pages/Dashboard/Dashboard.aspx");
         }
 
         /// <summary>
@@ -784,7 +763,6 @@ namespace FETS.Pages.ViewSection
             base.OnLoad(e);
             if (!IsPostBack)
             {
-                lblUsername.Text = User.Identity.Name;
                 LoadDropDownLists();
                 LoadFireExtinguishers();
                 LoadMonitoringPanels();
@@ -895,4 +873,4 @@ namespace FETS.Pages.ViewSection
             LoadMonitoringPanels();
         }
     }
-} 
+}

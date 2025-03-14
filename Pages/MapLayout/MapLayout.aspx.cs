@@ -23,7 +23,6 @@ namespace FETS.Pages.MapLayout
 
             if (!IsPostBack)
             {
-                lblUsername.Text = User.Identity.Name;
                 LoadDropDownLists();
                 LoadMaps();
             }
@@ -316,18 +315,6 @@ namespace FETS.Pages.MapLayout
 
                 LoadMaps();
             }
-        }
-
-        protected void btnBack_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("~/Pages/Dashboard/Dashboard.aspx");
-        }
-
-        protected void btnLogout_Click(object sender, EventArgs e)
-        {
-            FormsAuthentication.SignOut();
-            Session.Clear();
-            Response.Redirect("~/Default.aspx");
         }
     }
 } 
