@@ -202,7 +202,7 @@ namespace FETS.Pages.Profile
 
         protected void btnBack_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Pages/Dashboard.aspx");
+            Response.Redirect("~/Pages/Dashboard/Dashboard.aspx");
         }
     }
 } 

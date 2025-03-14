@@ -11,7 +11,7 @@ namespace FETS
         {
             if (User.Identity.IsAuthenticated)
             {
-                Response.Redirect("~/Pages/Dashboard.aspx");
+                Response.Redirect("~/Pages/Dashboard/Dashboard.aspx");
             }
         }
 
@@ -23,7 +23,7 @@ namespace FETS
             if (ValidateUser(username, password))
             {
                 FormsAuthentication.SetAuthCookie(username, false);
-                Response.Redirect("~/Pages/Dashboard.aspx");
+                Response.Redirect("~/Pages/Dashboard/Dashboard.aspx");
             }
             else
             {

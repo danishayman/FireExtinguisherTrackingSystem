@@ -23,7 +23,7 @@ namespace FETS
 
         protected void btnDashboard_Click(object sender, EventArgs e)
         {
-            Response.Redirect("~/Pages/Dashboard.aspx");
+            Response.Redirect("~/Pages/Dashboard/Dashboard.aspx");
         }
 
         protected void btnDataEntry_Click(object sender, EventArgs e)

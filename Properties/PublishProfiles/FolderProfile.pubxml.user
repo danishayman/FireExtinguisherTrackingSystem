@@ -21,7 +21,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
     <File Include="Default.aspx">
       <publishTime>01/08/2025 11:48:31</publishTime>
     </File>
-    <File Include="Pages/Dashboard.aspx">
+    <File Include="Pages/Dashboard/Dashboard.aspx">
       <publishTime>01/09/2025 14:58:45</publishTime>
     </File>
     <File Include="Pages/DataEntry/DataEntry.aspx">
