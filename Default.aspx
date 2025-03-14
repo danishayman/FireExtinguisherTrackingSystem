@@ -6,160 +6,188 @@
     <title>FETS - Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="Assets/css/styles.css" rel="stylesheet" />
-    <style>
-        body {
-            background-color: #ffffff;
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            min-height: 100vh;
-            overflow: hidden;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .left-panel {
-            flex: 1;
-            position: relative;
-            height: 105vh;
-            overflow: hidden;
-        }
-
-        .left-panel img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .right-panel {
-            width: 451px;
-            padding: 40px;
-            background-color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-            z-index: 1;
-            overflow: hidden;
-            height: auto;
-            border-radius: 8px;
-        }
-
-        .logo-container {
-            text-align: center;
-            margin-bottom: -250px;
-        }
-
-        .logo {
-            max-width: 150px;
-            height: auto;
-        }
-
-        .login-container {
-            background-color: #ffffff;
-            width: 100%;
-            text-align: center;
-        }
-
-        .login-header {
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .login-header h1 {
-            color: #3052a0;
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0;
-            text-transform: uppercase;
-        }
-
-        .form-group {
-            text-align: left;
-            width: 100%;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: border-color 0.2s;
-            box-sizing: border-box;
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 12px;
-            background-color: #3052a0;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .btn-login:hover {
-            background-color: #243b78;
-        }
-
-        .password-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .password-actions a {
-            text-decoration: none;
-            color: #3052a0;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 12px;
-            color: #777;
-        }
-
-        @media (max-width: 992px) {
+        <style>
             body {
-                flex-direction: column;
-                justify-content: flex-start;
+                background-color: #ffffff;
+                font-family: 'Poppins', sans-serif;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                min-height: 100vh;
+                overflow: hidden;
+                justify-content: center;
+                align-items: center;
             }
-
+        
             .left-panel {
-                height: 40vh;
-                width: 100%;
+                flex: 1;
+                height: 100vh;
+                overflow: hidden;
+                position: relative;
             }
-
+        
+            .left-panel img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+        
             .right-panel {
-                width: 100%;
+                width: 451px;
+                height: 100vh;
+                padding: 40px;
+                background-color: #ffffff;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+                z-index: 1;
+                overflow: visible; /* Ensure content is not clipped */
                 box-sizing: border-box;
-                padding: 30px 20px;
-                height: auto;
             }
-        }
-    </style>
+        
+            .logo-container {
+                text-align: center;
+                margin-bottom: 20px; /* Positive margin */
+                width: 100%; /* Ensure it takes full width */
+            }
+        
+            .logo {
+                max-width: 100%; /* Scale with container */
+                height: auto; /* Maintain aspect ratio */
+                width: 150px; /* Default size */
+            }
+        
+            .login-container {
+                background-color: #ffffff;
+                width: 100%;
+                text-align: center;
+            }
+        
+            .login-header {
+                margin-bottom: 30px;
+                text-align: center;
+            }
+        
+            .login-header h1 {
+                color: #3052a0;
+                font-size: 2rem;
+                font-weight: 700;
+                margin: 0;
+                text-transform: uppercase;
+            }
+        
+            .form-group {
+                text-align: left;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                color: #555;
+                font-weight: 500;
+                font-size: 14px;
+            }
+        
+            .form-control {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 14px;
+                transition: border-color 0.2s;
+                box-sizing: border-box;
+            }
+        
+            .btn-login {
+                width: 100%;
+                padding: 12px;
+                background-color: #3052a0;
+                border: none;
+                border-radius: 4px;
+                color: white;
+                font-size: 16px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: background-color 0.2s;
+            }
+        
+            .btn-login:hover {
+                background-color: #243b78;
+            }
+        
+            .password-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                margin-top: 20px;
+                text-align: center;
+            }
+        
+            .password-actions a {
+                text-decoration: none;
+                color: #3052a0;
+                font-size: 14px;
+                font-weight: 500;
+            }
+        
+            .footer {
+                margin-top: 40px;
+                text-align: center;
+                font-size: 12px;
+                color: #777;
+            }
+        
+            /* Responsive Adjustments */
+            @media (max-width: 992px) {
+                body {
+                    flex-direction: column;
+                    justify-content: flex-start;
+                }
+        
+                .left-panel {
+                    height: 40vh;
+                    width: 100%;
+                }
+        
+                .right-panel {
+                    width: 100%;
+                    height: auto;
+                    padding: 30px 20px;
+                    box-shadow: none;
+                }
+        
+                .logo {
+                    width: 120px; /* Smaller logo for medium screens */
+                }
+            }
+        
+            @media (max-width: 768px) {
+                .right-panel {
+                    padding: 20px;
+                }
+        
+                .logo {
+                    width: 100px; /* Smaller logo for small screens */
+                }
+            }
+        
+            @media (max-width: 480px) {
+                .right-panel {
+                    padding: 15px;
+                }
+        
+                .logo {
+                    width: 80px; /* Smaller logo for very small screens */
+                }
+            }
+        </style>
 </head>
 <body>
     <div class="left-panel">
