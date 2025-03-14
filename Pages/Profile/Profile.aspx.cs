@@ -19,7 +19,6 @@ namespace FETS.Pages.Profile
 
             if (!IsPostBack)
             {
-                lblUsername.Text = User.Identity.Name;
                 CheckAdminAccess();
                 if (pnlUserManagement.Visible)
                 {
@@ -192,17 +191,6 @@ namespace FETS.Pages.Profile
             txtCurrentPassword.Text = string.Empty;
             txtNewPassword.Text = string.Empty;
             txtConfirmPassword.Text = string.Empty;
-        }
-
-        protected void btnLogout_Click(object sender, EventArgs e)
-        {
-            FormsAuthentication.SignOut();
-            Response.Redirect("~/Default.aspx");
-        }
-
-        protected void btnBack_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("~/Pages/Dashboard/Dashboard.aspx");
         }
     }
 } 
