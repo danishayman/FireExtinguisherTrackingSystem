@@ -95,16 +95,20 @@
 
             .message {
                 display: block;
-                width: 100%;
-                padding: 12px;
-                margin-bottom: 20px;
+                position: absolute;
+                bottom: 20px; /* Adjust position from bottom */
+                right: 20px; /* Align to bottom-right */
+                width: auto;
+                max-width: 300px; /* Prevent excessive width */
+                padding: 12px 20px;
                 background-color: #ffe8e8;
                 color: #d63031;
                 border-left: 4px solid #d63031;
                 border-radius: 4px;
                 font-size: 14px;
                 text-align: left;
-                box-sizing: border-box;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                z-index: 10;
             }
 
             .form-group {
@@ -252,14 +256,11 @@
             <div class="logo-container">
                 <img src="Uploads/misc/logo.jpeg" alt="FETS Logo" class="logo" />
             </div>
-
+           
             <div class="login-container">
                 <div class="login-header">
                     <h1>FETS LOGIN SITE</h1>
                 </div>
-
-                <asp:Label ID="lblMessage" runat="server" CssClass="message" Visible="false"></asp:Label>
-
                 <div class="form-group">
                     <asp:Label ID="lblUsername" runat="server" Text="Username:" AssociatedControlID="txtUsername"></asp:Label>
                     <asp:TextBox ID="txtUsername" runat="server" CssClass="form-control" placeholder="Enter your username"></asp:TextBox>
@@ -279,6 +280,7 @@
                 </div>
             </div>
         </form>
+        <asp:Label ID="lblMessage" runat="server" CssClass="message" Visible="false"></asp:Label>
     </div>
 </body>
 </html>
