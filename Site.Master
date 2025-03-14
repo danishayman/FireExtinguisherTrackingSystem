@@ -6,65 +6,110 @@
     <title><%: Page.Title %> - FETS</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="~/Assets/css/styles.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <style>
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f8f9fa;
             margin: 0;
             padding: 0;
+            display: flex;
         }
 
-        .nav-bar {
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #ffffff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             z-index: 1000;
-            padding: 10px 20px;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid #f0f0f0;
         }
 
-        .nav-buttons {
-            display: flex;
-            gap: 15px;
-            align-items: center;
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
         }
 
-        .nav-buttons .btn {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            transition: all 0.3s ease;
-            padding: 8px 16px;
-            border-radius: 4px;
-            text-decoration: none;
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: #007bff;
+            font-size: 1.5rem;
             cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
         }
 
-        .nav-buttons .btn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
+        .sidebar-toggle:hover {
+            background-color: rgba(0, 123, 255, 0.1);
         }
 
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 15px 20px;
+            color: #555;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+            border-left-color: #007bff;
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* User info in sidebar */
         .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            color: white;
+            padding: 15px 20px;
+            border-top: 1px solid #f0f0f0;
+            margin-top: auto;
+            color: #555;
             font-size: 14px;
         }
 
         .btn-logout {
-            padding: 8px 16px;
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
             background-color: rgba(220, 53, 69, 0.1);
             border: 1px solid rgba(220, 53, 69, 0.2);
-            color: white;
+            color: #dc3545;
             transition: all 0.3s ease;
             border-radius: 4px;
+            text-align: center;
             text-decoration: none;
             cursor: pointer;
         }
@@ -74,22 +119,34 @@
             border-color: rgba(220, 53, 69, 0.3);
         }
 
+        /* Main content area */
         .main-content {
-            margin-top: 70px;
+            margin-left: 250px;
             padding: 20px;
+            width: calc(100% - 250px);
+            transition: all 0.3s ease;
         }
 
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-            color: white;
+        /* Collapsed sidebar */
+        .sidebar-collapsed .sidebar {
+            width: 70px;
         }
 
-        .btn-primary:hover {
-            background-color: #0069d9;
-            border-color: #0062cc;
+        .sidebar-collapsed .sidebar-brand,
+        .sidebar-collapsed .nav-link span {
+            display: none;
         }
 
+        .sidebar-collapsed .main-content {
+            margin-left: 70px;
+            width: calc(100% - 70px);
+        }
+
+        .sidebar-collapsed .user-info {
+            display: none;
+        }
+
+        /* Form controls and buttons */
         .form-control {
             display: block;
             width: 100%;
@@ -111,26 +168,110 @@
             outline: 0;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-brand,
+            .nav-link span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+                width: calc(100% - 70px);
+            }
+            
+            .user-info {
+                display: none;
+            }
+            
+            .sidebar-expanded .sidebar {
+                width: 250px;
+            }
+            
+            .sidebar-expanded .sidebar-brand,
+            .sidebar-expanded .nav-link span {
+                display: inline;
+            }
+            
+            .sidebar-expanded .user-info {
+                display: block;
+            }
+        }
     </style>
+    <script type="text/javascript">
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-collapsed');
+        }
+    </script>
     <asp:ContentPlaceHolder ID="HeadContent" runat="server">
     </asp:ContentPlaceHolder>
 </head>
 <body>
     <form runat="server">
-        <!-- Navigation Bar -->
-        <nav class="nav-bar" id="navBar" runat="server" visible="true">
-            <div class="nav-buttons">
-                <asp:Button ID="btnDashboard" runat="server" Text="Dashboard" OnClick="btnDashboard_Click" CssClass="btn btn-primary" EnableViewState="true" CausesValidation="false" />
-                <asp:Button ID="btnDataEntry" runat="server" Text="Data Entry" OnClick="btnDataEntry_Click" CssClass="btn btn-primary" EnableViewState="true" CausesValidation="false" />
-                <asp:Button ID="btnViewSection" runat="server" Text="View Section" OnClick="btnViewSection_Click" CssClass="btn btn-primary" EnableViewState="true" CausesValidation="false" />
-                <asp:Button ID="btnMapLayout" runat="server" Text="Map Layout" OnClick="btnMapLayout_Click" CssClass="btn btn-primary" EnableViewState="true" CausesValidation="false" />
-                <asp:Button ID="btnProfile" runat="server" Text="Profile Management" OnClick="btnProfile_Click" CssClass="btn btn-primary" EnableViewState="true" CausesValidation="false" />
+        <!-- Sidebar Navigation -->
+        <div class="sidebar" id="sidebar" runat="server" visible="true">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">FETS</div>
+                <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <asp:LinkButton ID="btnDashboard" runat="server" CssClass="nav-link" OnClick="btnDashboard_Click" EnableViewState="true" CausesValidation="false">
+                        <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                    </asp:LinkButton>
+                </li>
+                <li class="nav-item">
+                    <asp:LinkButton ID="btnDataEntry" runat="server" CssClass="nav-link" OnClick="btnDataEntry_Click" EnableViewState="true" CausesValidation="false">
+                        <i class="fas fa-edit"></i> <span>Data Entry</span>
+                    </asp:LinkButton>
+                </li>
+                <li class="nav-item">
+                    <asp:LinkButton ID="btnViewSection" runat="server" CssClass="nav-link" OnClick="btnViewSection_Click" EnableViewState="true" CausesValidation="false">
+                        <i class="fas fa-table"></i> <span>View Section</span>
+                    </asp:LinkButton>
+                </li>
+                <li class="nav-item">
+                    <asp:LinkButton ID="btnMapLayout" runat="server" CssClass="nav-link" OnClick="btnMapLayout_Click" EnableViewState="true" CausesValidation="false">
+                        <i class="fas fa-map"></i> <span>Map Layout</span>
+                    </asp:LinkButton>
+                </li>
+                <li class="nav-item">
+                    <asp:LinkButton ID="btnProfile" runat="server" CssClass="nav-link" OnClick="btnProfile_Click" EnableViewState="true" CausesValidation="false">
+                        <i class="fas fa-user"></i> <span>Profile Management</span>
+                    </asp:LinkButton>
+                </li>
+            </ul>
+            
             <div class="user-info">
                 Welcome, <asp:Label ID="lblUsername" runat="server" EnableViewState="true"></asp:Label>
-                <asp:LinkButton ID="btnLogout" runat="server" OnClick="btnLogout_Click" CssClass="btn btn-logout" EnableViewState="true" CausesValidation="false">Logout</asp:LinkButton>
+                <asp:LinkButton ID="btnLogout" runat="server" OnClick="btnLogout_Click" CssClass="btn-logout" EnableViewState="true" CausesValidation="false">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </asp:LinkButton>
             </div>
-        </nav>
+        </div>
 
         <div class="main-content">
             <asp:ContentPlaceHolder ID="MainContent" runat="server">
