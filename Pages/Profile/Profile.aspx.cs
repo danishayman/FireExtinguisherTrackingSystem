@@ -26,7 +26,7 @@ namespace FETS.Pages.Profile
                 }
             }
         }
-
+//test saja
         private void CheckAdminAccess()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
