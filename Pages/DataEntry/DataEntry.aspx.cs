@@ -19,7 +19,6 @@ namespace FETS.Pages.DataEntry
 
             if (!IsPostBack)
             {
-                lblUsername.Text = User.Identity.Name;
                 LoadDropDownLists();
             }
         }
@@ -250,18 +249,6 @@ namespace FETS.Pages.DataEntry
             ddlLevel.Items.Clear();
             ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
             ddlType.SelectedIndex = 0;
-        }
-
-        protected void btnBack_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("~/Pages/Dashboard.aspx");
-        }
-
-        protected void btnLogout_Click(object sender, EventArgs e)
-        {
-            FormsAuthentication.SignOut();
-            Session.Clear();
-            Response.Redirect("~/Default.aspx");
         }
     }
 } 
