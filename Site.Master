@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title><%: Page.Title %> - FETS</title>
+    <title><%: Page.Title %>INARI - FETS</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="~/Assets/css/styles.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
@@ -28,6 +28,10 @@
             z-index: 1000;
             transition: all 0.3s ease;
             overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .sidebar-header {
@@ -42,6 +46,8 @@
             font-size: 1.5rem;
             font-weight: 600;
             color: #333;
+            text-align: center;
+            width: 100%;
         }
 
         .sidebar-toggle {
@@ -94,29 +100,50 @@
         .user-info {
             padding: 15px 20px;
             border-top: 1px solid #f0f0f0;
-            margin-top: auto;
             color: #555;
-            font-size: 14px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .logout-container {
+            padding: 15px 20px;
+            border-top: 1px solid #f0f0f0;
+            margin-top: auto;
+            text-align: center;
+            position: sticky;
+            bottom: 0;
+            background-color: #ffffff;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .btn-logout {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            background-color: rgba(220, 53, 69, 0.1);
-            border: 1px solid rgba(220, 53, 69, 0.2);
-            color: #dc3545;
+            padding: 12px 15px;
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+            color: #e53935;
             transition: all 0.3s ease;
-            border-radius: 4px;
-            text-align: center;
+            border-radius: 6px;
             text-decoration: none;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .btn-logout i {
+            margin-right: 10px;
+            font-size: 16px;
         }
 
         .btn-logout:hover {
-            background-color: rgba(220, 53, 69, 0.2);
-            border-color: rgba(220, 53, 69, 0.3);
+            background-color: #ffcdd2;
+            border-color: #ef9a9a;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         /* Main content area */
@@ -237,6 +264,10 @@
                 </button>
             </div>
             
+            <div class="user-info">
+                Welcome, <asp:Label ID="lblUsername" runat="server" EnableViewState="true"></asp:Label>
+            </div>
+            
             <ul class="nav-menu">
                 <li class="nav-item">
                     <asp:LinkButton ID="btnDashboard" runat="server" CssClass="nav-link" OnClick="btnDashboard_Click" EnableViewState="true" CausesValidation="false">
@@ -260,13 +291,12 @@
                 </li>
                 <li class="nav-item">
                     <asp:LinkButton ID="btnProfile" runat="server" CssClass="nav-link" OnClick="btnProfile_Click" EnableViewState="true" CausesValidation="false">
-                        <i class="fas fa-user"></i> <span>Profile Management</span>
+                        <i class="fas fa-user"></i> <span>Profile</span>
                     </asp:LinkButton>
                 </li>
             </ul>
             
-            <div class="user-info">
-                Welcome, <asp:Label ID="lblUsername" runat="server" EnableViewState="true"></asp:Label>
+            <div class="logout-container">
                 <asp:LinkButton ID="btnLogout" runat="server" OnClick="btnLogout_Click" CssClass="btn-logout" EnableViewState="true" CausesValidation="false">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </asp:LinkButton>
