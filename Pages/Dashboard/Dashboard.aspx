@@ -3,121 +3,159 @@
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Base styles */
+        /* Base styles to match View Section and Data Entry */
         :root {
-            --primary-color: #3498db;
-            --success-color: #2ecc71;
-            --warning-color: #f1c40f;
-            --danger-color: #e74c3c;
-            --alert-color: #e67e22;
-            --text-color: #2c3e50;
-            --text-secondary: #6c757d;
-            --border-color: #eef2f7;
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 8px rgba(0,0,0,0.15);
-            --radius: 10px;
-            --spacing-sm: 15px;
-            --spacing-md: 25px;
-            --spacing-lg: 30px;
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --alert-color: #fd7e14;
+            --text-color: #333;
+            --text-secondary: #666;
+            --border-color: #dee2e6;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --radius: 5px;
         }
 
         /* Layout */
         .dashboard-container {
-            padding: var(--spacing-md);
-            max-width: 1400px;
+            padding: 20px;
+            max-width: 1200px;
             margin: 0 auto;
             width: 100%;
         }
 
         .dashboard-header {
-            justify-content: center;
             width: 100%;
+            max-width: 1100px;
+            min-width: 1000px;
             text-align: center;
-            background: white;
-            padding: var(--spacing-md);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            margin-bottom: var(--spacing-lg);
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 0 auto 30px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
         }
 
         .dashboard-header h2 {
             margin: 0;
-            color: var(--text-color);
-            font-size: 28px;
+            color: #333;
+            font-size: 1.75rem;
             font-weight: 600;
+            padding-bottom: 15px;
+            text-align: center;
+            width: 100%;
+            border-bottom: 2px solid #007bff;
         }
 
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
             width: 100%;
         }
 
         /* Chart section */
         .chart-section {
-            background: white;
-            padding: var(--spacing-lg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             width: 100%;
+            max-width: 1100px;
+            min-width: 1000px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            height: auto;
         }
 
         .chart-section h3 {
-            margin: 0 0 var(--spacing-md) 0;
-            color: var(--text-color);
-            font-size: 22px;
+            margin: 0 0 20px 0;
+            color: #333;
+            font-size: 1.5rem;
             text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+            width: 100%;
         }
 
         .chart-container {
             width: 100%;
-            height: 400px;
+            height: 350px;
             max-width: 500px;
             margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         /* Plants section */
         .plants-section {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1100px;
+            min-width: 1000px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            padding-bottom: 50px;
+        }
+
+        .plants-section h3 {
+            margin: 0 0 20px 0;
+            color: #333;
+            font-size: 1.5rem;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
             width: 100%;
         }
 
         .plants-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: var(--spacing-lg);
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 40px;
             width: 100%;
-            margin-left: var(--spacing-md);
+            padding: 15px;
         }
 
         .plant-card {
-            background: white;
-            padding: var(--spacing-md);
-            border-radius: var(--radius);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             display: flex;
             flex-direction: column;
             height: 100%;
-            border: 1px solid var(--border-color);
+            border: 1px solid #dee2e6;
+            margin: 10px;
+            position: relative;
+            isolation: isolate;
         }
 
         .plant-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
         }
 
         .plant-title {
-            color: var(--text-color);
-            font-size: 22px;
+            color: #333;
+            font-size: 1.3rem;
             font-weight: 600;
-            margin-bottom: var(--spacing-md);
-            padding-bottom: var(--spacing-sm);
-            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #007bff;
             text-align: center;
+            position: relative;
         }
 
         .stats-list {
@@ -133,8 +171,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: var(--spacing-sm) 0;
-            border-bottom: 1px solid var(--border-color);
+            padding: 12px 0;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 8px;
         }
 
         .stat-item:last-child {
@@ -143,12 +182,12 @@
 
         .stat-label {
             color: var(--text-secondary);
-            font-size: 15px;
+            font-size: 0.95rem;
             font-weight: 500;
         }
 
         .stat-value {
-            font-size: 20px;
+            font-size: 1.1rem;
             font-weight: 600;
             min-width: 60px;
             text-align: right;
@@ -159,30 +198,15 @@
         .stat-value.in-use { color: var(--success-color); }
         .stat-value.under-service { color: var(--warning-color); }
         .stat-value.expired { color: var(--danger-color); }
-        .stat-value.expiring-soon { color: var(--alert-color);}
+        .stat-value.expiring-soon { color: var(--alert-color); }
 
         /* Responsive adjustments */
-        @media (min-width: 992px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .chart-section {
-                grid-column: 1;
-            }
-            
-            .plants-section {
-                grid-column: 2;
-            }
-        }
-
-        @media (max-width: 991px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .chart-section, .plants-section {
-                grid-column: 1;
+        @media (max-width: 1200px) {
+            .chart-section,
+            .plants-section,
+            .dashboard-header {
+                min-width: auto;
+                width: 100%;
             }
         }
 
@@ -194,38 +218,15 @@
             .chart-container {
                 height: 300px;
             }
-            
-            .dashboard-header h2 {
-                font-size: 24px;
-            }
-            
-            .chart-section h3 {
-                font-size: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .dashboard-container {
-                padding: 15px;
-            }
-            
-            .dashboard-header, .chart-section, .plant-card {
-                padding: 15px;
-            }
-            
-            .chart-container {
-                height: 250px;
-            }
         }
     </style>
 </asp:Content>
 
 <asp:Content ID="MainContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="dashboard-container">
-        <!-- Header Section -->
-        <header class="dashboard-header">
+        <div class="dashboard-header">
             <h2>Fire Extinguisher Tracking System</h2>
-        </header>
+        </div>
 
         <div class="dashboard-grid">
             <!-- Chart Section -->
@@ -239,6 +240,7 @@
 
             <!-- Plants Section -->
             <section class="plants-section">
+                <h3>Plant Statistics</h3>
                 <div class="plants-grid">
                     <asp:Repeater ID="rptPlants" runat="server">
                         <ItemTemplate>

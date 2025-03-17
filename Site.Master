@@ -28,7 +28,7 @@
             left: 0;
             z-index: 1000;
             transition: all 0.3s ease;
-            overflow-y: auto;
+            overflow-y: hidden;
             overflow-x: hidden;
             display: flex;
             flex-direction: column;
@@ -44,7 +44,7 @@
         }
 
         .sidebar-brand {
-            font-size: 1.5rem;
+            font-size: 1rem;
             font-weight: 600;
             color: #333;
             text-align: center;
@@ -302,41 +302,34 @@
         .btn-logout span {
             opacity: 1;
             transform: translateX(0);
-            transition: all 0.3s ease;
+            transition: none;
             white-space: nowrap;
-        }
-
-        /* Collapsed state animations */
-        .sidebar-collapsed .sidebar-brand, 
-        .sidebar-collapsed .nav-link span,
-        .sidebar-collapsed .user-info,
-        .sidebar-collapsed .btn-logout span {
-            opacity: 0;
-            transform: translateX(-20px);
-            transition: all 0.2s ease;
         }
 
         /* Ensure the sidebar transition is smooth */
         .sidebar {
             width: 250px;
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: none;
         }
 
         .sidebar-collapsed .sidebar {
             width: 70px;
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Smooth transition for main content */
         .main-content {
             margin-left: 250px;
             width: calc(100% - 250px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: none;
         }
 
-        .sidebar-collapsed .main-content {
-            margin-left: 70px;
-            width: calc(100% - 70px);
+        /* Add transitions only after page load */
+        body:not(.sidebar-initial) .sidebar,
+        body:not(.sidebar-initial) .main-content,
+        body:not(.sidebar-initial) .sidebar-brand,
+        body:not(.sidebar-initial) .nav-link span,
+        body:not(.sidebar-initial) .user-info,
+        body:not(.sidebar-initial) .btn-logout span {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -376,11 +369,18 @@
         
         // Add this new function to handle auto-collapse
         document.addEventListener('DOMContentLoaded', function() {
-            // Restore sidebar state from localStorage
+            // Restore sidebar state from localStorage before any transitions
             const sidebarState = localStorage.getItem('sidebarState');
             if (sidebarState === 'collapsed') {
                 document.body.classList.add('sidebar-collapsed');
             }
+            
+            // Remove initial class after a brief delay to enable future transitions
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    document.body.classList.remove('sidebar-initial');
+                });
+            });
             
             // Get reference to the sidebar
             const sidebar = document.getElementById('sidebar');
@@ -426,20 +426,17 @@
     <asp:ContentPlaceHolder ID="HeadContent" runat="server">
     </asp:ContentPlaceHolder>
 </head>
-<body>
+<body class="sidebar-initial">
     <form runat="server">
         <!-- Sidebar Navigation -->
         <div class="sidebar" id="sidebar" runat="server" visible="true">
             <div class="sidebar-header">
-                <div class="sidebar-brand">FETS</div>
+                <div class="sidebar-brand">Welcome, <asp:Label ID="lblUsername" runat="server" EnableViewState="true"></asp:Label></div>
                 <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
-            
-            <div class="user-info">
-                Welcome, <asp:Label ID="lblUsername" runat="server" EnableViewState="true"></asp:Label>
-            </div>
+        
             
             <ul class="nav-menu">
                 <li class="nav-item">
