@@ -275,6 +275,28 @@
         function toggleSidebar() {
             document.body.classList.toggle('sidebar-collapsed');
         }
+        
+        // Add this new function to handle auto-collapse
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get reference to the sidebar
+            const sidebar = document.getElementById('sidebar');
+            
+            // Add click event listener to the document
+            document.addEventListener('click', function(event) {
+                // Check if the click is outside the sidebar
+                if (!sidebar.contains(event.target) && 
+                    !event.target.classList.contains('sidebar-toggle') && 
+                    !document.body.classList.contains('sidebar-collapsed')) {
+                    document.body.classList.add('sidebar-collapsed');
+                }
+            });
+            
+            // Prevent clicks on the toggle button from triggering the document click handler
+            const toggleButton = document.querySelector('.sidebar-toggle');
+            toggleButton.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        });
     </script>
     <asp:ContentPlaceHolder ID="HeadContent" runat="server">
     </asp:ContentPlaceHolder>
