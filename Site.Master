@@ -22,6 +22,7 @@
             height: 100vh;
             background-color: #ffffff;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            box-sizing: border-box;
             position: fixed;
             top: 0;
             left: 0;
@@ -106,7 +107,7 @@
         }
 
         .logout-container {
-            padding: 15px 20px;
+            padding: 15px 10px;
             border-top: 1px solid #f0f0f0;
             margin-top: auto;
             text-align: center;
@@ -118,11 +119,12 @@
         }
 
         .btn-logout {
+            box-sizing: border-box;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
-            padding: 12px 15px;
+            padding: 12px 10px;
             background-color: #ffebee;
             border: 1px solid #ffcdd2;
             color: #e53935;
@@ -171,6 +173,30 @@
 
         .sidebar-collapsed .user-info {
             display: none;
+        }
+        
+        /* Add these new styles for collapsed logout button */
+        .sidebar-collapsed .btn-logout span {
+            display: none;
+        }
+        
+        .sidebar-collapsed .btn-logout {
+            justify-content: center;
+            padding: 12px;
+        }
+        
+        .sidebar-collapsed .btn-logout i {
+            margin-right: 0;
+        }
+        
+        /* Add this to show only the logo icon when collapsed */
+        .sidebar-collapsed .sidebar-brand {
+            display: none;
+        }
+        
+        .sidebar-collapsed .sidebar-header {
+            justify-content: center;
+            padding: 20px 0;
         }
 
         /* Form controls and buttons */
@@ -298,7 +324,7 @@
             
             <div class="logout-container">
                 <asp:LinkButton ID="btnLogout" runat="server" OnClick="btnLogout_Click" CssClass="btn-logout" EnableViewState="true" CausesValidation="false">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                    <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
                 </asp:LinkButton>
             </div>
         </div>
