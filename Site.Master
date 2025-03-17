@@ -27,7 +27,7 @@
             top: 0;
             left: 0;
             z-index: 1000;
-            transition: width 0.3s ease;
+            transition: all 0.3s ease;
             overflow-y: auto;
             overflow-x: hidden;
             display: flex;
@@ -153,16 +153,12 @@
             margin-left: 250px;
             padding: 20px;
             width: calc(100% - 250px);
-            transition: margin-left 0.3s ease, width 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         /* Collapsed sidebar */
         .sidebar-collapsed .sidebar {
             width: 70px;
-        }
-
-        .sidebar-collapsed .sidebar:hover {
-            width: 250px;
         }
 
         .sidebar-collapsed .sidebar-brand,
@@ -318,28 +314,24 @@
             transition: opacity 0.2s ease, visibility 0.2s ease;
         }
 
-        /* Show text when hovering over collapsed sidebar */
-        .sidebar-collapsed .sidebar:hover .sidebar-brand,
-        .sidebar-collapsed .sidebar:hover .nav-link span,
-        .sidebar-collapsed .sidebar:hover .user-info,
-        .sidebar-collapsed .sidebar:hover .btn-logout span {
-            opacity: 1;
-            visibility: visible;
-            display: inline;
-        }
-
-        .sidebar-collapsed .sidebar:hover .sidebar-header {
-            justify-content: space-between;
+        /* Ensure the main content transitions smoothly too */
+        .main-content {
+            margin-left: 250px;
             padding: 20px;
+            width: calc(100% - 250px);
+            transition: all 0.3s ease;
         }
 
-        .sidebar-collapsed .sidebar:hover .btn-logout {
-            justify-content: center;
-            padding: 12px 10px;
+        /* Adjust the transition timing for a smoother feel */
+        .sidebar-collapsed .sidebar {
+            width: 70px;
+            transition: width 0.3s ease;
         }
 
-        .sidebar-collapsed .sidebar:hover .btn-logout i {
-            margin-right: 10px;
+        .sidebar-collapsed .main-content {
+            margin-left: 70px;
+            width: calc(100% - 70px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
         }
     </style>
     <script type="text/javascript">
@@ -354,7 +346,7 @@
             }
         }
         
-        // Update the JavaScript to remove the auto-collapse on document click
+        // Add this new function to handle auto-collapse
         document.addEventListener('DOMContentLoaded', function() {
             // Restore sidebar state from localStorage
             const sidebarState = localStorage.getItem('sidebarState');
@@ -365,10 +357,32 @@
             // Get reference to the sidebar
             const sidebar = document.getElementById('sidebar');
             
-            // Prevent clicks on the toggle button from triggering the document click handler
+            // Add click event listener to the sidebar
+            sidebar.addEventListener('click', function(event) {
+                // If sidebar is collapsed, expand it
+                if (document.body.classList.contains('sidebar-collapsed')) {
+                    document.body.classList.remove('sidebar-collapsed');
+                    localStorage.setItem('sidebarState', 'expanded');
+                    event.stopPropagation(); // Prevent document click from immediately collapsing it
+                }
+            });
+            
+            // Add click event listener to the document
+            document.addEventListener('click', function(event) {
+                // Check if the click is outside the sidebar
+                if (!sidebar.contains(event.target) && 
+                    !event.target.classList.contains('sidebar-toggle') && 
+                    !document.body.classList.contains('sidebar-collapsed')) {
+                    document.body.classList.add('sidebar-collapsed');
+                    localStorage.setItem('sidebarState', 'collapsed');
+                }
+            });
+            
+            // Prevent clicks on the toggle button from triggering the sidebar expansion
             const toggleButton = document.querySelector('.sidebar-toggle');
             toggleButton.addEventListener('click', function(event) {
                 event.stopPropagation();
+                toggleSidebar();
             });
             
             // Add event listeners to all navigation links to maintain collapsed state
