@@ -39,7 +39,7 @@ namespace FETS
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDataEntry;
+        protected global::System.Web.UI.WebControls.LinkButton btnDataEntry;
 
         /// <summary>
         /// btnViewSection control.
@@ -48,7 +48,7 @@ namespace FETS
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnViewSection;
+        protected global::System.Web.UI.WebControls.LinkButton btnViewSection;
 
         /// <summary>
         /// btnMapLayout control.
@@ -57,7 +57,7 @@ namespace FETS
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnMapLayout;
+        protected global::System.Web.UI.WebControls.LinkButton btnMapLayout;
 
         /// <summary>
         /// btnProfile control.
@@ -66,7 +66,7 @@ namespace FETS
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnProfile;
+        protected global::System.Web.UI.WebControls.LinkButton btnProfile;
 
         /// <summary>
         /// lblUsername control.
@@ -85,6 +85,15 @@ namespace FETS
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.LinkButton btnLogout;
+
+        /// <summary>
+        /// btnDashboard control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnDashboard;
 
         /// <summary>
         /// MainContent control.

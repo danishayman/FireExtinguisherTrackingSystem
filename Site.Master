@@ -22,6 +22,7 @@
             height: 100vh;
             background-color: #ffffff;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            box-sizing: border-box;
             position: fixed;
             top: 0;
             left: 0;
@@ -106,7 +107,7 @@
         }
 
         .logout-container {
-            padding: 15px 20px;
+            padding: 15px 10px;
             border-top: 1px solid #f0f0f0;
             margin-top: auto;
             text-align: center;
@@ -118,11 +119,12 @@
         }
 
         .btn-logout {
+            box-sizing: border-box;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
-            padding: 12px 15px;
+            padding: 12px 10px;
             background-color: #ffebee;
             border: 1px solid #ffcdd2;
             color: #e53935;
@@ -171,6 +173,30 @@
 
         .sidebar-collapsed .user-info {
             display: none;
+        }
+        
+        /* Add these new styles for collapsed logout button */
+        .sidebar-collapsed .btn-logout span {
+            display: none;
+        }
+        
+        .sidebar-collapsed .btn-logout {
+            justify-content: center;
+            padding: 12px;
+        }
+        
+        .sidebar-collapsed .btn-logout i {
+            margin-right: 0;
+        }
+        
+        /* Add this to show only the logo icon when collapsed */
+        .sidebar-collapsed .sidebar-brand {
+            display: none;
+        }
+        
+        .sidebar-collapsed .sidebar-header {
+            justify-content: center;
+            padding: 20px 0;
         }
 
         /* Form controls and buttons */
@@ -244,11 +270,158 @@
                 display: block;
             }
         }
+
+        /* Enhance the active state styling */
+        .nav-link.active {
+            background-color: rgba(0, 123, 255, 0.15);
+            color: #007bff;
+            border-left-color: #007bff;
+            font-weight: 500;
+        }
+        
+        .nav-link.active i {
+            color: #007bff;
+        }
+        
+        /* Make sure the active state is visible even when sidebar is collapsed */
+        .sidebar-collapsed .nav-link.active {
+            background-color: rgba(0, 123, 255, 0.15);
+            border-left-color: #007bff;
+        }
+        
+        .sidebar-collapsed .nav-link.active i {
+            color: #007bff;
+        }
+
+        /* Update/add these styles */
+
+        /* Base styles for sidebar elements */
+        .sidebar-brand, 
+        .nav-link span,
+        .user-info,
+        .btn-logout span {
+            opacity: 1;
+            transform: translateX(0);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        /* Collapsed state animations */
+        .sidebar-collapsed .sidebar-brand, 
+        .sidebar-collapsed .nav-link span,
+        .sidebar-collapsed .user-info,
+        .sidebar-collapsed .btn-logout span {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.2s ease;
+        }
+
+        /* Ensure the sidebar transition is smooth */
+        .sidebar {
+            width: 250px;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-collapsed .sidebar {
+            width: 70px;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Smooth transition for main content */
+        .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-collapsed .main-content {
+            margin-left: 70px;
+            width: calc(100% - 70px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Ensure icons stay centered during transition */
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+            transition: margin 0.3s ease;
+        }
+
+        .sidebar-collapsed .nav-link i {
+            margin-right: 0;
+        }
+
+        /* Improve hover state transitions */
+        .nav-link {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Optional: Add overflow handling to prevent text flash */
+        .sidebar {
+            overflow-x: hidden;
+        }
     </style>
     <script type="text/javascript">
         function toggleSidebar() {
             document.body.classList.toggle('sidebar-collapsed');
+            
+            // Save sidebar state to localStorage
+            if (document.body.classList.contains('sidebar-collapsed')) {
+                localStorage.setItem('sidebarState', 'collapsed');
+            } else {
+                localStorage.setItem('sidebarState', 'expanded');
+            }
         }
+        
+        // Add this new function to handle auto-collapse
+        document.addEventListener('DOMContentLoaded', function() {
+            // Restore sidebar state from localStorage
+            const sidebarState = localStorage.getItem('sidebarState');
+            if (sidebarState === 'collapsed') {
+                document.body.classList.add('sidebar-collapsed');
+            }
+            
+            // Get reference to the sidebar
+            const sidebar = document.getElementById('sidebar');
+            
+            // Add click event listener to the sidebar
+            sidebar.addEventListener('click', function(event) {
+                // If sidebar is collapsed, expand it
+                if (document.body.classList.contains('sidebar-collapsed')) {
+                    document.body.classList.remove('sidebar-collapsed');
+                    localStorage.setItem('sidebarState', 'expanded');
+                    event.stopPropagation(); // Prevent document click from immediately collapsing it
+                }
+            });
+            
+            // Add click event listener to the document
+            document.addEventListener('click', function(event) {
+                // Check if the click is outside the sidebar
+                if (!sidebar.contains(event.target) && 
+                    !event.target.classList.contains('sidebar-toggle') && 
+                    !document.body.classList.contains('sidebar-collapsed')) {
+                    document.body.classList.add('sidebar-collapsed');
+                    localStorage.setItem('sidebarState', 'collapsed');
+                }
+            });
+            
+            // Prevent clicks on the toggle button from triggering the sidebar expansion
+            const toggleButton = document.querySelector('.sidebar-toggle');
+            toggleButton.addEventListener('click', function(event) {
+                event.stopPropagation();
+                toggleSidebar();
+            });
+            
+            // Add event listeners to all navigation links to maintain collapsed state
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(function(link) {
+                link.addEventListener('click', function() {
+                    // Don't need to do anything here - the state is already saved in localStorage
+                    // and will be restored on the next page
+                });
+            });
+        });
     </script>
     <asp:ContentPlaceHolder ID="HeadContent" runat="server">
     </asp:ContentPlaceHolder>
@@ -298,7 +471,7 @@
             
             <div class="logout-container">
                 <asp:LinkButton ID="btnLogout" runat="server" OnClick="btnLogout_Click" CssClass="btn-logout" EnableViewState="true" CausesValidation="false">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                    <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
                 </asp:LinkButton>
             </div>
         </div>
