@@ -3,85 +3,103 @@
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <style>
         .content-container {
+            flex: 1;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
             width: 100%;
-            display: flex;
-            justify-content: center;
         }
 
         .data-entry-form {
-            max-width: 1200px;
-            width: 95%;
-            margin: 20px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 1100px;
+            min-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        h3 {
+            text-align: center;
+            margin: 0 0 30px 0;
+            color: #333;
+            font-size: 1.75rem;
+            font-weight: 600;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #007bff;
         }
 
         .form-row {
             display: flex;
-            flex-wrap: wrap;
-            margin-right: -15px;
-            margin-left: -15px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
         .form-col {
-            flex: 0 0 50%;
-            max-width: 50%;
-            padding: 0 15px;
-            box-sizing: border-box;
+            flex: 1;
+            min-width: 0;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.95rem;
         }
 
         .form-control {
-            padding: 10px;
-            font-size: 16px;
-            min-height: 45px;
             width: 100%;
-            border: 1px solid #ced4da;
+            padding: 8px;
+            border: 1px solid #ddd;
             border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            min-height: 38px;
         }
 
         .form-control:focus {
-            border-color: #80bdff;
-            outline: 0;
+            border-color: #007bff;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
         }
 
-        h3 {
-            margin-bottom: 30px;
-            color: #333;
-            font-weight: 600;
-        }
-
-        .text-center {
-            text-align: center;
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
         }
 
         .btn-primary {
-            padding: 12px 24px;
-            font-size: 16px;
-            background-color: #0069d9;
-            border-color: #0062cc;
+            background-color: #007bff;
             color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 1.5rem;
+            min-width: 120px;
+            height: auto;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.15s ease-in-out;
-            min-width: 200px;
-            border: none;
+            transition: background-color 0.2s;
         }
 
         .btn-primary:hover {
             background-color: #0056b3;
-            border-color: #004085;
         }
 
         .validation-error {
             color: #dc3545;
-            font-size: 14px;
+            font-size: 0.875rem;
             margin-top: 5px;
             display: block;
         }
@@ -89,8 +107,9 @@
         .message {
             padding: 15px;
             margin-top: 20px;
-            border-radius: 5px;
-            display: block;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.95rem;
         }
 
         .message.success {
@@ -105,21 +124,54 @@
             border: 1px solid #f5c6cb;
         }
 
-        /* For smaller screens */
-        @media (max-width: 768px) {
-            .form-col {
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-            
+        /* Responsive styles */
+        @media (max-width: 1200px) {
             .data-entry-form {
+                min-width: auto;
+                width: 100%;
                 padding: 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .form-col {
                 width: 100%;
             }
-            
-            .btn-primary {
-                width: 100%;
-            }
+        }
+
+        /* Update the Save Fire Extinguisher button style */
+        #btnSubmit {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            min-width: 250px;
+            height: 60px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #btnSubmit:hover {
+            background-color: #0056b3;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Update the text-center class to provide better spacing */
+        .text-center {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
         }
     </style>
 </asp:Content>
@@ -222,7 +274,7 @@
             </div>
 
             <div class="form-group text-center">
-                <asp:Button ID="btnSubmit" runat="server" Text="Save Fire Extinguisher" OnClick="btnSubmit_Click" CssClass="btn btn-primary" />
+                <asp:Button ID="btnSubmit" runat="server" Text="Add Fire Extinguisher" OnClick="btnSubmit_Click" CssClass="btn btn-primary" />
             </div>
 
             <asp:Label ID="lblMessage" runat="server" CssClass="message"></asp:Label>
