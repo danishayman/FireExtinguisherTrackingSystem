@@ -62,7 +62,7 @@
                                                         <div class="tab-container">
                                                             <div class="panel-header">
                                                                 <div class="tab-buttons">
-                                                                    <asp:LinkButton ID="btnExpiredTab" runat="server" OnClick="btnExpiredTab_Click" CssClass='<%# GetTabButtonClass("expired") %>' CausesValidation="false"></asp:LinkButton>
+                                                                    <asp:LinkButton ID="btnExpiredTab" runat="server" OnClick="btnExpiredTab_Click" CssClass='<%# GetTabButtonClass("expired") %>' CausesValidation="false">
                                                                         Expired (<%= ExpiredCount %>)
                                                                     </asp:LinkButton>
                                                                     <asp:LinkButton ID="btnExpiringSoonTab" runat="server" OnClick="btnExpiringSoonTab_Click" CssClass='<%# GetTabButtonClass("expiringSoon") %>' CausesValidation="false">
@@ -156,14 +156,15 @@
                                                                             <asp:BoundField DataField="DaysLeft" HeaderText="Days Left" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                                                             <asp:TemplateField HeaderText="Action" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
                                                                                 <ItemTemplate>
-                                                                                    <asp:LinkButton ID="btnSendToService" runat="server" 
-                                                                                        CommandName="SendForService" 
+                                                                                    <asp:LinkButton ID="btnSendToService" runat="server"
+                                                                                        CommandName="SendForService"
                                                                                         CommandArgument='<%# Eval("FEID") %>'
                                                                                         CssClass="btn btn-warning btn-sm"
-                                                                                        OnClientClick='<%# "return showSendToServiceConfirmation(" + Eval("FEID") + ");" %>'>
+                                                                                        OnClick="btnSendToService_Click">
                                                                                         Send to Service
                                                                                     </asp:LinkButton>
                                                                                 </ItemTemplate>
+                                                                                
                                                                             </asp:TemplateField>
                                                                         </Columns>
                                                                     </asp:GridView>

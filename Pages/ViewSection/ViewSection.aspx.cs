@@ -5,6 +5,11 @@ using System.Data.SqlClient;
 using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using MimeKit;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+
+
 
 namespace FETS.Pages.ViewSection
 {
@@ -63,6 +68,7 @@ namespace FETS.Pages.ViewSection
             }
         }
 
+        
         /// <summary>
         /// Loads all dropdown lists with data:
         /// - Plants dropdown
@@ -468,23 +474,7 @@ namespace FETS.Pages.ViewSection
         /// Event handler for sending all expired and expiring soon fire extinguishers to service.
         /// Shows confirmation dialog before proceeding.
         /// </summary>
-        protected void btnSendAllToService_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                LoadServiceConfirmationGrid("all");
-                hdnSelectedFEIDForService.Value = "all";
-                ScriptManager.RegisterStartupScript(this, GetType(), "showPanel", 
-                    "showSendToServiceConfirmation('all');", true);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error in btnSendAllToService_Click: {ex.Message}");
-                ScriptManager.RegisterStartupScript(this, GetType(), "error", 
-                    $"alert('An error occurred: {ex.Message}');", true);
-            }
-        }
-
+    
         /// <summary>
         /// Event handler for under service grid page index changing.
         /// Handles pagination for the under service fire extinguishers grid.
@@ -872,5 +862,90 @@ namespace FETS.Pages.ViewSection
             LoadFireExtinguishers();
             LoadMonitoringPanels();
         }
+    
+
+
+            public class EmailService
+        {
+            public static bool SendEmail(string recipient, string subject, string body)
+            {
+                try
+                {
+                    // Get mail settings from web.config
+                    var smtpHost = ConfigurationManager.GetSection("system.net/mailSettings/smtp") as System.Net.Configuration.SmtpSection;
+                    
+                    if (smtpHost == null)
+                    {
+                        Console.WriteLine("Failed to load mail settings from configuration");
+                        return false;
+                    }
+
+                    // Create the message
+                    var message = new MimeMessage();
+                    message.From.Add(new MailboxAddress("Sender Name", smtpHost.From));
+                    message.To.Add(new MailboxAddress("", recipient));
+                    message.Subject = subject;
+
+                    // Create the HTML body
+                    var bodyBuilder = new BodyBuilder
+                    {
+                        HtmlBody = body
+                    };
+                    message.Body = bodyBuilder.ToMessageBody();
+
+                    // Send the message
+                    using (var client = new SmtpClient())
+                    {
+                        // Connect to the SMTP server
+                        client.Connect(smtpHost.Network.Host, 
+                                    smtpHost.Network.Port, 
+                                    smtpHost.Network.EnableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto);
+
+                        // Authenticate if credentials are provided
+                        if (!string.IsNullOrEmpty(smtpHost.Network.UserName))
+                        {
+                            client.Authenticate(smtpHost.Network.UserName, smtpHost.Network.Password);
+                        }
+
+                        // Send the message
+                        client.Send(message);
+                        client.Disconnect(true);
+                        
+                        Console.WriteLine("Email sent successfully!");
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Email Error: {ex.Message}");
+                    return false;
+                }
+            }
+        }
+         protected void btnSendToService_Click(object sender, EventArgs e)
+        {
+            LinkButton btn = (LinkButton)sender;
+            string extinguisherId = btn.CommandArgument;
+            string recipientEmail = "user@example.com"; // Change this dynamically if needed
+
+            // Send Email
+            EmailService.SendEmail(recipientEmail, 
+                $"Fire Extinguisher {extinguisherId} Sent for Service", 
+                $"Fire Extinguisher with ID {extinguisherId} has been sent for service.");
+
+            lblExpiryStats.Text = $"Fire Extinguisher {extinguisherId} sent for service. Email notification sent.";
+        }
+
+        protected void btnSendAllToService_Click(object sender, EventArgs e)
+         {
+            string recipientEmail = "admin@example.com"; // Change this dynamically if needed
+
+            // Send Email
+            EmailService.SendEmail(recipientEmail, 
+                "All Expired Extinguishers Sent for Service", 
+                "All expired and expiring soon extinguishers have been sent for service.");
+
+            lblExpiryStats.Text = "All expired and expiring soon extinguishers sent for service. Email notification sent.";
+         }
     }
 }
