@@ -638,14 +638,14 @@
         /* Column widths for main grid */
         .grid-view td:nth-child(1) { width: 5%; }  /* No */
         .grid-view td:nth-child(2) { width: 10%; } /* Serial Number */
-        .grid-view td:nth-child(3) { width: 10%; } /* Plant */
+        .grid-view td:nth-child(3) { width: 8%; }  /* Plant */
         .grid-view td:nth-child(4) { width: 8%; }  /* Level */
-        .grid-view td:nth-child(5) { width: 15%; } /* Location */
-        .grid-view td:nth-child(6) { width: 10%; } /* Type */
+        .grid-view td:nth-child(5) { width: 12%; } /* Location */
+        .grid-view td:nth-child(6) { width: 8%; }  /* Type */
         .grid-view td:nth-child(7) { width: 10%; } /* Expiry Date */
-        .grid-view td:nth-child(8) { width: 10%; } /* Status */
-        .grid-view td:nth-child(9) { width: 12%; } /* Remarks */
-        .grid-view td:nth-child(10) { width: 10%; } /* Actions */
+        .grid-view td:nth-child(8) { width: 14%; } /* Status - increased width */
+        .grid-view td:nth-child(9) { width: 10%; } /* Remarks */
+        .grid-view td:nth-child(10) { width: 15%; } /* Actions */
 
         .grid-view td, .grid-view th {
             vertical-align: middle;
@@ -663,11 +663,34 @@
 
         .status-badge {
             display: inline-block;
-            padding: 4px 8px;
+            padding: 6px 8px;
             border-radius: 4px;
             color: white;
             text-align: center;
             min-width: 80px;
+            max-width: 100%;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+
+        /* Status-specific colors */
+        .status-valid {
+            background-color: #28a745;
+        }
+
+        .status-expired {
+            background-color: #dc3545;
+        }
+
+        .status-expiring-soon {
+            background-color: #ffc107;
+            color: #856404;
+        }
+
+        .status-under-service {
+            background-color: #17a2b8;
         }
 
         /* Ensure consistent button sizes in grids */
