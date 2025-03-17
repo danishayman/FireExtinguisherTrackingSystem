@@ -67,10 +67,41 @@
             cursor: pointer;
             padding: 5px;
             border-radius: 4px;
+            transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+            outline: none;
+            position: relative;
+            z-index: 1001; /* Ensure it's above other elements */
         }
 
         .sidebar-toggle:hover {
             background-color: rgba(0, 123, 255, 0.1);
+            transform: scale(1.1);
+            color: #0056b3;
+        }
+
+        .sidebar-toggle:active {
+            transform: scale(0.95);
+            background-color: rgba(0, 123, 255, 0.2);
+        }
+
+        /* Make the icon itself clickable */
+        .sidebar-toggle i {
+            transition: transform 0.3s ease, color 0.2s ease;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-toggle i:hover {
+            color: #0056b3;
+        }
+
+        .sidebar-collapsed .sidebar-toggle i {
+            transform: rotate(180deg);
         }
 
         .nav-menu {
@@ -416,7 +447,6 @@
             }));
         }
         
-        // Add this new function to handle auto-collapse
         document.addEventListener('DOMContentLoaded', function() {
             // Restore sidebar state from localStorage before any transitions
             const sidebarState = localStorage.getItem('sidebarState');
@@ -431,44 +461,54 @@
                 });
             });
             
-            // Get reference to the sidebar
-            const sidebar = document.getElementById('sidebar');
+            // Get reference to the sidebar toggle button
+            const toggleButton = document.querySelector('.sidebar-toggle');
+            
+            // Add click event listener directly to the toggle button
+            if (toggleButton) {
+                toggleButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleSidebar();
+                });
+                
+                // Also make the icon inside the button clickable
+                const toggleIcon = toggleButton.querySelector('i');
+                if (toggleIcon) {
+                    toggleIcon.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleSidebar();
+                    });
+                }
+            }
             
             // Add click event listener to the sidebar
-            sidebar.addEventListener('click', function(event) {
-                // If sidebar is collapsed, expand it
-                if (document.body.classList.contains('sidebar-collapsed')) {
-                    document.body.classList.remove('sidebar-collapsed');
-                    localStorage.setItem('sidebarState', 'expanded');
-                    event.stopPropagation(); // Prevent document click from immediately collapsing it
-                }
-            });
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.addEventListener('click', function(event) {
+                    // If sidebar is collapsed, expand it
+                    if (document.body.classList.contains('sidebar-collapsed') && 
+                        !event.target.classList.contains('sidebar-toggle') &&
+                        !event.target.closest('.sidebar-toggle')) {
+                        document.body.classList.remove('sidebar-collapsed');
+                        localStorage.setItem('sidebarState', 'expanded');
+                        event.stopPropagation(); // Prevent document click from immediately collapsing it
+                    }
+                });
+            }
             
             // Add click event listener to the document
             document.addEventListener('click', function(event) {
                 // Check if the click is outside the sidebar
-                if (!sidebar.contains(event.target) && 
+                if (sidebar && 
+                    !sidebar.contains(event.target) && 
                     !event.target.classList.contains('sidebar-toggle') && 
+                    !event.target.closest('.sidebar-toggle') &&
                     !document.body.classList.contains('sidebar-collapsed')) {
                     document.body.classList.add('sidebar-collapsed');
                     localStorage.setItem('sidebarState', 'collapsed');
                 }
-            });
-            
-            // Prevent clicks on the toggle button from triggering the sidebar expansion
-            const toggleButton = document.querySelector('.sidebar-toggle');
-            toggleButton.addEventListener('click', function(event) {
-                event.stopPropagation();
-                toggleSidebar();
-            });
-            
-            // Add event listeners to all navigation links to maintain collapsed state
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(function(link) {
-                link.addEventListener('click', function() {
-                    // Don't need to do anything here - the state is already saved in localStorage
-                    // and will be restored on the next page
-                });
             });
         });
     </script>
@@ -481,7 +521,7 @@
         <div class="sidebar" id="sidebar" runat="server" visible="true">
             <div class="sidebar-header">
                 <div class="sidebar-brand">Welcome, <asp:Label ID="lblUsername" runat="server" EnableViewState="true"></asp:Label></div>
-                <button type="button" class="sidebar-toggle" onclick="toggleSidebar()">
+                <button type="button" class="sidebar-toggle" onclick="return false;">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
