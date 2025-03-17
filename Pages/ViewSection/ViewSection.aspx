@@ -713,7 +713,7 @@
         }
 
         .expired-row {
-            background-color: #ffe6e6 !important;
+            background-color: #615959 !important;
         }
 
         .expiring-soon-row {

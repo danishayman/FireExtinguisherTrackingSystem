@@ -339,13 +339,6 @@ label {
     font-style: italic;
 }
 
-.expired {
-    background-color: rgba(220, 53, 69, 0.0) !important;
-}
-
-.expiring-soon {
-    background-color: rgba(255, 193, 7, 0.1) !important;
-}
 
 .valid {
     background-color: rgba(40, 167, 69, 0.1) !important;
