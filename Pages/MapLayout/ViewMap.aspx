@@ -56,12 +56,13 @@
             padding: 2rem;
         }
 
-        .map-container {
-            display: flex;
-            gap: 2rem;
-            padding: 1rem;
-            max-width: 1400px;
-            margin: 0 auto;
+        map-container {
+            width: 100%;
+            height: 600px; /* Fixed height for the map container */
+            overflow: hidden; /* Hide overflow when zoomed in */
+            position: relative; /* Ensure proper positioning for child elements */
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
 
         .map-section {
@@ -81,10 +82,21 @@
 
         .map-image {
             width: 100%;
-            max-height: 600px;
-            object-fit: contain;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            height: 100%;
+            object-fit: cover; /* Ensure the image covers the container */
+            transition: transform 0.3s ease; /* Smooth transition for zoom */
+            transform-origin: center center; /* Zoom from the center */
+            cursor: grab; /* Change cursor to indicate draggable */
+        }
+        
+        .map-image:active {
+            cursor: grabbing; /* Change cursor when dragging */
+        }
+
+        .map-image:hover {
+            transform: scale(1.05); /* Slightly zoom in on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow for focus effect */
+            cursor: pointer; /* Change cursor to indicate interactivity */
         }
 
         .info-section {
@@ -120,8 +132,7 @@
         }
 
         .fe-grid {
-            width: 100%;
-            border-collapse: collapse;
+            width: 100%; 
         }
 
         .fe-grid th {
@@ -172,6 +183,58 @@
         }
     </style>
 </head>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const mapContainer = document.querySelector(".map-container");
+            const mapImage = document.getElementById("<%= imgMap.ClientID %>");
+
+            if (mapImage) {
+                let isDragging = false;
+                let startX, startY, scrollLeft, scrollTop;
+
+                // Zoom in on mouse enter
+                mapContainer.addEventListener("mouseenter", function () {
+                    mapImage.style.transform = "scale(1.4)"; // Zoom in 2x
+                });
+
+                // Reset zoom on mouse leave
+                mapContainer.addEventListener("mouseleave", function () {
+                    mapImage.style.transform = "scale(0.8)"; // Reset to original size
+                    mapImage.style.left = "0"; // Reset position
+                    mapImage.style.top = "0";
+                });
+
+                // Start dragging
+                mapContainer.addEventListener("mousedown", function (e) {
+                    isDragging = true;
+                    startX = e.pageX - mapContainer.offsetLeft;
+                    startY = e.pageY - mapContainer.offsetTop;
+                    scrollLeft = mapImage.offsetLeft;
+                    scrollTop = mapImage.offsetTop;
+                });
+
+                // Stop dragging
+                mapContainer.addEventListener("mouseup", function () {
+                    isDragging = false;
+                });
+
+                // Pan the map while dragging
+                mapContainer.addEventListener("mousemove", function (e) {
+                    if (!isDragging) return;
+                    e.preventDefault();
+
+                    const x = e.pageX - mapContainer.offsetLeft;
+                    const y = e.pageY - mapContainer.offsetTop;
+
+                    const walkX = (x - startX) * 2; // Adjust pan speed
+                    const walkY = (y - startY) * 2;
+
+                    mapImage.style.left = `${scrollLeft - walkX}px`;
+                    mapImage.style.top = `${scrollTop - walkY}px`;
+                });
+            }
+        });
+    </script>
 <body>
     <form id="form1" runat="server">
         <div class="dashboard-container">
@@ -191,8 +254,8 @@
                             <asp:Label ID="lblPlantName" runat="server"></asp:Label> - 
                             <asp:Label ID="lblLevelName" runat="server"></asp:Label>
                         </h3>
-                        <asp:Image ID="imgMap" runat="server" CssClass="map-image" />
-                        <div class="last-updated">
+                        <asp:Image ID="imgMap" runat="server" CssClass="map-image" ClientIDMode="Static"/>
+                        <div class="last-updated">  
                             Last Updated: <asp:Label ID="lblLastUpdated" runat="server"></asp:Label>
                         </div>
                     </div>
