@@ -30,6 +30,7 @@
         }
 
         .dashboard-header {
+            justify-content: center;
             width: 100%;
             text-align: center;
             background: white;
@@ -89,6 +90,7 @@
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
             gap: var(--spacing-md);
             width: 100%;
+            margin-left: var(--spacing-md);
         }
 
         .plant-card {
@@ -136,7 +138,6 @@
 
         .stat-item:last-child {
             border-bottom: none;
-            margin-top: auto;
         }
 
         .stat-label {
@@ -150,13 +151,14 @@
             font-weight: 600;
             min-width: 60px;
             text-align: right;
+            white-space: nowrap;
         }
 
         .stat-value.total { color: var(--primary-color); }
         .stat-value.in-use { color: var(--success-color); }
         .stat-value.under-service { color: var(--warning-color); }
         .stat-value.expired { color: var(--danger-color); }
-        .stat-value.expiring-soon { color: var(--alert-color); }
+        .stat-value.expiring-soon { color: var(--alert-color);}
 
         /* Responsive adjustments */
         @media (min-width: 992px) {
