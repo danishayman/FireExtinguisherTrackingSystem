@@ -2,28 +2,103 @@
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <style>
+        /* Base styles to match View Section and Data Entry */
         .dashboard-container {
             padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
+            width: 100%;
         }
 
         .map-layout-section {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 1100px;
+            min-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        h3 {
+            text-align: center;
+            margin: 0 0 30px 0;
+            color: #333;
+            font-size: 1.75rem;
+            font-weight: 600;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        h4 {
+            color: #333;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
         }
 
         .upload-section {
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            min-height: 38px;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 1.2rem;
+            min-width: 120px;
+            height: auto;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
         }
 
         .validation-error {
             color: #dc3545;
-            font-size: 14px;
+            font-size: 0.875rem;
             margin-top: 5px;
             display: block;
         }
@@ -31,8 +106,9 @@
         .message {
             padding: 15px;
             margin-top: 20px;
-            border-radius: 5px;
-            display: block;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.95rem;
         }
 
         .message.success {
@@ -47,20 +123,27 @@
             border: 1px solid #f5c6cb;
         }
 
+        /* Filter section styling */
         .filter-section {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
             margin-bottom: 20px;
+            border: 1px solid #dee2e6;
         }
 
         .filter-row {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             margin-bottom: 15px;
         }
 
         .filter-group {
             flex: 1;
+            min-width: 0;
         }
 
+        /* Grid styling */
         .maps-grid {
             margin-top: 20px;
         }
@@ -68,73 +151,259 @@
         .grid-view {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
-        .grid-header {
+        .grid-header th {
             background-color: #f8f9fa;
+            color: #333;
             font-weight: 600;
-            padding: 10px;
-            text-align: left;
-            border-bottom: 2px solid #dee2e6;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #dee2e6;
         }
 
-        .grid-row, .grid-row-alt {
-            border-bottom: 1px solid #dee2e6;
+        .grid-row td, .grid-row-alt td {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+            vertical-align: middle;
         }
 
         .grid-row-alt {
             background-color: #f8f9fa;
         }
 
-        .grid-row td, .grid-row-alt td {
-            padding: 10px;
+        .grid-row:hover, .grid-row-alt:hover {
+            background-color: #f2f2f2;
         }
 
         .grid-pager {
-            padding: 10px;
             text-align: center;
+            padding: 10px 0;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
         }
 
-        .grid-pager a {
+        .grid-pager a, .grid-pager span {
             padding: 5px 10px;
             margin: 0 2px;
             border: 1px solid #dee2e6;
+            border-radius: 3px;
             text-decoration: none;
             color: #007bff;
+            background-color: #fff;
+            display: inline-block;
+            min-width: 32px;
+        }
+
+        .grid-pager span {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
         }
 
         .grid-pager a:hover {
-            background-color: #f8f9fa;
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+            color: #0056b3;
         }
 
         .map-preview {
-            max-width: 100px;
-            max-height: 100px;
+            max-width: 120px;
+            max-height: 80px;
             border: 1px solid #dee2e6;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .action-buttons {
             display: flex;
             gap: 5px;
+            justify-content: center;
         }
 
         .btn-sm {
-            padding: 5px 10px;
-            font-size: 12px;
+            padding: 4px 8px;
+            font-size: 0.875rem;
+            min-width: 80px;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
         }
 
         .empty-message {
             padding: 20px;
             text-align: center;
-            color: #6c757d;
+            font-size: 1.1em;
+            color: #666;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
         }
+
+        /* Responsive styles */
+        @media (max-width: 1200px) {
+            .map-layout-section {
+                min-width: auto;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        /* Simplified file upload button styling */
+        .custom-file-upload .file-upload-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            width: auto;
+            min-width: 150px;
+            margin-bottom: 10px;
+        }
+
+        .custom-file-upload .file-upload-btn:hover {
+            background-color: #0056b3;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .custom-file-upload {
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .custom-file-upload .file-upload-btn i {
+            margin-right: 6px;
+            font-size: 1rem;
+        }
+
+        .custom-file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-name-display {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            color: #495057;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: none;
+        }
+
+        .file-name-display.has-file {
+            display: flex;
+            align-items: center;
+        }
+
+        .file-name-display i {
+            margin-right: 10px;
+            color: #28a745;
+            font-size: 1.1rem;
+        }
+
+        /* Image preview styling with delete button */
+        .image-preview-container {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            display: none;
+            text-align: center;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .preview-header h5 {
+            margin: 0;
+            color: #333;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .btn-delete-image {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .btn-delete-image:hover {
+            background-color: #c82333;
+        }
+
+        .btn-delete-image i {
+            margin-right: 5px;
+            font-size: 0.9rem;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Add Font Awesome for icons */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
     </style>
 </asp:Content>
 
 <asp:Content ID="MainContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="dashboard-container">
         <div class="map-layout-section">
-            <h3>Map Layout Management</h3>
+            <h3>Map Layout</h3>
             
             <div class="upload-section">
                 <h4>Upload New Map</h4>
@@ -166,7 +435,25 @@
 
                 <div class="form-group">
                     <asp:Label ID="lblMapFile" runat="server" Text="Map Image:" AssociatedControlID="fuMapImage"></asp:Label>
-                    <asp:FileUpload ID="fuMapImage" runat="server" CssClass="form-control" />
+                    <div class="custom-file-upload">
+                        <div class="file-upload-btn">
+                            <i class="fas fa-upload"></i> Select Image
+                        </div>
+                        <asp:FileUpload ID="fuMapImage" runat="server" CssClass="form-control" onchange="updateFileName(this)" />
+                        <div id="fileNameDisplay" class="file-name-display">
+                            <i class="fas fa-file-image"></i>
+                            <span id="fileName">No file chosen</span>
+                        </div>
+                    </div>
+                    <div id="imagePreviewContainer" class="image-preview-container">
+                        <div class="preview-header">
+                            <h5>Map Preview</h5>
+                            <button type="button" id="btnDeleteImage" class="btn-delete-image" onclick="deleteImage()">
+                                <i class="fas fa-times"></i> Remove
+                            </button>
+                        </div>
+                        <img id="imagePreview" class="image-preview" src="" alt="Preview" />
+                    </div>
                     <asp:RequiredFieldValidator ID="rfvMapImage" runat="server" 
                         ControlToValidate="fuMapImage" 
                         ErrorMessage="Map image is required." 
@@ -253,4 +540,57 @@
             </div>
         </div>
     </div>
+
+    <script type="text/javascript">
+        function updateFileName(input) {
+            var fileNameDisplay = document.getElementById('fileNameDisplay');
+            var fileNameSpan = document.getElementById('fileName');
+            var imagePreview = document.getElementById('imagePreview');
+            var previewContainer = document.getElementById('imagePreviewContainer');
+            
+            if (input.files && input.files[0]) {
+                // Update file name
+                var fileName = input.files[0].name;
+                fileNameSpan.textContent = fileName;
+                fileNameDisplay.classList.add('has-file');
+                
+                // Show image preview
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                // Reset file name
+                fileNameSpan.textContent = 'No file chosen';
+                fileNameDisplay.classList.remove('has-file');
+                
+                // Hide image preview
+                previewContainer.style.display = 'none';
+                imagePreview.src = '';
+            }
+        }
+        
+        function deleteImage() {
+            // Clear the file input
+            var fileInput = document.getElementById('<%= fuMapImage.ClientID %>');
+            fileInput.value = '';
+            
+            // Reset file name display
+            var fileNameDisplay = document.getElementById('fileNameDisplay');
+            var fileNameSpan = document.getElementById('fileName');
+            fileNameSpan.textContent = 'No file chosen';
+            fileNameDisplay.classList.remove('has-file');
+            
+            // Hide image preview
+            var imagePreview = document.getElementById('imagePreview');
+            var previewContainer = document.getElementById('imagePreviewContainer');
+            previewContainer.style.display = 'none';
+            imagePreview.src = '';
+            
+            // Prevent the form from submitting
+            return false;
+        }
+    </script>
 </asp:Content> 

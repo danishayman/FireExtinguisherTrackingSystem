@@ -406,17 +406,36 @@
     <div id="modalOverlay" class="modal-overlay" style="display: none;"></div>
 
     <style type="text/css">
-        /* Update the width-related styles for consistency */
+        /* Update the width-related styles for dynamic adjustment with sidebar */
         .filter-section,
         .monitoring-section,
         .grid-section,
         .monitoring-panel,
         .content-layout {
             width: 100%;
-            max-width: 1100px;
-            min-width: 1000px;
+            max-width: 100%;
+            min-width: auto;
             margin: 0 auto;
             box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Set max-width for expanded sidebar state */
+        body:not(.sidebar-collapsed) .filter-section,
+        body:not(.sidebar-collapsed) .monitoring-section,
+        body:not(.sidebar-collapsed) .grid-section,
+        body:not(.sidebar-collapsed) .monitoring-panel,
+        body:not(.sidebar-collapsed) .content-layout {
+            max-width: calc(100vw - 290px); /* 250px sidebar + 40px padding */
+        }
+
+        /* Set max-width for collapsed sidebar state */
+        body.sidebar-collapsed .filter-section,
+        body.sidebar-collapsed .monitoring-section,
+        body.sidebar-collapsed .grid-section,
+        body.sidebar-collapsed .monitoring-panel,
+        body.sidebar-collapsed .content-layout {
+            max-width: calc(100vw - 110px); /* 70px sidebar + 40px padding */
         }
 
         .filter-section {
@@ -427,32 +446,100 @@
             margin-bottom: 30px;
         }
 
-        /* Update responsive styles */
-        @media (max-width: 1200px) {
-            .filter-section,
-            .monitoring-section,
-            .grid-section,
-            .monitoring-panel,
-            .content-layout {
-                min-width: auto;
-                width: 100%;
-            }
-            
-            .monitoring-section,
-            .filter-section {
-                overflow-x: auto;
-            }
-        }
-
         /* Update the view-section container */
         .view-section {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
-            max-width: 1400px;
             padding: 30px;
             box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .view-section {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Update table layout to be more responsive */
+        .monitoring-grid, 
+        .grid-view {
+            width: 100%;
+            table-layout: fixed;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Make panel header responsive */
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+            width: 100%;
+            min-width: auto;
+            box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Make tab container responsive */
+        .tab-container {
+            padding: 20px;
+            width: 100%;
+            min-width: auto;
+            box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Ensure the monitoring panel adjusts properly */
+        .monitoring-panel {
+            width: 100%;
+            min-width: auto;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Add this to ensure MultiView content adjusts properly */
+        .monitoring-panel .tab-container > div {
+            width: 100%;
+            min-width: auto;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Responsive styles for smaller screens */
+        @media (max-width: 1200px) {
+            body:not(.sidebar-collapsed) .filter-section,
+            body:not(.sidebar-collapsed) .monitoring-section,
+            body:not(.sidebar-collapsed) .grid-section,
+            body:not(.sidebar-collapsed) .monitoring-panel,
+            body:not(.sidebar-collapsed) .content-layout {
+                max-width: calc(100vw - 270px);
+            }
+            
+            body.sidebar-collapsed .filter-section,
+            body.sidebar-collapsed .monitoring-section,
+            body.sidebar-collapsed .grid-section,
+            body.sidebar-collapsed .monitoring-panel,
+            body.sidebar-collapsed .content-layout {
+                max-width: calc(100vw - 90px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body:not(.sidebar-collapsed) .filter-section,
+            body:not(.sidebar-collapsed) .monitoring-section,
+            body:not(.sidebar-collapsed) .grid-section,
+            body:not(.sidebar-collapsed) .monitoring-panel,
+            body:not(.sidebar-collapsed) .content-layout,
+            body.sidebar-collapsed .filter-section,
+            body.sidebar-collapsed .monitoring-section,
+            body.sidebar-collapsed .grid-section,
+            body.sidebar-collapsed .monitoring-panel,
+            body.sidebar-collapsed .content-layout {
+                max-width: 100%;
+                overflow-x: auto;
+            }
         }
 
         .monitoring-panel .section-title {
@@ -462,16 +549,6 @@
             padding-bottom: 10px;
             border-bottom: 2px solid #007bff;
             text-align: center;
-        }
-
-        .view-section {
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            width: 100%;
-            max-width: 1400px;
-            box-sizing: border-box;
         }
 
         .content-layout {
@@ -505,17 +582,6 @@
 
         .tab-container {
             padding: 20px;
-            width: 100%;
-            min-width: 960px;
-            box-sizing: border-box;
-        }
-
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            gap: 15px;
             width: 100%;
             min-width: 960px;
             box-sizing: border-box;
@@ -981,6 +1047,37 @@
             panel.onclick = function(event) {
                 event.stopPropagation();
             };
+        });
+
+        // Add this to your existing script section
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check sidebar state on page load
+            const sidebarState = localStorage.getItem('sidebarState');
+            if (sidebarState === 'collapsed') {
+                document.body.classList.add('sidebar-collapsed');
+            } else {
+                document.body.classList.remove('sidebar-collapsed');
+            }
+            
+            // Listen for sidebar state changes
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'sidebarState') {
+                    if (e.newValue === 'collapsed') {
+                        document.body.classList.add('sidebar-collapsed');
+                    } else {
+                        document.body.classList.remove('sidebar-collapsed');
+                    }
+                }
+            });
+            
+            // Add a custom event listener for sidebar toggle
+            document.addEventListener('sidebarToggled', function(e) {
+                if (e.detail.collapsed) {
+                    document.body.classList.add('sidebar-collapsed');
+                } else {
+                    document.body.classList.remove('sidebar-collapsed');
+                }
+            });
         });
     </script>
 </asp:Content>
