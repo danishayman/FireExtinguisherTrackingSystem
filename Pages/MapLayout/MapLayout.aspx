@@ -262,47 +262,45 @@
             }
         }
 
-        /* Custom file upload button styling */
-        .custom-file-upload {
-            position: relative;
-            overflow: hidden;
-            margin-top: 10px;
-            display: inline-block;
-            width: 100%;
-        }
-
+        /* Simplified file upload button styling */
         .custom-file-upload .file-upload-btn {
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 8px 15px;
             border-radius: 4px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            width: auto;
+            min-width: 150px;
             margin-bottom: 10px;
         }
 
         .custom-file-upload .file-upload-btn:hover {
             background-color: #0056b3;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
         }
 
-        .custom-file-upload .file-upload-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .custom-file-upload {
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
         }
 
         .custom-file-upload .file-upload-btn i {
-            margin-right: 8px;
-            font-size: 1.2rem;
+            margin-right: 6px;
+            font-size: 1rem;
         }
 
         .custom-file-upload input[type="file"] {
@@ -439,7 +437,7 @@
                     <asp:Label ID="lblMapFile" runat="server" Text="Map Image:" AssociatedControlID="fuMapImage"></asp:Label>
                     <div class="custom-file-upload">
                         <div class="file-upload-btn">
-                            <i class="fas fa-upload"></i> Choose Map Image
+                            <i class="fas fa-upload"></i> Select Image
                         </div>
                         <asp:FileUpload ID="fuMapImage" runat="server" CssClass="form-control" onchange="updateFileName(this)" />
                         <div id="fileNameDisplay" class="file-name-display">
