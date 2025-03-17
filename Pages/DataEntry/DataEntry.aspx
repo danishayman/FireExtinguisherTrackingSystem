@@ -146,7 +146,7 @@
                 <div class="form-col">
                     <div class="form-group">
                         <asp:Label ID="lblPlant" runat="server" Text="Plant:" AssociatedControlID="ddlPlant"></asp:Label>
-                        <asp:DropDownList ID="ddlPlant" runat="server" CssClass="form-control" AutoPostBack="true" OnSelectedIndexChanged="ddlPlant_SelectedIndexChanged"></asp:DropDownList>
+                        <asp:DropDownList ID="ddlPlant" runat="server" CssClass="form-control" AutoPostBack="false" OnSelectedIndexChanged="ddlPlant_SelectedIndexChanged"></asp:DropDownList>
                         <asp:RequiredFieldValidator ID="rfvPlant" runat="server" 
                             ControlToValidate="ddlPlant" 
                             ErrorMessage="Plant is required." 
