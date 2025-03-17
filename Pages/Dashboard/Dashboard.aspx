@@ -92,6 +92,20 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
+        }
+
+        /* Style for crossed-out legend items */
+        .chart-legend-item-hidden {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+        
+        /* Add a subtle border around the chart */
+        canvas#feTypeChart {
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            padding: 10px;
         }
 
         /* Plants section */
@@ -314,9 +328,30 @@
                                     return data.labels.map((label, i) => ({
                                         text: `${label}: ${data.datasets[0].data[i]} (${Math.round(data.datasets[0].data[i]/total * 100)}%)`,
                                         fillStyle: data.datasets[0].backgroundColor[i],
-                                        index: i
+                                        index: i,
+                                        hidden: !chart.getDataVisibility(i),
+                                        lineWidth: 1,
+                                        strokeStyle: '#666'
                                     }));
+                                },
+                                onClick: function(e, legendItem, legend) {
+                                    const index = legendItem.index;
+                                    const chart = legend.chart;
+                                    
+                                    chart.toggleDataVisibility(index);
+                                    
+                                    legend.options.labels.generateLabels(chart);
+                                    
+                                    chart.update();
                                 }
+                            },
+                            onClick: function(e, legendItem, legend) {
+                                const index = legendItem.index;
+                                const chart = legend.chart;
+                                
+                                chart.toggleDataVisibility(index);
+                                
+                                chart.update();
                             }
                         },
                         tooltip: {
