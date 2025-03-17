@@ -35,7 +35,7 @@
                                             <div class="filter-group">
                                                 <asp:Label ID="lblSearch" runat="server" Text="Search:" AssociatedControlID="txtSearch"></asp:Label>
                                                 <div class="search-box">
-                                                    <asp:TextBox ID="txtSearch" runat="server" CssClass="form-control" placeholder="Search by Serial Number or Location"></asp:TextBox>
+                                                    <asp:TextBox ID="txtSearch" runat="server" CssClass="form-control" placeholder="Serial Number or Location"></asp:TextBox>
                                                 </div>
                                                 <div class="button-group">
                                                     <asp:Button ID="btnSearch" runat="server" Text="Search" OnClick="ApplyFilters" CssClass="btn btn-primary" />
@@ -45,8 +45,6 @@
                                         </div>
                                         <div class="expiry-filters">
                                             <div class="button-group">
-                                                <asp:Button ID="btnShowExpired" runat="server" Text="Show Expired" OnClick="btnExpiredTab_Click" CssClass="btn btn-danger" />
-                                                <asp:Button ID="btnShowExpiringSoon" runat="server" Text="Show Expiring Soon" OnClick="btnExpiringSoonTab_Click" CssClass="btn btn-warning" />
                                                 <asp:Label ID="lblExpiryStats" runat="server" CssClass="expiry-stats"></asp:Label>
                                             </div>
                                         </div>
@@ -58,7 +56,7 @@
                                             <ContentTemplate>
                                                 <div class="monitoring-section">
                                                     <div class="monitoring-panel">
-                                                        <h3 class="section-title">FE Monitoring Panel</h3>
+                                                        <h3 class="section-title">Monitoring Panel</h3>
                                                         <div class="tab-container">
                                                             <div class="panel-header">
                                                                 <div class="tab-buttons">
@@ -408,12 +406,53 @@
     <div id="modalOverlay" class="modal-overlay" style="display: none;"></div>
 
     <style type="text/css">
-        .panels-layout {
-            margin: 0;
+        /* Update the width-related styles for consistency */
+        .filter-section,
+        .monitoring-section,
+        .grid-section,
+        .monitoring-panel,
+        .content-layout {
+            width: 100%;
+            max-width: 1100px;
+            min-width: 1000px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .filter-section {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Update responsive styles */
+        @media (max-width: 1200px) {
+            .filter-section,
+            .monitoring-section,
+            .grid-section,
+            .monitoring-panel,
+            .content-layout {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .monitoring-section,
+            .filter-section {
+                overflow-x: auto;
+            }
+        }
+
+        /* Update the view-section container */
+        .view-section {
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
+            max-width: 1400px;
+            padding: 30px;
+            box-sizing: border-box;
         }
 
         .monitoring-panel .section-title {
@@ -440,13 +479,14 @@
             flex-direction: column;
             gap: 30px;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1100px;
+            min-width: 1000px;
             margin: 0 auto;
             box-sizing: border-box;
         }
 
         .monitoring-section {
-            width: 95%;
+            width: 100%;
             max-width: 1100px;
             box-sizing: border-box;
             margin: 0 auto;
@@ -457,13 +497,16 @@
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             width: 100%;
+            min-width: 1000px;
             box-sizing: border-box;
             margin: 0 auto;
+            padding: 20px;
         }
 
         .tab-container {
             padding: 20px;
             width: 100%;
+            min-width: 960px;
             box-sizing: border-box;
         }
 
@@ -472,8 +515,9 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
-            gap: 10px;
+            gap: 15px;
             width: 100%;
+            min-width: 960px;
             box-sizing: border-box;
         }
 
@@ -514,15 +558,27 @@
             border-color: #dee2e6;
         }
 
+        /* Update the Send All to Service button styles to match search button */
         #btnSendAllToService {
             white-space: nowrap;
-            flex: 1;
+            flex: none;
+            padding: 8px 16px;
+            font-size: 0.95rem;
+            min-width: 120px;
+            height: auto;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
         }
 
         .monitoring-grid {
             width: 100%;
+            min-width: 960px;
             margin-top: 15px;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         .monitoring-grid th {
@@ -537,8 +593,9 @@
         }
 
         .grid-section {
-            width: 95%;
+            width: 100%;
             max-width: 1100px;
+            min-width: 1000px;
             background-color: #fff;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -725,16 +782,6 @@
             background-color: #e8f4f8 !important;
         }
 
-        @media (max-width: 1200px) {
-            .panels-layout {
-                flex-direction: column;
-            }
-
-            .monitoring-section {
-                max-width: none;
-            }
-        }
-
         .confirmation-grid {
             width: 100%;
             margin: 15px 0;
@@ -796,6 +843,47 @@
             background-color: #e9ecef;
             border-color: #dee2e6;
             color: #0056b3;
+        }
+
+        /* Update the heading styles */
+        .view-section h3 {
+            text-align: center;
+            margin: 0 0 30px 0;
+            color: #333;
+            font-size: 1.75rem;
+            font-weight: 600;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        /* Update the button styles */
+        .filter-group .button-group .btn {
+            padding: 8px 16px;
+            font-size: 0.95rem;
+            min-width: 120px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: auto;
+            white-space: nowrap;
+        }
+
+        /* Specific style for the Clear Filters button */
+        .filter-group .button-group .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            font-weight: 500;
+        }
+
+        .filter-group .button-group .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Add width control to the MultiView */
+        .monitoring-panel .tab-container > div {
+            width: 100%;
+            min-width: 960px;
         }
     </style>
 

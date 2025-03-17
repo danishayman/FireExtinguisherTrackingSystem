@@ -220,6 +220,7 @@ label {
 }
 
 .view-section h3 {
+    justify-content: center;
     margin-top: 0;
     margin-bottom: 30px;
     color: #333;
