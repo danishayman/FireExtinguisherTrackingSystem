@@ -876,4 +876,13 @@ label {
     height: auto;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Remove these styles or modify them to remove background colors */
+.stat-value.expired {
+    color: #dc3545; /* Keep only the text color */
+}
+
+.stat-value.expiring-soon {
+    color: #e67e22; /* Keep only the text color */
 } 
