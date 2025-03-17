@@ -88,7 +88,7 @@
         .plants-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: var(--spacing-md);
+            gap: var(--spacing-lg);
             width: 100%;
             margin-left: var(--spacing-md);
         }
@@ -97,16 +97,17 @@
             background: white;
             padding: var(--spacing-md);
             border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            transition: transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             display: flex;
             flex-direction: column;
             height: 100%;
+            border: 1px solid var(--border-color);
         }
 
         .plant-card:hover {
             transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
         }
 
         .plant-title {
