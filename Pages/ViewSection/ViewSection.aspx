@@ -704,6 +704,8 @@
         .button-group .btn {
             min-width: 80px;
             padding: 6px 12px;
+            overflow:hidden ;
+            max-width: 100%;
         }
 
         .validation-error {
