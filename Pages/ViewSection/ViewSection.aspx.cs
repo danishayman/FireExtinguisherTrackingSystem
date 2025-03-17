@@ -926,7 +926,7 @@ namespace FETS.Pages.ViewSection
         {
             LinkButton btn = (LinkButton)sender;
             string extinguisherId = btn.CommandArgument;
-            string recipientEmail = "user@example.com"; // Change this dynamically if needed
+            string recipientEmail = "krispyguy1411@gmail.com"; // Change this dynamically if needed
 
             // Send Email
             EmailService.SendEmail(recipientEmail, 
@@ -938,7 +938,7 @@ namespace FETS.Pages.ViewSection
 
         protected void btnSendAllToService_Click(object sender, EventArgs e)
          {
-            string recipientEmail = "admin@example.com"; // Change this dynamically if needed
+            string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Change this dynamically if needed
 
             // Send Email
             EmailService.SendEmail(recipientEmail, 
