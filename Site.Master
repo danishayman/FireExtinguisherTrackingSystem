@@ -292,6 +292,47 @@
         .sidebar-collapsed .nav-link.active i {
             color: #007bff;
         }
+
+        /* Add these new styles for smooth text animation */
+        .sidebar-brand, 
+        .nav-link span,
+        .user-info,
+        .btn-logout span {
+            opacity: 1;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            visibility: visible;
+            white-space: nowrap;
+        }
+
+        /* Collapsed sidebar text animations */
+        .sidebar-collapsed .sidebar-brand, 
+        .sidebar-collapsed .nav-link span,
+        .sidebar-collapsed .user-info,
+        .sidebar-collapsed .btn-logout span {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        /* Ensure the main content transitions smoothly too */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            width: calc(100% - 250px);
+            transition: all 0.3s ease;
+        }
+
+        /* Adjust the transition timing for a smoother feel */
+        .sidebar-collapsed .sidebar {
+            width: 70px;
+            transition: width 0.3s ease;
+        }
+
+        .sidebar-collapsed .main-content {
+            margin-left: 70px;
+            width: calc(100% - 70px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
     </style>
     <script type="text/javascript">
         function toggleSidebar() {
