@@ -296,5 +296,19 @@ namespace FETS.Pages.DataEntry
             ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
             ddlType.SelectedIndex = 0;
         }
+
+        protected void cvExpiryDate_ServerValidate(object source, ServerValidateEventArgs args)
+        {
+            DateTime enteredDate;
+            if (DateTime.TryParse(args.Value, out enteredDate)){
+                //Compare with today's date (without time component)
+                args.IsValid = enteredDate.Date >= DateTime.Now.Date;
+            }
+
+            else{
+                //If date format is invalid, let the other validator handle it
+                args.IsValid = false;
+            }
+        }
     }
 } 

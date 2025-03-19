@@ -247,17 +247,19 @@
                 background-color: #c03026;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             }
-
-
         </style>
 
         <script type="text/javascript">
             function showConfirmationPopup() {
                 document.getElementById('<%= pnlConfirmation.ClientID %>').style.display = 'flex';
             }
-            
+
             function hideConfirmationPopup() {
                 document.getElementById('<%= pnlConfirmation.ClientID %>').style.display = 'none';
+            }
+            window.onload = function() {
+                var today = new Date().toISOString().split('T')[0];
+                document.getElementById('<%= txtExpiryDate.ClientID %>').setAttribute('min', today);
             }
         </script>
     </asp:Content>
@@ -414,11 +416,16 @@
                 <div class="popup-buttons">
 
                     <asp:Button ID="btnCancel" runat="server" Text="Cancel"
-                    OnClientClick="hideConfirmationPopup(); return false;" CssClass="button cancel" />
+                        OnClientClick="hideConfirmationPopup(); return false;" CssClass="button cancel" />
 
                     <asp:Button ID="btnConfirm" runat="server" Text="Confirm" OnClick="btnConfirm_Click"
                         CssClass="button confirm" />
                 </div>
             </div>
         </asp:Panel>
+
+        <asp:CustomValidator ID="cvExpiryDate" runat="server" ControlToValidate="txtExpiryDate"
+            ErrorMessage="Expiry date cannot be in the past." CssClass="validation-error" Display="Dynamic"
+            OnServerValidate="cvExpiryDate_ServerValidate">
+        </asp:CustomValidator>
     </asp:Content>
