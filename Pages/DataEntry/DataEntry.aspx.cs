@@ -22,6 +22,15 @@ namespace FETS.Pages.DataEntry
             if (!IsPostBack)
             {
                 LoadDropDownLists();
+                ddlLevel.Enabled = false;
+
+                // Check for success message in session
+                if (Session["SuccessMessage"] != null)
+                {
+                    lblMessage.Text = Session["SuccessMessage"].ToString();
+                    lblMessage.CssClass = "message success";
+                    Session["SuccessMessage"] = null; // Clear the message
+                }
             }
         }
 
@@ -136,8 +145,11 @@ namespace FETS.Pages.DataEntry
             {
                 ddlLevel.Items.Clear();
                 ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+                ddlLevel.Enabled = false;
                 return;
             }
+            // Plant is selected, enable the Level dropdown
+            ddlLevel.Enabled = true;
 
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -207,8 +219,16 @@ namespace FETS.Pages.DataEntry
             lblConfirmLevel.Text = ddlLevel.SelectedItem.Text;
             lblConfirmLocation.Text = txtLocation.Text.Trim();
             lblConfirmType.Text = ddlType.SelectedItem.Text;
-            lblConfirmExpiryDate.Text = txtExpiryDate.Text;
-            lblConfirmRemarks.Text = string.IsNullOrEmpty(txtRemarks.Text) ? "None" : txtRemarks.Text.Trim();
+            DateTime expiryDate;
+            if (DateTime.TryParse(txtExpiryDate.Text, out expiryDate))
+            {
+                lblConfirmExpiryDate.Text = expiryDate.ToString("dd/MM/yyyy");
+            }
+            else
+            {
+                lblConfirmExpiryDate.Text = txtExpiryDate.Text;
+            }
+            lblConfirmRemarks.Text = string.IsNullOrEmpty(txtRemarks.Text) ? "N/A" : txtRemarks.Text.Trim();
 
             // Show confirmation dialog
             ScriptManager.RegisterStartupScript(this, this.GetType(), "Pop", "showConfirmationPopup();", true);
@@ -250,12 +270,14 @@ namespace FETS.Pages.DataEntry
                         cmd.Parameters.AddWithValue("@DateExpired", expiryDate);
                         cmd.Parameters.AddWithValue("@Remarks", string.IsNullOrEmpty(txtRemarks.Text) ? DBNull.Value : (object)txtRemarks.Text.Trim());
                         cmd.Parameters.AddWithValue("@StatusID", statusId);
-
                         cmd.ExecuteNonQuery();
 
-                        lblMessage.Text = "Fire extinguisher added successfully.";
-                        lblMessage.CssClass = "message success";
-                        ClearForm();
+
+                        // Store message in session before redirect
+                        Session["SuccessMessage"] = "Fire extinguisher added successfully.";
+
+                        // Redirect to prevent form resubmission on refresh
+                        Response.Redirect(Request.Url.PathAndQuery, false);
                     }
                 }
                 catch (SqlException sqlEx)
@@ -275,8 +297,6 @@ namespace FETS.Pages.DataEntry
                 }
             }
         }
-        
-
         private void ClearForm()
         {
             txtSerialNumber.Text = "";
@@ -285,8 +305,22 @@ namespace FETS.Pages.DataEntry
             txtRemarks.Text = "";
             ddlPlant.SelectedIndex = 0;
             ddlLevel.Items.Clear();
-            ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+            ddlLevel.Enabled = false; 
             ddlType.SelectedIndex = 0;
+        }
+
+        protected void cvExpiryDate_ServerValidate(object source, ServerValidateEventArgs args)
+        {
+            DateTime enteredDate;
+            if (DateTime.TryParse(args.Value, out enteredDate)){
+                //Compare with today's date (without time component)
+                args.IsValid = enteredDate.Date >= DateTime.Now.Date;
+            }
+
+            else{
+                //If date format is invalid, let the other validator handle it
+                args.IsValid = false;
+            }
         }
     }
 } 

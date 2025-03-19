@@ -111,6 +111,8 @@
                 border-radius: 4px;
                 text-align: center;
                 font-size: 0.95rem;
+                display: block;
+
             }
 
             .message.success {
@@ -206,7 +208,7 @@
             }
 
             .popup-buttons {
-                text-align: right;
+                text-align: center;
             }
 
             .button {
@@ -216,23 +218,56 @@
             }
 
             .confirm {
-                background-color: #4CAF50;
+                background-color: #007bff;
                 color: white;
+                font-weight: 500;
+                border: none;
+                align-items: center;
+                border-radius: 4px;
+                font-size: 1.2rem;
+                transition: background-color 0.2s;
+            }
+
+            .confirm:hover {
+                background-color: #0056b3;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             }
 
             .cancel {
                 background-color: #f44336;
                 color: white;
+                font-weight: 500;
+                border: none;
+                align-items: center;
+                border-radius: 4px;
+                font-size: 1.2rem;
+                transition: background-color 0.2s;
+            }
+
+            .cancel:hover {
+                background-color: #c03026;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             }
         </style>
-        
+
         <script type="text/javascript">
+
+            
             function showConfirmationPopup() {
                 document.getElementById('<%= pnlConfirmation.ClientID %>').style.display = 'flex';
             }
-            
+
             function hideConfirmationPopup() {
                 document.getElementById('<%= pnlConfirmation.ClientID %>').style.display = 'none';
+            }
+            window.onload = function() {
+                var today = new Date().toISOString().split('T')[0];
+                document.getElementById('<%= txtExpiryDate.ClientID %>').setAttribute('min', today);
+            }
+
+            // Prevent the browser from storing the form submission state
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.href);
             }
         </script>
     </asp:Content>
@@ -274,7 +309,7 @@
                         <div class="form-group">
                             <asp:Label ID="lblLevel" runat="server" Text="Level:" AssociatedControlID="ddlLevel">
                             </asp:Label>
-                            <asp:DropDownList ID="ddlLevel" runat="server" CssClass="form-control"></asp:DropDownList>
+                            <asp:DropDownList ID="ddlLevel" runat="server" CssClass="form-control" Enabled="false"> </asp:DropDownList>
                             <asp:RequiredFieldValidator ID="rfvLevel" runat="server" ControlToValidate="ddlLevel"
                                 ErrorMessage="Level is required." CssClass="validation-error" Display="Dynamic"
                                 InitialValue="">
@@ -387,11 +422,18 @@
                     </tr>
                 </table>
                 <div class="popup-buttons">
-                    <asp:Button ID="btnConfirm" runat="server" Text="Confirm" OnClick="btnConfirm_Click"
-                        CssClass="button confirm" />
+
                     <asp:Button ID="btnCancel" runat="server" Text="Cancel"
                         OnClientClick="hideConfirmationPopup(); return false;" CssClass="button cancel" />
+
+                    <asp:Button ID="btnConfirm" runat="server" Text="Confirm" OnClick="btnConfirm_Click"
+                        CssClass="button confirm" />
                 </div>
             </div>
         </asp:Panel>
+
+        <asp:CustomValidator ID="cvExpiryDate" runat="server" ControlToValidate="txtExpiryDate"
+            ErrorMessage="Expiry date cannot be in the past." CssClass="validation-error" Display="Dynamic"
+            OnServerValidate="cvExpiryDate_ServerValidate">
+        </asp:CustomValidator>
     </asp:Content>
