@@ -356,6 +356,66 @@ namespace FETS.Pages.ViewSection
             int feId;
             if (int.TryParse(hdnSelectedFEIDForService.Value, out feId))
             {
+                // Get FE details for email
+                string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string query = @"   
+                        SELECT 
+                            fe.SerialNumber,
+                            p.PlantName,
+                            l.LevelName,
+                            fe.Location,
+                            t.TypeName
+                        FROM FireExtinguishers fe
+                        INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                        INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                        INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                        WHERE fe.FEID = @FEID";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@FEID", feId);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                string serialNumber = reader["SerialNumber"].ToString();
+                                string plant = reader["PlantName"].ToString();
+                                string level = reader["LevelName"].ToString();
+                                string location = reader["Location"].ToString();
+                                string type = reader["TypeName"].ToString();
+
+                                // Send email
+                                string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Replace with the recipient's email
+                                string subject = "Fire Extinguisher Sent for Service";
+                                string body = $@"
+                                    <h3>The following fire extinguisher has been sent for service:</h3>
+                                    <ul>
+                                        <li>Serial Number: {serialNumber}</li>
+                                        <li>Plant: {plant}</li>
+                                        <li>Level: {level}</li>
+                                        <li>Location: {location}</li>
+                                        <li>Type: {type}</li>
+                                    </ul>";
+
+                                var (success, message) = EmailService.SendEmail(recipientEmail, subject, body);
+
+                                if (success)
+                                {
+                                    lblExpiryStats.Text = $"Fire extinguisher {serialNumber} sent for service. Email notification sent.";
+                                }
+                                else
+                                {
+                                    lblExpiryStats.Text = $"Fire extinguisher {serialNumber} sent for service. Failed to send email: {message}";
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Send FE to service
                 SendSingleToService(feId);
                 LoadMonitoringPanels();
                 LoadFireExtinguishers();
@@ -984,6 +1044,8 @@ namespace FETS.Pages.ViewSection
         protected void btnConfirmSelection_Click(object sender, EventArgs e)
         {
             List<int> selectedFEIDs = new List<int>();
+            List<string> selectedFEDetails = new List<string>();
+
             foreach (GridViewRow row in gvServiceSelection.Rows)
             {
                 CheckBox chkSelect = (CheckBox)row.FindControl("chkSelect");
@@ -991,6 +1053,15 @@ namespace FETS.Pages.ViewSection
                 {
                     int feId = Convert.ToInt32(gvServiceSelection.DataKeys[row.RowIndex].Value);
                     selectedFEIDs.Add(feId);
+
+                    // Collect details for email
+                    string serialNumber = row.Cells[1].Text; // Serial Number column
+                    string location = row.Cells[2].Text;    // Location column
+                    string plant = row.Cells[3].Text;        // Plant column
+                    string level = row.Cells[4].Text;       // Level column
+                    string type = row.Cells[5].Text;         // Type column
+
+                    selectedFEDetails.Add($"Serial Number: {serialNumber}, Location: {location}, Plant: {plant}, Level: {level}, Type: {type}");
                 }
             }
 
@@ -1011,8 +1082,27 @@ namespace FETS.Pages.ViewSection
                     }
                 }
 
-                // Show success message
-                lblExpiryStats.Text = $"{selectedFEIDs.Count} fire extinguishers sent for service.";
+                // Send email with selected FE details
+                string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Replace with the recipient's email
+                string subject = "Fire Extinguishers Sent for Service";
+                string body = "<h3>The following fire extinguishers have been sent for service:</h3><ul>";
+                
+                foreach (var detail in selectedFEDetails)
+                {
+                    body += $"<li>{detail}</li>";
+                }
+                body += "</ul>";
+
+                var (success, message) = EmailService.SendEmail(recipientEmail, subject, body);
+
+                if (success)
+                {
+                    lblExpiryStats.Text = $"{selectedFEIDs.Count} fire extinguishers sent for service. Email notification sent.";
+                }
+                else
+                {
+                    lblExpiryStats.Text = $"{selectedFEIDs.Count} fire extinguishers sent for service. Failed to send email: {message}";
+                }
             }
             else
             {

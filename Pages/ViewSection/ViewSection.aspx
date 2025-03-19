@@ -114,7 +114,7 @@
                                                                                         CommandName="SendForService" 
                                                                                         CommandArgument='<%# Eval("FEID") %>'
                                                                                         CssClass="btn btn-warning btn-sm"
-                                                                                        OnClientClick='<%# "return showSendToServiceConfirmation(" + Eval("FEID") + ");" %>'>
+                                                                                        OnClientClick='<%# "return showSendToServiceConfirmation(\"" + Eval("FEID") + "\");" %>'>
                                                                                         Send to Service
                                                                                     </asp:LinkButton>
                                                                                 </ItemTemplate>
@@ -154,15 +154,13 @@
                                                                             <asp:BoundField DataField="DaysLeft" HeaderText="Days Left" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                                                             <asp:TemplateField HeaderText="Action" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
                                                                                 <ItemTemplate>
-                                                                                    <asp:LinkButton ID="btnSendToService" runat="server"
-                                                                                        CommandName="SendForService"
+                                                                                    <asp:LinkButton ID="btnSendToService" runat="server" 
+                                                                                        CommandName="SendForService" 
                                                                                         CommandArgument='<%# Eval("FEID") %>'
                                                                                         CssClass="btn btn-warning btn-sm"
-                                                                                        OnClick="btnSendToService_Click">
-                                                                                        Send to Service
-                                                                                    </asp:LinkButton>
+                                                                                        OnClick="btnSendToService_Click"
+                                                                                        Text="Send to Service" />
                                                                                 </ItemTemplate>
-                                                                                
                                                                             </asp:TemplateField>
                                                                         </Columns>
                                                                     </asp:GridView>
