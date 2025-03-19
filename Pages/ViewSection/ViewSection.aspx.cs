@@ -8,7 +8,7 @@ using System.Web.UI.WebControls;
 using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-
+using System.Collections.Generic;
 
 
 namespace FETS.Pages.ViewSection
@@ -19,6 +19,9 @@ namespace FETS.Pages.ViewSection
         protected UpdatePanel upMainGrid;
         protected UpdatePanel upServiceConfirmation;
         protected GridView gvServiceConfirmation;
+        protected GridView gvServiceSelection;
+        protected Panel pnlServiceSelection;
+        protected UpdatePanel upServiceSelection;
 
         private string SortExpression
         {
@@ -937,6 +940,102 @@ namespace FETS.Pages.ViewSection
 
             lblExpiryStats.Text = "All expired and expiring soon extinguishers sent for service. Email notification sent.";
          }
+
+         private void LoadServiceSelectionGrid()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = @"
+                    SELECT 
+                        fe.FEID,
+                        fe.SerialNumber,
+                        p.PlantName,
+                        l.LevelName,
+                        fe.Location,
+                        t.TypeName
+                    FROM FireExtinguishers fe
+                    INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                    INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                    INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                    WHERE fe.StatusID != (SELECT StatusID FROM Status WHERE StatusName = 'Under Service')";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dt = new DataTable();
+                        adapter.Fill(dt);
+                        gvServiceSelection.DataSource = dt;
+                        gvServiceSelection.DataBind();
+                    }
+                }
+            }
+        }
+
+        protected void btnShowSelection_Click(object sender, EventArgs e)
+        {
+            LoadServiceSelectionGrid();
+            pnlServiceSelection.Visible = true;
+            upServiceSelection.Update();
+        }
+
+        protected void btnConfirmSelection_Click(object sender, EventArgs e)
+        {
+            List<int> selectedFEIDs = new List<int>();
+            foreach (GridViewRow row in gvServiceSelection.Rows)
+            {
+                CheckBox chkSelect = (CheckBox)row.FindControl("chkSelect");
+                if (chkSelect != null && chkSelect.Checked)
+                {
+                    int feId = Convert.ToInt32(gvServiceSelection.DataKeys[row.RowIndex].Value);
+                    selectedFEIDs.Add(feId);
+                }
+            }
+
+            if (selectedFEIDs.Count > 0)
+            {
+                string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string query = @"
+                        UPDATE FireExtinguishers 
+                        SET StatusID = (SELECT StatusID FROM Status WHERE StatusName = 'Under Service')
+                        WHERE FEID IN (" + string.Join(",", selectedFEIDs) + ")";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                // Show success message
+                lblExpiryStats.Text = $"{selectedFEIDs.Count} fire extinguishers sent for service.";
+            }
+            else
+            {
+                lblExpiryStats.Text = "No fire extinguishers selected.";
+            }
+
+            // Hide the selection panel
+            pnlServiceSelection.Visible = false;
+            upServiceSelection.Update();
+
+            // Refresh the main grid and monitoring panels
+            LoadFireExtinguishers();
+            LoadMonitoringPanels();
+            upMainGrid.Update();
+            upMonitoring.Update();
+        }
+
+            protected void btnCancelSelection_Click(object sender, EventArgs e)
+        {
+            pnlServiceSelection.Visible = false;
+            upServiceSelection.Update();
+        }
+
     }
 }
 
