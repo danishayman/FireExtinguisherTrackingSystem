@@ -207,8 +207,16 @@ namespace FETS.Pages.DataEntry
             lblConfirmLevel.Text = ddlLevel.SelectedItem.Text;
             lblConfirmLocation.Text = txtLocation.Text.Trim();
             lblConfirmType.Text = ddlType.SelectedItem.Text;
-            lblConfirmExpiryDate.Text = txtExpiryDate.Text;
-            lblConfirmRemarks.Text = string.IsNullOrEmpty(txtRemarks.Text) ? "None" : txtRemarks.Text.Trim();
+            DateTime expiryDate;
+            if (DateTime.TryParse(txtExpiryDate.Text, out expiryDate))
+            {
+                lblConfirmExpiryDate.Text = expiryDate.ToString("dd/MM/yyyy");
+            }
+            else
+            {
+                lblConfirmExpiryDate.Text = txtExpiryDate.Text;
+            }
+            lblConfirmRemarks.Text = string.IsNullOrEmpty(txtRemarks.Text) ? "N/A" : txtRemarks.Text.Trim();
 
             // Show confirmation dialog
             ScriptManager.RegisterStartupScript(this, this.GetType(), "Pop", "showConfirmationPopup();", true);
@@ -255,6 +263,8 @@ namespace FETS.Pages.DataEntry
 
                         lblMessage.Text = "Fire extinguisher added successfully.";
                         lblMessage.CssClass = "message success";
+
+                        // Clear the form
                         ClearForm();
                     }
                 }
@@ -275,8 +285,6 @@ namespace FETS.Pages.DataEntry
                 }
             }
         }
-        
-
         private void ClearForm()
         {
             txtSerialNumber.Text = "";
