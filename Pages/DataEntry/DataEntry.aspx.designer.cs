@@ -36,5 +36,16 @@ namespace FETS.Pages.DataEntry
         
         protected global::System.Web.UI.WebControls.Button btnSubmit;
         protected global::System.Web.UI.WebControls.Label lblMessage;
+
+        protected global::System.Web.UI.WebControls.Panel pnlConfirmation;
+        protected global::System.Web.UI.WebControls.Label lblConfirmSerialNumber;
+        protected global::System.Web.UI.WebControls.Label lblConfirmPlant;
+        protected global::System.Web.UI.WebControls.Label lblConfirmLevel;
+        protected global::System.Web.UI.WebControls.Label lblConfirmLocation;
+        protected global::System.Web.UI.WebControls.Label lblConfirmType;
+        protected global::System.Web.UI.WebControls.Label lblConfirmExpiryDate;
+        protected global::System.Web.UI.WebControls.Label lblConfirmRemarks;
+        protected global::System.Web.UI.WebControls.Button btnConfirm;
+        protected global::System.Web.UI.WebControls.Button btnCancel;
     }
 } 
