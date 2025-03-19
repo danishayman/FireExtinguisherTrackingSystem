@@ -393,10 +393,10 @@
                                     </ItemTemplate>
                                 </asp:TemplateField>
                                 <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="150px" />
-                                <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="250px" />
                                 <asp:BoundField DataField="PlantName" HeaderText="Plant" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="150px" />
                                 <asp:BoundField DataField="LevelName" HeaderText="Level" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
                                 <asp:BoundField DataField="TypeName" HeaderText="Type" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
+                                <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="250px" />
                             </Columns>
                             <EmptyDataTemplate>
                                 <div class="empty-data-message">No fire extinguishers available to send for service.</div>
@@ -467,6 +467,8 @@
             width: 95%;
             padding: 30px;
             border-radius: 8px;
+            min-height: 600px;
+            min-width: 800px;
         }
 
         .modal-header {
@@ -484,6 +486,7 @@
 
         .modal-body {
             padding: 0 0 25px 0;
+            min-height: 400px;
         }
 
         .selection-instruction {
@@ -497,6 +500,9 @@
             border: 1px solid #dee2e6;
             border-radius: 4px;
             background-color: #fff;
+            min-height: 350px;
+            max-height: 500px;
+            overflow-y: auto;
         }
 
         .selection-grid {
@@ -1101,6 +1107,43 @@
             width: 100%;
             min-width: 960px;
         }
+
+        @media (max-width: 992px) {
+            .service-selection-modal {
+                min-width: 800px;
+                min-height: 500px;
+            }
+        }
+
+        #serviceSummaryPanel {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #serviceSummaryPanel h4 {
+            margin-bottom: 15px;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        #serviceSummaryPanel .summary-row {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        #serviceSummaryPanel .summary-label {
+            font-weight: 600;
+            width: 180px;
+            color: #495057;
+        }
+
+        #serviceSummaryPanel .summary-value {
+            flex: 1;
+        }
     </style>
 
     <script type="text/javascript">
@@ -1244,10 +1287,12 @@
             const grid = document.getElementById('<%= gvServiceSelection.ClientID %>');
             if (!grid) return;
             
-            const checkboxes = grid.querySelectorAll('.selection-checkbox');
-            checkboxes.forEach(cb => {
-                cb.checked = checkbox.checked;
-            });
+            const checkboxes = grid.getElementsByTagName('input');
+            for (let i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].type === 'checkbox' && checkboxes[i] !== checkbox) {
+                    checkboxes[i].checked = checkbox.checked;
+                }
+            }
         }
     </script>
 
