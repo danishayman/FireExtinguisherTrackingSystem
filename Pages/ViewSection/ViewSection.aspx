@@ -372,7 +372,7 @@
     </div>
     <asp:UpdatePanel ID="upServiceSelection" runat="server" UpdateMode="Conditional">
     <ContentTemplate>
-        <asp:Panel ID="pnlServiceSelection" runat="server" CssClass="modal-panel" Visible="false">
+        <asp:Panel ID="pnlServiceSelection" runat="server" Width="100%" CssClass="modal-panel" Visible="false">
             <div class="modal-content service-selection-modal">
                 <div class="modal-header">
                     <h4 class="modal-title">Select Fire Extinguishers to Service</h4>
@@ -380,7 +380,7 @@
                 <div class="modal-body">
                     <p class="selection-instruction">Select the fire extinguishers you want to send for service from the list below:</p>
                     <div class="grid-container">
-                        <asp:GridView ID="gvServiceSelection" runat="server" AutoGenerateColumns="false" DataKeyNames="FEID" 
+                        <asp:GridView ID="gvServiceSelection" runat="server" Width="100%" AutoGenerateColumns="false" DataKeyNames="FEID" 
                             CssClass="grid-view selection-grid" HeaderStyle-CssClass="grid-header" RowStyle-CssClass="grid-row"
                             AlternatingRowStyle-CssClass="grid-row-alt">
                             <Columns>
