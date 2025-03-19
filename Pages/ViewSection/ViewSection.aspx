@@ -372,6 +372,32 @@
             </div>
         </div>
     </div>
+    <asp:UpdatePanel ID="upServiceSelection" runat="server" UpdateMode="Conditional">
+    <ContentTemplate>
+        <asp:Panel ID="pnlServiceSelection" runat="server" CssClass="modal" Visible="false">
+            <div class="modal-content">
+                <h3>Select Fire Extinguishers to Service</h3>
+                <asp:GridView ID="gvServiceSelection" runat="server" AutoGenerateColumns="false" DataKeyNames="FEID">
+                    <Columns>
+                        <asp:TemplateField>
+                            <ItemTemplate>
+                                <asp:CheckBox ID="chkSelect" runat="server" />
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number" />
+                        <asp:BoundField DataField="Location" HeaderText="Location" />
+                        <asp:BoundField DataField="PlantName" HeaderText="Plant" />
+                        <asp:BoundField DataField="LevelName" HeaderText="Level" />
+                        <asp:BoundField DataField="TypeName" HeaderText="Type" />
+                    </Columns>
+                </asp:GridView>
+                <asp:Button ID="btnConfirmSelection" runat="server" Text="Confirm" OnClick="btnConfirmSelection_Click" />
+                <asp:Button ID="btnCancelSelection" runat="server" Text="Cancel" OnClick="btnCancelSelection_Click" />
+            </div>
+        </asp:Panel>
+    </ContentTemplate>
+</asp:UpdatePanel>
+<asp:Button ID="btnShowSelection" runat="server" Text="Send Multiple to Service" OnClick="btnShowSelection_Click" />
 
     <!-- Send to Service Confirmation Modal -->
     <asp:UpdatePanel ID="upServiceConfirmation" runat="server" UpdateMode="Conditional">
