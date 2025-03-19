@@ -372,30 +372,47 @@
     </div>
     <asp:UpdatePanel ID="upServiceSelection" runat="server" UpdateMode="Conditional">
     <ContentTemplate>
-        <asp:Panel ID="pnlServiceSelection" runat="server" CssClass="modal" Visible="false">
-            <div class="modal-content">
-                <h3>Select Fire Extinguishers to Service</h3>
-                <asp:GridView ID="gvServiceSelection" runat="server" AutoGenerateColumns="false" DataKeyNames="FEID">
-                    <Columns>
-                        <asp:TemplateField>
-                            <ItemTemplate>
-                                <asp:CheckBox ID="chkSelect" runat="server" />
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                        <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number" />
-                        <asp:BoundField DataField="Location" HeaderText="Location" />
-                        <asp:BoundField DataField="PlantName" HeaderText="Plant" />
-                        <asp:BoundField DataField="LevelName" HeaderText="Level" />
-                        <asp:BoundField DataField="TypeName" HeaderText="Type" />
-                    </Columns>
-                </asp:GridView>
-                <asp:Button ID="btnConfirmSelection" runat="server" Text="Confirm" OnClick="btnConfirmSelection_Click" />
-                <asp:Button ID="btnCancelSelection" runat="server" Text="Cancel" OnClick="btnCancelSelection_Click" />
+        <asp:Panel ID="pnlServiceSelection" runat="server" CssClass="modal-panel" Visible="false">
+            <div class="modal-content service-selection-modal">
+                <div class="modal-header">
+                    <h4 class="modal-title">Select Fire Extinguishers to Service</h4>
+                </div>
+                <div class="modal-body">
+                    <p class="selection-instruction">Select the fire extinguishers you want to send for service from the list below:</p>
+                    <div class="grid-container">
+                        <asp:GridView ID="gvServiceSelection" runat="server" AutoGenerateColumns="false" DataKeyNames="FEID" 
+                            CssClass="grid-view selection-grid" HeaderStyle-CssClass="grid-header" RowStyle-CssClass="grid-row"
+                            AlternatingRowStyle-CssClass="grid-row-alt">
+                            <Columns>
+                                <asp:TemplateField HeaderText="Select" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="80px">
+                                    <HeaderTemplate>
+                                        <input type="checkbox" onclick="toggleAllCheckboxes(this)" id="chkSelectAll" class="selection-checkbox" />
+                                    </HeaderTemplate>
+                                    <ItemTemplate>
+                                        <asp:CheckBox ID="chkSelect" runat="server" CssClass="selection-checkbox" />
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="150px" />
+                                <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="250px" />
+                                <asp:BoundField DataField="PlantName" HeaderText="Plant" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="150px" />
+                                <asp:BoundField DataField="LevelName" HeaderText="Level" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
+                                <asp:BoundField DataField="TypeName" HeaderText="Type" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
+                            </Columns>
+                            <EmptyDataTemplate>
+                                <div class="empty-data-message">No fire extinguishers available to send for service.</div>
+                            </EmptyDataTemplate>
+                        </asp:GridView>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <asp:Button ID="btnConfirmSelection" runat="server" Text="Confirm Selection" CssClass="btn btn-primary btn-lg" OnClick="btnConfirmSelection_Click" />
+                    <asp:Button ID="btnCancelSelection" runat="server" Text="Cancel" CssClass="btn btn-secondary btn-lg" OnClick="btnCancelSelection_Click" OnClientClick="hideServiceSelectionPanel(); return true;" />
+                </div>
             </div>
         </asp:Panel>
     </ContentTemplate>
 </asp:UpdatePanel>
-<asp:Button ID="btnShowSelection" runat="server" Text="Send Multiple to Service" OnClick="btnShowSelection_Click" />
+<asp:Button ID="btnShowSelection" runat="server" Text="Send Multiple to Service" CssClass="btn btn-warning" OnClick="btnShowSelection_Click" OnClientClick="showServiceSelectionPanel(); return true;" />
 
     <!-- Send to Service Confirmation Modal -->
     <asp:UpdatePanel ID="upServiceConfirmation" runat="server" UpdateMode="Conditional">
@@ -442,6 +459,90 @@
             margin: 0 auto;
             box-sizing: border-box;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Service Selection Modal Styles */
+        .service-selection-modal {
+            max-width: 1200px;
+            width: 95%;
+            padding: 30px;
+            border-radius: 8px;
+        }
+
+        .modal-header {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            color: #333;
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 0 0 25px 0;
+        }
+
+        .selection-instruction {
+            margin-bottom: 20px;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .grid-container {
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        .selection-grid {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+            table-layout: fixed;
+        }
+
+        .selection-grid th {
+            background-color: #f0f2f5;
+            padding: 14px 10px;
+            border: 1px solid #dee2e6;
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .selection-grid td {
+            padding: 12px 10px;
+            border: 1px solid #dee2e6;
+            vertical-align: middle;
+            word-break: break-word;
+        }
+
+        .selection-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #dee2e6;
+            padding-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        #btnShowSelection {
+            margin: 15px 0;
+            padding: 10px 18px;
+            font-weight: 500;
+            font-size: 1rem;
         }
 
         /* Set max-width for expanded sidebar state */
@@ -1104,29 +1205,50 @@
             });
         });
 
-                
-            function showNotification(message, type = 'success', duration = 3000) {
-                // Create notification element
-                const notification = document.createElement('div');
-                notification.className = `toast-notification ${type === 'error' ? 'error' : ''}`;
-                notification.innerHTML = message;
-                
-                // Add to DOM
-                document.body.appendChild(notification);
-                
-                // Trigger animation
+        function showNotification(message, type = 'success', duration = 3000) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `toast-notification ${type === 'error' ? 'error' : ''}`;
+            notification.innerHTML = message;
+            
+            // Add to DOM
+            document.body.appendChild(notification);
+            
+            // Trigger animation
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // Auto-hide after duration
+            setTimeout(() => {
+                notification.classList.add('hide');
                 setTimeout(() => {
-                    notification.classList.add('show');
-                }, 10);
-                
-                // Auto-hide after duration
-                setTimeout(() => {
-                    notification.classList.add('hide');
-                    setTimeout(() => {
-                        document.body.removeChild(notification);
-                    }, 300);
-                }, duration);
-            }
+                    document.body.removeChild(notification);
+                }, 300);
+            }, duration);
+        }
+
+        // Service Selection Panel functions
+        function showServiceSelectionPanel() {
+            document.getElementById('modalOverlay').style.display = 'block';
+            return true; // Allow the postback to occur
+        }
+        
+        function hideServiceSelectionPanel() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            return true; // Allow the postback to occur
+        }
+        
+        // Add select all functionality for the service selection grid
+        function toggleAllCheckboxes(checkbox) {
+            const grid = document.getElementById('<%= gvServiceSelection.ClientID %>');
+            if (!grid) return;
+            
+            const checkboxes = grid.querySelectorAll('.selection-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+        }
     </script>
 
 <style>
