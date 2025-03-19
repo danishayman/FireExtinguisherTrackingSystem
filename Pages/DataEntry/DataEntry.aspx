@@ -111,6 +111,7 @@
                 border-radius: 4px;
                 text-align: center;
                 font-size: 0.95rem;
+                display: block;
 
             }
 
@@ -250,6 +251,8 @@
         </style>
 
         <script type="text/javascript">
+
+            
             function showConfirmationPopup() {
                 document.getElementById('<%= pnlConfirmation.ClientID %>').style.display = 'flex';
             }
@@ -260,6 +263,11 @@
             window.onload = function() {
                 var today = new Date().toISOString().split('T')[0];
                 document.getElementById('<%= txtExpiryDate.ClientID %>').setAttribute('min', today);
+            }
+
+            // Prevent the browser from storing the form submission state
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.href);
             }
         </script>
     </asp:Content>

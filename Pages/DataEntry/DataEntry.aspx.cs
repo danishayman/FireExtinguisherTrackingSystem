@@ -22,6 +22,14 @@ namespace FETS.Pages.DataEntry
             if (!IsPostBack)
             {
                 LoadDropDownLists();
+                
+                // Check for success message in session
+                if (Session["SuccessMessage"] != null)
+                {
+                    lblMessage.Text = Session["SuccessMessage"].ToString();
+                    lblMessage.CssClass = "message success";
+                    Session["SuccessMessage"] = null; // Clear the message
+                }
             }
         }
 
@@ -258,14 +266,14 @@ namespace FETS.Pages.DataEntry
                         cmd.Parameters.AddWithValue("@DateExpired", expiryDate);
                         cmd.Parameters.AddWithValue("@Remarks", string.IsNullOrEmpty(txtRemarks.Text) ? DBNull.Value : (object)txtRemarks.Text.Trim());
                         cmd.Parameters.AddWithValue("@StatusID", statusId);
-
                         cmd.ExecuteNonQuery();
 
-                        lblMessage.Text = "Fire extinguisher added successfully.";
-                        lblMessage.CssClass = "message success";
 
-                        // Clear the form
-                        ClearForm();
+                        // Store message in session before redirect
+                        Session["SuccessMessage"] = "Fire extinguisher added successfully.";
+
+                        // Redirect to prevent form resubmission on refresh
+                        Response.Redirect(Request.Url.PathAndQuery, false);
                     }
                 }
                 catch (SqlException sqlEx)
