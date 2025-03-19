@@ -867,58 +867,48 @@ namespace FETS.Pages.ViewSection
 
             public class EmailService
         {
-            public static bool SendEmail(string recipient, string subject, string body)
+            public static (bool Success, string Message) SendEmail(string recipient, string subject, string body)
             {
                 try
                 {
-                    // Get mail settings from web.config
                     var smtpHost = ConfigurationManager.GetSection("system.net/mailSettings/smtp") as System.Net.Configuration.SmtpSection;
                     
                     if (smtpHost == null)
                     {
-                        Console.WriteLine("Failed to load mail settings from configuration");
-                        return false;
+                        return (false, "Failed to load mail settings from configuration.");
                     }
 
-                    // Create the message
                     var message = new MimeMessage();
                     message.From.Add(new MailboxAddress("Sender Name", smtpHost.From));
                     message.To.Add(new MailboxAddress("", recipient));
                     message.Subject = subject;
 
-                    // Create the HTML body
                     var bodyBuilder = new BodyBuilder
                     {
                         HtmlBody = body
                     };
                     message.Body = bodyBuilder.ToMessageBody();
 
-                    // Send the message
                     using (var client = new SmtpClient())
                     {
-                        // Connect to the SMTP server
                         client.Connect(smtpHost.Network.Host, 
-                                    smtpHost.Network.Port, 
-                                    smtpHost.Network.EnableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto);
+                                        smtpHost.Network.Port, 
+                                        smtpHost.Network.EnableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto);
 
-                        // Authenticate if credentials are provided
                         if (!string.IsNullOrEmpty(smtpHost.Network.UserName))
                         {
                             client.Authenticate(smtpHost.Network.UserName, smtpHost.Network.Password);
                         }
 
-                        // Send the message
                         client.Send(message);
                         client.Disconnect(true);
                         
-                        Console.WriteLine("Email sent successfully!");
-                        return true;
+                        return (true, "Email sent successfully!");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Email Error: {ex.Message}");
-                    return false;
+                    return (false, $"Email Error: {ex.Message}");
                 }
             }
         }
@@ -926,7 +916,7 @@ namespace FETS.Pages.ViewSection
         {
             LinkButton btn = (LinkButton)sender;
             string extinguisherId = btn.CommandArgument;
-            string recipientEmail = "krispyguy1411@gmail.com"; // Change this dynamically if needed
+            string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Change this dynamically if needed
 
             // Send Email
             EmailService.SendEmail(recipientEmail, 
@@ -949,3 +939,4 @@ namespace FETS.Pages.ViewSection
          }
     }
 }
+
