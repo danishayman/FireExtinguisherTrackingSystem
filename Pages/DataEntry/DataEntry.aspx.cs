@@ -22,7 +22,8 @@ namespace FETS.Pages.DataEntry
             if (!IsPostBack)
             {
                 LoadDropDownLists();
-                
+                ddlLevel.Enabled = false;
+
                 // Check for success message in session
                 if (Session["SuccessMessage"] != null)
                 {
@@ -144,8 +145,11 @@ namespace FETS.Pages.DataEntry
             {
                 ddlLevel.Items.Clear();
                 ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+                ddlLevel.Enabled = false;
                 return;
             }
+            // Plant is selected, enable the Level dropdown
+            ddlLevel.Enabled = true;
 
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -301,7 +305,7 @@ namespace FETS.Pages.DataEntry
             txtRemarks.Text = "";
             ddlPlant.SelectedIndex = 0;
             ddlLevel.Items.Clear();
-            ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+            ddlLevel.Enabled = false; 
             ddlType.SelectedIndex = 0;
         }
 

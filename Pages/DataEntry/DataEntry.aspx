@@ -309,7 +309,7 @@
                         <div class="form-group">
                             <asp:Label ID="lblLevel" runat="server" Text="Level:" AssociatedControlID="ddlLevel">
                             </asp:Label>
-                            <asp:DropDownList ID="ddlLevel" runat="server" CssClass="form-control"></asp:DropDownList>
+                            <asp:DropDownList ID="ddlLevel" runat="server" CssClass="form-control" Enabled="false"> </asp:DropDownList>
                             <asp:RequiredFieldValidator ID="rfvLevel" runat="server" ControlToValidate="ddlLevel"
                                 ErrorMessage="Level is required." CssClass="validation-error" Display="Dynamic"
                                 InitialValue="">
