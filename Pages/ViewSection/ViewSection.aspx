@@ -1,4 +1,4 @@
-<%@ Page Title="View Section" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="ViewSection.aspx.cs" Inherits="FETS.Pages.ViewSection.ViewSection" %>
+<%@ Page Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="ViewSection.aspx.cs" Inherits="FETS.Pages.ViewSection.ViewSection" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
