@@ -2,7 +2,7 @@ using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Web.Security;
+using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using MimeKit;
@@ -935,7 +935,7 @@ namespace FETS.Pages.ViewSection
                 try
                 {
                     var smtpHost = ConfigurationManager.GetSection("system.net/mailSettings/smtp") as System.Net.Configuration.SmtpSection;
-                    
+
                     if (smtpHost == null)
                     {
                         return (false, "Failed to load mail settings from configuration.");
@@ -946,17 +946,13 @@ namespace FETS.Pages.ViewSection
                     message.To.Add(new MailboxAddress("", recipient));
                     message.Subject = subject;
 
-                    var bodyBuilder = new BodyBuilder
-                    {
-                        HtmlBody = body
-                    };
+                    var bodyBuilder = new BodyBuilder { HtmlBody = body };
                     message.Body = bodyBuilder.ToMessageBody();
 
                     using (var client = new SmtpClient())
                     {
-                        client.Connect(smtpHost.Network.Host, 
-                                        smtpHost.Network.Port, 
-                                        smtpHost.Network.EnableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto);
+                        client.Connect(smtpHost.Network.Host, smtpHost.Network.Port, 
+                                    smtpHost.Network.EnableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto);
 
                         if (!string.IsNullOrEmpty(smtpHost.Network.UserName))
                         {
@@ -965,7 +961,17 @@ namespace FETS.Pages.ViewSection
 
                         client.Send(message);
                         client.Disconnect(true);
-                        
+
+                        // 🔥 Add a global popup notification
+                            Page page = HttpContext.Current.CurrentHandler as Page;
+                            if (page != null)
+                            {
+                                ScriptManager.RegisterStartupScript(
+                                    page, page.GetType(), "emailSentPopup",
+                                    "alert('✅ Email sent successfully!');", true
+                                );
+                            }
+
                         return (true, "Email sent successfully!");
                     }
                 }
@@ -974,6 +980,7 @@ namespace FETS.Pages.ViewSection
                     return (false, $"Email Error: {ex.Message}");
                 }
             }
+
         }
          protected void btnSendToService_Click(object sender, EventArgs e)
         {
@@ -1109,6 +1116,9 @@ namespace FETS.Pages.ViewSection
                 lblExpiryStats.Text = "No fire extinguishers selected.";
             }
 
+            upMonitoring.Update();
+            upMainGrid.Update();
+            upServiceSelection.Update();
             // Hide the selection panel
             pnlServiceSelection.Visible = false;
             upServiceSelection.Update();
@@ -1116,8 +1126,7 @@ namespace FETS.Pages.ViewSection
             // Refresh the main grid and monitoring panels
             LoadFireExtinguishers();
             LoadMonitoringPanels();
-            upMainGrid.Update();
-            upMonitoring.Update();
+        
         }
 
             protected void btnCancelSelection_Click(object sender, EventArgs e)
