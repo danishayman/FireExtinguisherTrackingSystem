@@ -114,7 +114,7 @@
                                                                                         CommandName="SendForService" 
                                                                                         CommandArgument='<%# Eval("FEID") %>'
                                                                                         CssClass="btn btn-warning btn-sm"
-                                                                                        OnClientClick='<%# "return showSendToServiceConfirmation(" + Eval("FEID") + ");" %>'>
+                                                                                        OnClientClick='<%# "return showSendToServiceConfirmation(\"" + Eval("FEID") + "\");" %>'>
                                                                                         Send to Service
                                                                                     </asp:LinkButton>
                                                                                 </ItemTemplate>
@@ -154,15 +154,13 @@
                                                                             <asp:BoundField DataField="DaysLeft" HeaderText="Days Left" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                                                             <asp:TemplateField HeaderText="Action" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
                                                                                 <ItemTemplate>
-                                                                                    <asp:LinkButton ID="btnSendToService" runat="server"
-                                                                                        CommandName="SendForService"
+                                                                                    <asp:LinkButton ID="btnSendToService" runat="server" 
+                                                                                        CommandName="SendForService" 
                                                                                         CommandArgument='<%# Eval("FEID") %>'
                                                                                         CssClass="btn btn-warning btn-sm"
-                                                                                        OnClick="btnSendToService_Click">
-                                                                                        Send to Service
-                                                                                    </asp:LinkButton>
+                                                                                        OnClick="btnSendToService_Click"
+                                                                                        Text="Send to Service" />
                                                                                 </ItemTemplate>
-                                                                                
                                                                             </asp:TemplateField>
                                                                         </Columns>
                                                                     </asp:GridView>
@@ -1106,4 +1104,23 @@
             });
         });
     </script>
+
+    <script>
+        function showToastNotification(message) {
+            var toast = document.createElement("div");
+            toast.innerText = message;
+            toast.style.position = "fixed";
+            toast.style.bottom = "20px";
+            toast.style.right = "20px";
+            toast.style.padding = "10px 20px";
+            toast.style.background = "#28a745";
+            toast.style.color = "#fff";
+            toast.style.borderRadius = "5px";
+            toast.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
 </asp:Content>
+
+
