@@ -3,12 +3,14 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.Security;
+using System.Web.UI;
 using System.Web.UI.WebControls;
 
 namespace FETS.Pages.DataEntry
 {
     public partial class DataEntry : System.Web.UI.Page
     {
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!User.Identity.IsAuthenticated)
@@ -164,28 +166,63 @@ namespace FETS.Pages.DataEntry
 
         protected void btnSubmit_Click(object sender, EventArgs e)
         {
-            if (!Page.IsValid)
+            // Validate form
+            if(!Page.IsValid)
+            {
                 return;
+            }
 
+            //Validate dropdown selections
+            int plantId, levelId, typeId;
+            if (!int.TryParse(ddlPlant.SelectedValue, out plantId) ||
+                !int.TryParse(ddlLevel.SelectedValue, out levelId) ||
+                !int.TryParse(ddlType.SelectedValue, out typeId))
+            {
+                lblMessage.Text = "Please select valid Plant, Level and Type.";
+                lblMessage.CssClass = "message error";
+                return;
+            }
+
+            //Check if serial number already exists
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM FireExtinguishers WHERE SerialNumber = @SerialNumber", conn))
+                {
+                    cmd.Parameters.AddWithValue("@SerialNumber", txtSerialNumber.Text);
+                    int count = Convert.ToInt32(cmd.ExecuteScalar());
+                    if (count > 0)
+                    {
+                        lblMessage.Text = "Serial number already exists.";
+                        lblMessage.CssClass = "message error";
+                        return;
+                    }
+                }
+            }
+
+            lblConfirmSerialNumber.Text = txtSerialNumber.Text.Trim();
+            lblConfirmPlant.Text = ddlPlant.SelectedItem.Text;
+            lblConfirmLevel.Text = ddlLevel.SelectedItem.Text;
+            lblConfirmLocation.Text = txtLocation.Text.Trim();
+            lblConfirmType.Text = ddlType.SelectedItem.Text;
+            lblConfirmExpiryDate.Text = txtExpiryDate.Text;
+            lblConfirmRemarks.Text = string.IsNullOrEmpty(txtRemarks.Text) ? "None" : txtRemarks.Text.Trim();
+
+            // Show confirmation dialog
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "Pop", "showConfirmationPopup();", true);
+        }
+
+        // Confirm Button
+        protected void btnConfirm_Click(object sender, EventArgs e)
+        {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-
-                    // Check if serial number already exists
-                    using (SqlCommand cmd = new SqlCommand("SELECT COUNT(1) FROM FireExtinguishers WHERE SerialNumber = @SerialNumber", conn))
-                    {
-                        cmd.Parameters.AddWithValue("@SerialNumber", txtSerialNumber.Text.Trim());
-                        int count = (int)cmd.ExecuteScalar();
-                        if (count > 0)
-                        {
-                            lblMessage.Text = "Serial Number already exists.";
-                            lblMessage.CssClass = "message error";
-                            return;
-                        }
-                    }
 
                     DateTime expiryDate = DateTime.Parse(txtExpiryDate.Text);
                     int statusId = GetStatusIdBasedOnExpiryDate(expiryDate, conn);
@@ -238,6 +275,7 @@ namespace FETS.Pages.DataEntry
                 }
             }
         }
+        
 
         private void ClearForm()
         {
