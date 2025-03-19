@@ -1103,24 +1103,66 @@
                 }
             });
         });
+
+                
+            function showNotification(message, type = 'success', duration = 3000) {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `toast-notification ${type === 'error' ? 'error' : ''}`;
+                notification.innerHTML = message;
+                
+                // Add to DOM
+                document.body.appendChild(notification);
+                
+                // Trigger animation
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+                
+                // Auto-hide after duration
+                setTimeout(() => {
+                    notification.classList.add('hide');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, duration);
+            }
     </script>
 
-    <script>
-        function showToastNotification(message) {
-            var toast = document.createElement("div");
-            toast.innerText = message;
-            toast.style.position = "fixed";
-            toast.style.bottom = "20px";
-            toast.style.right = "20px";
-            toast.style.padding = "10px 20px";
-            toast.style.background = "#28a745";
-            toast.style.color = "#fff";
-            toast.style.borderRadius = "5px";
-            toast.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-    </script>
+<style>
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 24px;
+        background-color: #4CAF50;
+        color: white;
+        border-radius: 4px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .toast-notification.error {
+        background-color: #f44336;
+    }
+
+    .toast-notification.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .toast-notification.hide {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+</style>
+    
 </asp:Content>
 
 

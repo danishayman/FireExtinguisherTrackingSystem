@@ -65,10 +65,19 @@ namespace FETS.Pages.ViewSection
 
             if (!IsPostBack)
             {
-                LoadDropDownLists();
-                LoadMonitoringPanels();
-                LoadFireExtinguishers();
+                if (Session["NotificationMessage"] != null)
+                {
+                    ScriptManager.RegisterStartupScript(this, GetType(), "emailSentPopup",
+                        $"showNotification('{Session["NotificationMessage"]}');", true);
+                    Session["NotificationMessage"] = null; // Clear message after showing
+                }
+
+            LoadDropDownLists();
+            LoadMonitoringPanels();
+            LoadFireExtinguishers();
+                
             }
+            
         }
 
         
@@ -938,6 +947,15 @@ namespace FETS.Pages.ViewSection
 
                     if (smtpHost == null)
                     {
+                        // Handle configuration error
+                        Page page = HttpContext.Current.CurrentHandler as Page;
+                        if (page != null)
+                        {
+                            ScriptManager.RegisterStartupScript(
+                                page, page.GetType(), "emailErrorPopup",
+                                "showNotification('❌ Failed to load mail settings.', 'error');", true
+                            );
+                        }
                         return (false, "Failed to load mail settings from configuration.");
                     }
 
@@ -962,38 +980,54 @@ namespace FETS.Pages.ViewSection
                         client.Send(message);
                         client.Disconnect(true);
 
-                        // 🔥 Add a global popup notification
-                            Page page = HttpContext.Current.CurrentHandler as Page;
-                            if (page != null)
-                            {
-                                ScriptManager.RegisterStartupScript(
-                                    page, page.GetType(), "emailSentPopup",
-                                    "alert('✅ Email sent successfully!');", true
-                                );
-                            }
+                        // Success notification with the new system
+                        Page page = HttpContext.Current.CurrentHandler as Page;
+                        if (page != null)
+                        {
+                            ScriptManager.RegisterStartupScript(
+                                page, page.GetType(), "emailSentPopup",
+                                "showNotification('✅ Email sent successfully!');", true
+                            );
+                        }
 
                         return (true, "Email sent successfully!");
                     }
                 }
                 catch (Exception ex)
                 {
+                    // Error notification with the new system
+                    Page page = HttpContext.Current.CurrentHandler as Page;
+                    if (page != null)
+                    {
+                        ScriptManager.RegisterStartupScript(
+                            page, page.GetType(), "emailErrorPopup",
+                            "showNotification('❌ " + ex.Message.Replace("'", "\\'") + "', 'error');", true
+                        );
+                    }
                     return (false, $"Email Error: {ex.Message}");
                 }
             }
-
         }
          protected void btnSendToService_Click(object sender, EventArgs e)
         {
             LinkButton btn = (LinkButton)sender;
             string extinguisherId = btn.CommandArgument;
-            string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Change this dynamically if needed
+            string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Change dynamically if needed
 
-            // Send Email
-            EmailService.SendEmail(recipientEmail, 
+            var (success, message) = EmailService.SendEmail(recipientEmail, 
                 $"Fire Extinguisher {extinguisherId} Sent for Service", 
                 $"Fire Extinguisher with ID {extinguisherId} has been sent for service.");
 
-            lblExpiryStats.Text = $"Fire Extinguisher {extinguisherId} sent for service. Email notification sent.";
+            if (success)
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "emailSentPopup",
+                    "showNotification('✅ Email sent successfully!'); setTimeout(function() { window.location.reload(); }, 2000);", true);
+            }
+            else
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "emailErrorPopup",
+                    $"showNotification('❌ Email failed: {message.Replace("'", "\'")}', 'error');", true);
+            }
         }
 
         protected void btnSendAllToService_Click(object sender, EventArgs e)
@@ -1060,81 +1094,40 @@ namespace FETS.Pages.ViewSection
                 {
                     int feId = Convert.ToInt32(gvServiceSelection.DataKeys[row.RowIndex].Value);
                     selectedFEIDs.Add(feId);
-
-                    // Collect details for email
-                    string serialNumber = row.Cells[1].Text; // Serial Number column
-                    string location = row.Cells[2].Text;    // Location column
-                    string plant = row.Cells[3].Text;        // Plant column
-                    string level = row.Cells[4].Text;       // Level column
-                    string type = row.Cells[5].Text;         // Type column
-
-                    selectedFEDetails.Add($"Serial Number: {serialNumber}, Location: {location}, Plant: {plant}, Level: {level}, Type: {type}");
+                    selectedFEDetails.Add($"Serial Number: {row.Cells[1].Text}, Location: {row.Cells[2].Text}");
                 }
             }
 
             if (selectedFEIDs.Count > 0)
             {
-                string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-                    string query = @"
-                        UPDATE FireExtinguishers 
-                        SET StatusID = (SELECT StatusID FROM Status WHERE StatusName = 'Under Service')
-                        WHERE FEID IN (" + string.Join(",", selectedFEIDs) + ")";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-
-                // Send email with selected FE details
-                string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Replace with the recipient's email
+                string recipientEmail = "irfandanishnoorazlin@gmail.com";
                 string subject = "Fire Extinguishers Sent for Service";
-                string body = "<h3>The following fire extinguishers have been sent for service:</h3><ul>";
-                
-                foreach (var detail in selectedFEDetails)
-                {
-                    body += $"<li>{detail}</li>";
-                }
-                body += "</ul>";
+                string body = "<h3>The following fire extinguishers have been sent for service:</h3><ul>" + string.Join("", selectedFEDetails.ConvertAll(d => $"<li>{d}</li>")) + "</ul>";
 
                 var (success, message) = EmailService.SendEmail(recipientEmail, subject, body);
 
                 if (success)
                 {
-                    lblExpiryStats.Text = $"{selectedFEIDs.Count} fire extinguishers sent for service. Email notification sent.";
+                    Session["NotificationMessage"] = "✅ Email sent successfully!";
+                    Response.Redirect(Request.Url.PathAndQuery, false);
+                    Context.ApplicationInstance.CompleteRequest();
                 }
                 else
                 {
-                    lblExpiryStats.Text = $"{selectedFEIDs.Count} fire extinguishers sent for service. Failed to send email: {message}";
+                    lblExpiryStats.Text = $"Email failed: {message}";
                 }
             }
             else
             {
                 lblExpiryStats.Text = "No fire extinguishers selected.";
             }
-
-            upMonitoring.Update();
-            upMainGrid.Update();
-            upServiceSelection.Update();
-            // Hide the selection panel
-            pnlServiceSelection.Visible = false;
-            upServiceSelection.Update();
-
-            // Refresh the main grid and monitoring panels
-            LoadFireExtinguishers();
-            LoadMonitoringPanels();
-        
         }
-
-            protected void btnCancelSelection_Click(object sender, EventArgs e)
+        
+        protected void btnCancelSelection_Click(object sender, EventArgs e)
         {
             pnlServiceSelection.Visible = false;
             upServiceSelection.Update();
         }
-
     }
 }
 
