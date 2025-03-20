@@ -100,6 +100,7 @@
                                                                             Under Service (<%= UnderServiceCount %>)
                                                                         </asp:LinkButton>
                                                                     </div>
+
                                                                 </div>
 
                                                                 <asp:MultiView ID="mvMonitoring" runat="server"
@@ -157,21 +158,6 @@
                                                                                     HeaderText="Days Expired"
                                                                                     ItemStyle-HorizontalAlign="Center"
                                                                                     HeaderStyle-HorizontalAlign="Center" />
-                                                                                <asp:TemplateField HeaderText="Action"
-                                                                                    ItemStyle-HorizontalAlign="Center"
-                                                                                    HeaderStyle-HorizontalAlign="Center">
-                                                                                    <ItemTemplate>
-                                                                                        <asp:LinkButton
-                                                                                            ID="btnSendToService"
-                                                                                            runat="server"
-                                                                                            CommandName="SendForService"
-                                                                                            CommandArgument='<%# Eval("FEID") %>'
-                                                                                            CssClass="btn btn-warning btn-sm"
-                                                                                            OnClientClick='<%# "return showSendToServiceConfirmation(\"" + Eval("FEID") + "\");" %>'>
-                                                                                            Send to Service
-                                                                                        </asp:LinkButton>
-                                                                                    </ItemTemplate>
-                                                                                </asp:TemplateField>
                                                                             </Columns>
                                                                         </asp:GridView>
                                                                     </asp:View>
@@ -229,20 +215,6 @@
                                                                                     HeaderText="Days Left"
                                                                                     ItemStyle-HorizontalAlign="Center"
                                                                                     HeaderStyle-HorizontalAlign="Center" />
-                                                                                <asp:TemplateField HeaderText="Action"
-                                                                                    ItemStyle-HorizontalAlign="Center"
-                                                                                    HeaderStyle-HorizontalAlign="Center">
-                                                                                    <ItemTemplate>
-                                                                                        <asp:LinkButton
-                                                                                            ID="btnSendToService"
-                                                                                            runat="server"
-                                                                                            CommandName="SendForService"
-                                                                                            CommandArgument='<%# Eval("FEID") %>'
-                                                                                            CssClass="btn btn-warning btn-sm"
-                                                                                            OnClick="btnSendToService_Click"
-                                                                                            Text="Send to Service" />
-                                                                                    </ItemTemplate>
-                                                                                </asp:TemplateField>
                                                                             </Columns>
                                                                         </asp:GridView>
                                                                     </asp:View>
@@ -296,21 +268,6 @@
                                                                                     DataFormatString="{0:d}"
                                                                                     ItemStyle-HorizontalAlign="Center"
                                                                                     HeaderStyle-HorizontalAlign="Center" />
-                                                                                <asp:TemplateField HeaderText="Action"
-                                                                                    ItemStyle-HorizontalAlign="Center"
-                                                                                    HeaderStyle-HorizontalAlign="Center">
-                                                                                    <ItemTemplate>
-                                                                                        <asp:Button
-                                                                                            ID="btnCompleteService"
-                                                                                            runat="server"
-                                                                                            CommandName="CompleteService"
-                                                                                            CommandArgument='<%# Eval("FEID") %>'
-                                                                                            data-feid='<%# Eval("FEID") %>'
-                                                                                            CssClass="btn btn-success btn-sm"
-                                                                                            Text="Complete Service"
-                                                                                            OnClientClick='<%# "return showExpiryDatePanel(this);" %>' />
-                                                                                    </ItemTemplate>
-                                                                                </asp:TemplateField>
                                                                             </Columns>
                                                                         </asp:GridView>
                                                                     </asp:View>
@@ -916,6 +873,20 @@
                 border-color: #dee2e6;
             }
 
+            /* Update the Send All to Service button styles to match search button */
+            #btnSendAllToService {
+                white-space: nowrap;
+                flex: none;
+                padding: 8px 16px;
+                font-size: 0.95rem;
+                min-width: 120px;
+                height: auto;
+                font-weight: 500;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 15px;
+            }
 
             .monitoring-grid {
                 width: 100%;
