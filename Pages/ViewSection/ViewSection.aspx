@@ -409,20 +409,6 @@
                                                                                 Text="Complete Service"
                                                                                 Enabled='<%# Eval("StatusName").ToString() == "Under Service" %>'
                                                                                 OnClientClick="return showExpiryDatePanel(this);" />
-                                                                            <asp:Button ID="btnSendForService"
-                                                                                runat="server"
-                                                                                CommandName="SendForService"
-                                                                                CommandArgument='<%# Eval("FEID") %>'
-                                                                                Value='<%# Eval("FEID") %>'
-                                                                                CssClass='<%# (DateTime.Parse(Eval("DateExpired").ToString()) <= DateTime.Now || 
-                                                                                  (DateTime.Parse(Eval("DateExpired").ToString()) - DateTime.Now).TotalDays <= 60) &&
-                                                                                  Eval("StatusName").ToString() != "Under Service" 
-                                                                                  ? "btn btn-sm btn-warning" : "btn btn-sm btn-warning disabled-service" %>'
-                                                                                Text="Send for Service"
-                                                                                Enabled='<%# (DateTime.Parse(Eval("DateExpired").ToString()) <= DateTime.Now || 
-                                                                                  (DateTime.Parse(Eval("DateExpired").ToString()) - DateTime.Now).TotalDays <= 60) &&
-                                                                                  Eval("StatusName").ToString() != "Under Service" %>'
-                                                                                OnClientClick='<%# "return showSendToServiceConfirmation(" + Eval("FEID") + ");" %>' />
                                                                             <asp:Button ID="btnDelete" runat="server"
                                                                                 CommandName="DeleteRow"
                                                                                 CommandArgument='<%# Eval("FEID") %>'
@@ -515,51 +501,7 @@
         </asp:UpdatePanel>
         <asp:Button ID="btnShowSelection" runat="server" Text="Send Multiple to Service" CssClass="btn btn-warning"
             OnClick="btnShowSelection_Click" OnClientClick="showServiceSelectionPanel(); return true;" />
-
-        <!-- Send to Service Confirmation Modal -->
-        <asp:UpdatePanel ID="upServiceConfirmation" runat="server" UpdateMode="Conditional">
-            <ContentTemplate>
-                <asp:Panel ID="pnlSendToService" runat="server" CssClass="modal-panel" Style="display: none;">
-                    <div class="modal-content">
-                        <h4>Send to Service Confirmation</h4>
-                        <asp:HiddenField ID="hdnSelectedFEIDForService" runat="server" />
-                        <div class="confirmation-message">
-                            <p>The following fire extinguisher(s) will be sent for service:</p>
-                            <asp:GridView ID="gvServiceConfirmation" runat="server" AutoGenerateColumns="False"
-                                CssClass="confirmation-grid">
-                                <Columns>
-                                    <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number"
-                                        ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
-                                    <asp:BoundField DataField="PlantName" HeaderText="Plant"
-                                        ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
-                                    <asp:BoundField DataField="LevelName" HeaderText="Level"
-                                        ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
-                                    <asp:BoundField DataField="Location" HeaderText="Location"
-                                        ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
-                                    <asp:BoundField DataField="DateExpired" HeaderText="Expiry Date"
-                                        DataFormatString="{0:d}" ItemStyle-HorizontalAlign="Center"
-                                        HeaderStyle-HorizontalAlign="Center" />
-                                    <asp:BoundField DataField="StatusName" HeaderText="Status"
-                                        ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
-                                </Columns>
-                            </asp:GridView>
-                            <p>This will change their status to "Under Service".</p>
-                        </div>
-                        <div class="button-group mt-3">
-                            <asp:Button ID="btnConfirmSendToService" runat="server" Text="Confirm"
-                                CssClass="btn btn-warning" OnClick="btnConfirmSendToService_Click"
-                                UseSubmitBehavior="false" />
-                            <asp:Button ID="btnCancelSendToService" runat="server" Text="Cancel"
-                                CssClass="btn btn-secondary" OnClientClick="hideSendToServicePanel(); return false;"
-                                UseSubmitBehavior="false" />
-                        </div>
-                    </div>
-                </asp:Panel>
-            </ContentTemplate>
-        </asp:UpdatePanel>
-
         <div id="modalOverlay" class="modal-overlay" style="display: none;"></div>
-
         <style type="text/css">
             /* Update the width-related styles for dynamic adjustment with sidebar */
             .filter-section,
@@ -1366,23 +1308,6 @@
             function hideExpiryDatePanel() {
                 var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
                 panel.style.display = 'none';
-                document.getElementById('modalOverlay').style.display = 'none';
-                return false;
-            }
-
-            function showSendToServiceConfirmation(feId) {
-                // Set the hidden field value
-                document.getElementById('<%= hdnSelectedFEIDForService.ClientID %>').value = feId;
-
-                // Show the panel and overlay
-                document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'flex';
-                document.getElementById('modalOverlay').style.display = 'block';
-
-                return false;
-            }
-
-            function hideSendToServicePanel() {
-                document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'none';
                 document.getElementById('modalOverlay').style.display = 'none';
                 return false;
             }
