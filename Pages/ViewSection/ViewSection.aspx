@@ -1,8 +1,13 @@
+
 <%@ Page Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="ViewSection.aspx.cs" Inherits="FETS.Pages.ViewSection.ViewSection" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="../../Assets/css/styles.css" rel="stylesheet" />
+    <!-- Add Font Awesome for better icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Add Animate.css for smooth animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 </asp:Content>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
@@ -11,41 +16,63 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <div class="card">
+                <div class="main-card animate__animated animate__fadeIn">
                     <div class="dashboard-container">
                         <div class="content-container">
                             <div class="panels-layout">
                                 <div class="view-section">
-                                    <h3>View Fire Extinguishers</h3>
+                                    <div class="section-header">
+                                        <h3><i class="fas fa-fire-extinguisher"></i> View Fire Extinguishers</h3>
+                                        <div class="section-actions">
+                                            <button type="button" id="btnToggleFilters" class="btn btn-outline-primary btn-sm" onclick="toggleFilters()">
+                                                <i class="fas fa-filter"></i> <span id="filterToggleText">Hide Filters</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                     
-                                    <div class="filter-section">
+                                    <div id="filterContainer" class="filter-section card-container">
+                                        <div class="card-header">
+                                            <h4><i class="fas fa-search"></i> Search & Filter</h4>
+                                        </div>
+                                        <div class="filter-content">
                                         <div class="filter-row">
                                             <div class="filter-group">
                                                 <asp:Label ID="lblFilterPlant" runat="server" Text="Plant:" AssociatedControlID="ddlFilterPlant"></asp:Label>
-                                                <asp:DropDownList ID="ddlFilterPlant" runat="server" CssClass="form-control" AutoPostBack="true" OnSelectedIndexChanged="ddlFilterPlant_SelectedIndexChanged"></asp:DropDownList>
+                                                    <div class="select-container">
+                                                        <asp:DropDownList ID="ddlFilterPlant" runat="server" CssClass="form-control custom-select" AutoPostBack="true" OnSelectedIndexChanged="ddlFilterPlant_SelectedIndexChanged"></asp:DropDownList>
+                                                        <i class="fas fa-chevron-down select-arrow"></i>
+                                                    </div>
                                             </div>
                                             <div class="filter-group">
                                                 <asp:Label ID="lblFilterLevel" runat="server" Text="Level:" AssociatedControlID="ddlFilterLevel"></asp:Label>
-                                                <asp:DropDownList ID="ddlFilterLevel" runat="server" CssClass="form-control" AutoPostBack="true" OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
+                                                    <div class="select-container">
+                                                        <asp:DropDownList ID="ddlFilterLevel" runat="server" CssClass="form-control custom-select" AutoPostBack="true" OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
+                                                        <i class="fas fa-chevron-down select-arrow"></i>
+                                                    </div>
                                             </div>
                                             <div class="filter-group">
                                                 <asp:Label ID="lblFilterStatus" runat="server" Text="Status:" AssociatedControlID="ddlFilterStatus"></asp:Label>
-                                                <asp:DropDownList ID="ddlFilterStatus" runat="server" CssClass="form-control" AutoPostBack="true" OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
+                                                    <div class="select-container">
+                                                        <asp:DropDownList ID="ddlFilterStatus" runat="server" CssClass="form-control custom-select" AutoPostBack="true" OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
+                                                        <i class="fas fa-chevron-down select-arrow"></i>
                                             </div>
-                                            <div class="filter-group">
+                                                </div>
+                                                <div class="filter-group search-group">
                                                 <asp:Label ID="lblSearch" runat="server" Text="Search:" AssociatedControlID="txtSearch"></asp:Label>
                                                 <div class="search-box">
+                                                        <i class="fas fa-search search-icon"></i>
                                                     <asp:TextBox ID="txtSearch" runat="server" CssClass="form-control" placeholder="Serial Number or Location"></asp:TextBox>
                                                 </div>
                                                 <div class="button-group">
                                                     <asp:Button ID="btnSearch" runat="server" Text="Search" OnClick="ApplyFilters" CssClass="btn btn-primary" />
-                                                    <asp:Button ID="btnClearFilters" runat="server" Text="Clear Filters" OnClick="btnClearFilters_Click" CssClass="btn btn-secondary" />
+                                                        <asp:Button ID="btnClearFilters" runat="server" Text="Clear" OnClick="btnClearFilters_Click" CssClass="btn btn-outline-secondary" />
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="expiry-filters">
-                                            <div class="button-group">
+                                                <div class="expiry-stats-container">
                                                 <asp:Label ID="lblExpiryStats" runat="server" CssClass="expiry-stats"></asp:Label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -54,32 +81,39 @@
                                         <!-- Wrap the original monitoring section with UpdatePanel -->
                                         <asp:UpdatePanel ID="upMonitoring" runat="server" UpdateMode="Conditional">
                                             <ContentTemplate>
-                                                <div class="monitoring-section">
+                                                <div class="monitoring-section card-container animate__animated animate__fadeIn">
+                                                    <div class="card-header">
+                                                        <h4><i class="fas fa-chart-line"></i> Monitoring Panel</h4>
+                                                    </div>
                                                     <div class="monitoring-panel">
-                                                        <h3 class="section-title">Monitoring Panel</h3>
                                                         <div class="tab-container">
                                                             <div class="panel-header">
-                                                                <div class="tab-buttons">
+                                                                <div class="modern-tabs">
                                                                     <asp:LinkButton ID="btnExpiredTab" runat="server" OnClick="btnExpiredTab_Click" CssClass='<%# GetTabButtonClass("expired") %>' CausesValidation="false">
-                                                                        Expired (<%= ExpiredCount %>)
+                                                                        <i class="fas fa-exclamation-circle text-danger"></i> Expired (<span class="badge badge-danger"><%= ExpiredCount %></span>)
                                                                     </asp:LinkButton>
                                                                     <asp:LinkButton ID="btnExpiringSoonTab" runat="server" OnClick="btnExpiringSoonTab_Click" CssClass='<%# GetTabButtonClass("expiringSoon") %>' CausesValidation="false">
-                                                                        Expiring Soon (<%= ExpiringSoonCount %>)
+                                                                        <i class="fas fa-clock text-warning"></i> Expiring Soon (<span class="badge badge-warning"><%= ExpiringSoonCount %></span>)
                                                                     </asp:LinkButton>
                                                                     <asp:LinkButton ID="btnUnderServiceTab" runat="server" OnClick="btnUnderServiceTab_Click" CssClass='<%# GetTabButtonClass("underService") %>' CausesValidation="false">
-                                                                        Under Service (<%= UnderServiceCount %>)
+                                                                        <i class="fas fa-tools text-info"></i> Under Service (<span class="badge badge-info"><%= UnderServiceCount %></span>)
                                                                     </asp:LinkButton>
                                                                 </div>
-                                                                <asp:Button ID="btnSendAllToService" runat="server" 
-                                                                    Text="Send All to Service" 
-                                                                    CssClass="btn btn-warning btn-sm"
+                                                                <asp:LinkButton ID="btnSendAllToService" runat="server" 
+                                                                    CssClass="btn btn-warning btn-sm action-button"
                                                                     OnClick="btnSendAllToService_Click"
                                                                     CausesValidation="false"
-                                                                    OnClientClick="return confirm('Are you sure you want to send all expired and expiring soon fire extinguishers for service?');" />
+                                                                    OnClientClick="return confirm('Are you sure you want to send all expired and expiring soon fire extinguishers for service?');">
+                                                                    <i class="fas fa-truck-loading mr-1"></i> Send All to Service
+                                                                </asp:LinkButton>
                                                             </div>
 
+                                                            <div class="tab-content">
                                                             <asp:MultiView ID="mvMonitoring" runat="server" ActiveViewIndex="0">
                                                                 <asp:View ID="vwExpired" runat="server">
+                                                                        <div class="status-indicator expired">
+                                                                            <i class="fas fa-exclamation-triangle"></i> Showing expired fire extinguishers
+                                                                        </div>
                                                                     <asp:GridView ID="gvExpired" runat="server" 
                                                                         AutoGenerateColumns="False" 
                                                                         CssClass="grid-view monitoring-grid"
@@ -87,7 +121,7 @@
                                                                         PageSize="5"
                                                                         OnPageIndexChanging="gvExpired_PageIndexChanging"
                                                                         OnRowCommand="gvExpired_RowCommand"
-                                                                        EmptyDataText="No expired fire extinguishers found."
+                                                                            EmptyDataText="<div class='empty-state'><i class='fas fa-check-circle'></i><p>No expired fire extinguishers found.</p></div>"
                                                                         PagerStyle-CssClass="grid-pager"
                                                                         PagerSettings-Mode="NumericFirstLast"
                                                                         PagerSettings-FirstPageText="First"
@@ -114,7 +148,7 @@
                                                                                         CommandName="SendForService" 
                                                                                         CommandArgument='<%# Eval("FEID") %>'
                                                                                         CssClass="btn btn-warning btn-sm"
-                                                                                        OnClientClick='<%# "return showSendToServiceConfirmation(\"" + Eval("FEID") + "\");" %>'>
+                                                                                            OnClientClick='<%# "return showSendToServiceConfirmation(\"" + Eval("FEID") + "\");" %>'>
                                                                                         Send to Service
                                                                                     </asp:LinkButton>
                                                                                 </ItemTemplate>
@@ -124,6 +158,9 @@
                                                                 </asp:View>
 
                                                                 <asp:View ID="vwExpiringSoon" runat="server">
+                                                                        <div class="status-indicator expiring-soon">
+                                                                            <i class="fas fa-exclamation-triangle"></i> Showing expiring soon fire extinguishers
+                                                                        </div>
                                                                     <asp:GridView ID="gvExpiringSoon" runat="server" 
                                                                         AutoGenerateColumns="False" 
                                                                         CssClass="grid-view monitoring-grid"
@@ -131,7 +168,7 @@
                                                                         PageSize="5"
                                                                         OnPageIndexChanging="gvExpiringSoon_PageIndexChanging"
                                                                         OnRowCommand="gvExpiringSoon_RowCommand"
-                                                                        EmptyDataText="No fire extinguishers expiring soon."
+                                                                            EmptyDataText="<div class='empty-state'><i class='fas fa-check-circle'></i><p>No fire extinguishers expiring soon.</p></div>"
                                                                         PagerStyle-CssClass="grid-pager"
                                                                         PagerSettings-Mode="NumericFirstLast"
                                                                         PagerSettings-FirstPageText="First"
@@ -154,12 +191,12 @@
                                                                             <asp:BoundField DataField="DaysLeft" HeaderText="Days Left" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                                                             <asp:TemplateField HeaderText="Action" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
                                                                                 <ItemTemplate>
-                                                                                    <asp:LinkButton ID="btnSendToService" runat="server" 
-                                                                                        CommandName="SendForService" 
+                                                                                    <asp:LinkButton ID="btnSendToService" runat="server"
+                                                                                        CommandName="SendForService"
                                                                                         CommandArgument='<%# Eval("FEID") %>'
                                                                                         CssClass="btn btn-warning btn-sm"
-                                                                                        OnClick="btnSendToService_Click"
-                                                                                        Text="Send to Service" />
+                                                                                            OnClick="btnSendToService_Click"
+                                                                                            Text="Send to Service" />
                                                                                 </ItemTemplate>
                                                                             </asp:TemplateField>
                                                                         </Columns>
@@ -167,6 +204,9 @@
                                                                 </asp:View>
 
                                                                 <asp:View ID="vwUnderService" runat="server">
+                                                                        <div class="status-indicator under-service">
+                                                                            <i class="fas fa-exclamation-triangle"></i> Showing fire extinguishers under service
+                                                                        </div>
                                                                     <asp:GridView ID="gvUnderService" runat="server" 
                                                                         AutoGenerateColumns="False" 
                                                                         CssClass="grid-view monitoring-grid"
@@ -174,7 +214,7 @@
                                                                         PageSize="5"
                                                                         OnPageIndexChanging="gvUnderService_PageIndexChanging"
                                                                         OnRowCommand="gvUnderService_RowCommand"
-                                                                        EmptyDataText="No fire extinguishers under service."
+                                                                            EmptyDataText="<div class='empty-state'><i class='fas fa-check-circle'></i><p>No fire extinguishers under service.</p></div>"
                                                                         PagerStyle-CssClass="grid-pager"
                                                                         PagerSettings-Mode="NumericFirstLast"
                                                                         PagerSettings-FirstPageText="First"
@@ -209,6 +249,7 @@
                                                                     </asp:GridView>
                                                                 </asp:View>
                                                             </asp:MultiView>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -252,29 +293,43 @@
 
                                         <asp:UpdatePanel ID="upMainGrid" runat="server" UpdateMode="Conditional">
                                             <ContentTemplate>
-                                                <div class="grid-section">
-                                                    <h3 class="section-title">Fire Extinguisher List</h3>
+                                                <div class="grid-section card-container animate__animated animate__fadeIn">
+                                                    <div class="card-header">
+                                                        <h4><i class="fas fa-list"></i> Fire Extinguisher List</h4>
+                                                        <div class="card-actions">
+                                                            <asp:LinkButton ID="btnShowSelection" runat="server" 
+                                                                CssClass="btn btn-warning btn-sm" 
+                                                                OnClick="btnShowSelection_Click" 
+                                                                OnClientClick="showServiceSelectionPanel(); return true;"
+                                                                CausesValidation="false">
+                                                                <i class="fas fa-truck-loading mr-1"></i> Send Multiple to Service
+                                                            </asp:LinkButton>
+                                                        </div>
+                                                    </div>
+                                                    <div class="grid-container">
+                                                        <div class="loading-indicator" id="gridLoadingIndicator" style="display: none;">
+                                                            <div class="spinner-border text-primary" role="status">
+                                                                <span class="sr-only">Loading...</span>
+                                                            </div>
+                                                            <p>Loading data...</p>
+                                                        </div>
                                                     <asp:GridView ID="gvFireExtinguishers" runat="server" 
                                                         AutoGenerateColumns="False" 
-                                                        CssClass="grid-view"
+                                                            CssClass="grid-view main-grid"
                                                         AllowPaging="True"
                                                         AllowSorting="True"
-                                                        PageSize="10"
                                                         OnPageIndexChanging="gvFireExtinguishers_PageIndexChanging"
                                                         OnSorting="gvFireExtinguishers_Sorting"
                                                         OnRowDataBound="gvFireExtinguishers_RowDataBound"
                                                         OnRowCommand="gvFireExtinguishers_RowCommand"
-                                                        EmptyDataText="No fire extinguishers found for the selected criteria."
-                                                        EmptyDataRowStyle-CssClass="empty-data-message"
+                                                            EmptyDataText="<div class='empty-state'><i class='fas fa-search'></i><p>No fire extinguishers found matching your criteria.</p></div>"
                                                         PagerStyle-CssClass="grid-pager"
                                                         PagerSettings-Mode="NumericFirstLast"
-                                                        PagerSettings-FirstPageText="First"
-                                                        PagerSettings-LastPageText="Last"
+                                                            PagerSettings-FirstPageText="<i class='fas fa-angle-double-left'></i>"
+                                                            PagerSettings-LastPageText="<i class='fas fa-angle-double-right'></i>"
+                                                            PagerSettings-PreviousPageText="<i class='fas fa-angle-left'></i>"
+                                                            PagerSettings-NextPageText="<i class='fas fa-angle-right'></i>"
                                                         PagerSettings-PageButtonCount="5">
-                                                        <RowStyle CssClass="grid-row" />
-                                                        <AlternatingRowStyle CssClass="grid-row-alt" />
-                                                        <HeaderStyle CssClass="grid-header" />
-                                                        <PagerStyle CssClass="grid-pager" />
                                                         <Columns>
                                                             <asp:TemplateField HeaderText="No">
                                                                 <ItemTemplate>
@@ -283,30 +338,12 @@
                                                                 <ItemStyle HorizontalAlign="Center" />
                                                                 <HeaderStyle HorizontalAlign="Center" />
                                                             </asp:TemplateField>
-                                                            <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number" SortExpression="SerialNumber">
-                                                                <ItemStyle HorizontalAlign="Center" />
-                                                                <HeaderStyle HorizontalAlign="Center" />
-                                                            </asp:BoundField>
-                                                            <asp:BoundField DataField="PlantName" HeaderText="Plant" SortExpression="PlantName">
-                                                                <ItemStyle HorizontalAlign="Center" />
-                                                                <HeaderStyle HorizontalAlign="Center" />
-                                                            </asp:BoundField>
-                                                            <asp:BoundField DataField="LevelName" HeaderText="Level" SortExpression="LevelName">
-                                                                <ItemStyle HorizontalAlign="Center" />
-                                                                <HeaderStyle HorizontalAlign="Center" />
-                                                            </asp:BoundField>
-                                                            <asp:BoundField DataField="Location" HeaderText="Location" SortExpression="Location">
-                                                                <ItemStyle HorizontalAlign="Center" />
-                                                                <HeaderStyle HorizontalAlign="Center" />
-                                                            </asp:BoundField>
-                                                            <asp:BoundField DataField="TypeName" HeaderText="Type" SortExpression="TypeName">
-                                                                <ItemStyle HorizontalAlign="Center" />
-                                                                <HeaderStyle HorizontalAlign="Center" />
-                                                            </asp:BoundField>
-                                                            <asp:BoundField DataField="DateExpired" HeaderText="Expiry Date" SortExpression="DateExpired" DataFormatString="{0:d}">
-                                                                <ItemStyle HorizontalAlign="Center" />
-                                                                <HeaderStyle HorizontalAlign="Center" />
-                                                            </asp:BoundField>
+                                                                <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                                                <asp:BoundField DataField="PlantName" HeaderText="Plant" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                                                <asp:BoundField DataField="LevelName" HeaderText="Level" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                                                <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                                                <asp:BoundField DataField="TypeName" HeaderText="Type" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                                                <asp:BoundField DataField="DateExpired" HeaderText="Expiry Date" DataFormatString="{0:d}" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                                             <asp:TemplateField HeaderText="Status" SortExpression="StatusName">
                                                                 <ItemTemplate>
                                                                     <asp:Label ID="lblStatus" runat="server" CssClass="status-badge"></asp:Label>
@@ -355,10 +392,15 @@
                                                             </asp:TemplateField>
                                                         </Columns>
                                                     </asp:GridView>
+                                                    </div>
                                                 </div>
                                             </ContentTemplate>
                                             <Triggers>
                                                 <asp:AsyncPostBackTrigger ControlID="btnSaveExpiryDate" EventName="Click" />
+                                                <asp:AsyncPostBackTrigger ControlID="btnConfirmSelection" EventName="Click" />
+                                                <asp:AsyncPostBackTrigger ControlID="ddlFilterPlant" EventName="SelectedIndexChanged" />
+                                                <asp:AsyncPostBackTrigger ControlID="ddlFilterLevel" EventName="SelectedIndexChanged" />
+                                                <asp:AsyncPostBackTrigger ControlID="ddlFilterStatus" EventName="SelectedIndexChanged" />
                                             </Triggers>
                                         </asp:UpdatePanel>
                                     </div>
@@ -412,7 +454,6 @@
         </asp:Panel>
     </ContentTemplate>
 </asp:UpdatePanel>
-<asp:Button ID="btnShowSelection" runat="server" Text="Send Multiple to Service" CssClass="btn btn-warning" OnClick="btnShowSelection_Click" OnClientClick="showServiceSelectionPanel(); return true;" />
 
     <!-- Send to Service Confirmation Modal -->
     <asp:UpdatePanel ID="upServiceConfirmation" runat="server" UpdateMode="Conditional">
@@ -451,620 +492,414 @@
         .filter-section,
         .monitoring-section,
         .grid-section,
-        .monitoring-panel,
         .content-layout {
             width: 100%;
-            max-width: 100%;
-            min-width: auto;
-            margin: 0 auto;
-            box-sizing: border-box;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
         }
 
-        /* Service Selection Modal Styles */
-        .service-selection-modal {
-            max-width: 1200px;
-            width: 95%;
-            padding: 30px;
+        /* Main card styling */
+        .main-card {
+            background-color: #fff;
             border-radius: 8px;
-            min-height: 600px;
-            min-width: 800px;
-        }
-
-        .modal-header {
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-
-        .modal-title {
-            color: #333;
-            margin: 0;
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-
-        .modal-body {
-            padding: 0 0 25px 0;
-            min-height: 400px;
-        }
-
-        .selection-instruction {
-            margin-bottom: 20px;
-            color: #555;
-            font-size: 1.1rem;
-        }
-
-        .grid-container {
-            margin-bottom: 20px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            background-color: #fff;
-            min-height: 350px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .selection-grid {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 0;
-            table-layout: fixed;
-        }
-
-        .selection-grid th {
-            background-color: #f0f2f5;
-            padding: 14px 10px;
-            border: 1px solid #dee2e6;
-            font-weight: 600;
-            color: #333;
-            white-space: nowrap;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             overflow: hidden;
-            text-overflow: ellipsis;
+            margin-bottom: 20px;
         }
 
-        .selection-grid td {
-            padding: 12px 10px;
-            border: 1px solid #dee2e6;
-            vertical-align: middle;
-            word-break: break-word;
-        }
-
-        .selection-checkbox {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .modal-footer {
-            border-top: 1px solid #dee2e6;
-            padding-top: 20px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-        }
-
-        #btnShowSelection {
-            margin: 15px 0;
-            padding: 10px 18px;
-            font-weight: 500;
-            font-size: 1rem;
-        }
-
-        /* Set max-width for expanded sidebar state */
-        body:not(.sidebar-collapsed) .filter-section,
-        body:not(.sidebar-collapsed) .monitoring-section,
-        body:not(.sidebar-collapsed) .grid-section,
-        body:not(.sidebar-collapsed) .monitoring-panel,
-        body:not(.sidebar-collapsed) .content-layout {
-            max-width: calc(100vw - 290px); /* 250px sidebar + 40px padding */
-        }
-
-        /* Set max-width for collapsed sidebar state */
-        body.sidebar-collapsed .filter-section,
-        body.sidebar-collapsed .monitoring-section,
-        body.sidebar-collapsed .grid-section,
-        body.sidebar-collapsed .monitoring-panel,
-        body.sidebar-collapsed .content-layout {
-            max-width: calc(100vw - 110px); /* 70px sidebar + 40px padding */
-        }
-
-        .filter-section {
+        /* Card container styling */
+        .card-container {
             background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            overflow: hidden;
         }
 
-        /* Update the view-section container */
-        .view-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            padding: 30px;
-            box-sizing: border-box;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .view-section {
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Update table layout to be more responsive */
-        .monitoring-grid, 
-        .grid-view {
-            width: 100%;
-            table-layout: fixed;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Make panel header responsive */
-        .panel-header {
+        .card-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            gap: 15px;
-            width: 100%;
-            min-width: auto;
-            box-sizing: border-box;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Make tab container responsive */
-        .tab-container {
-            padding: 20px;
-            width: 100%;
-            min-width: auto;
-            box-sizing: border-box;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Ensure the monitoring panel adjusts properly */
-        .monitoring-panel {
-            width: 100%;
-            min-width: auto;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Add this to ensure MultiView content adjusts properly */
-        .monitoring-panel .tab-container > div {
-            width: 100%;
-            min-width: auto;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Responsive styles for smaller screens */
-        @media (max-width: 1200px) {
-            body:not(.sidebar-collapsed) .filter-section,
-            body:not(.sidebar-collapsed) .monitoring-section,
-            body:not(.sidebar-collapsed) .grid-section,
-            body:not(.sidebar-collapsed) .monitoring-panel,
-            body:not(.sidebar-collapsed) .content-layout {
-                max-width: calc(100vw - 270px);
-            }
-            
-            body.sidebar-collapsed .filter-section,
-            body.sidebar-collapsed .monitoring-section,
-            body.sidebar-collapsed .grid-section,
-            body.sidebar-collapsed .monitoring-panel,
-            body.sidebar-collapsed .content-layout {
-                max-width: calc(100vw - 90px);
-            }
-        }
-
-        @media (max-width: 768px) {
-            body:not(.sidebar-collapsed) .filter-section,
-            body:not(.sidebar-collapsed) .monitoring-section,
-            body:not(.sidebar-collapsed) .grid-section,
-            body:not(.sidebar-collapsed) .monitoring-panel,
-            body:not(.sidebar-collapsed) .content-layout,
-            body.sidebar-collapsed .filter-section,
-            body.sidebar-collapsed .monitoring-section,
-            body.sidebar-collapsed .grid-section,
-            body.sidebar-collapsed .monitoring-panel,
-            body.sidebar-collapsed .content-layout {
-                max-width: 100%;
-                overflow-x: auto;
-            }
-        }
-
-        .monitoring-panel .section-title {
-            font-size: 1.5rem;
+        .card-header h4 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
             color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #007bff;
-            text-align: center;
-        }
-
-        .content-layout {
             display: flex;
-            flex-direction: column;
-            gap: 30px;
-            width: 100%;
-            max-width: 1100px;
-            min-width: 1000px;
-            margin: 0 auto;
-            box-sizing: border-box;
+            align-items: center;
         }
 
-        .monitoring-section {
-            width: 100%;
-            max-width: 1100px;
-            box-sizing: border-box;
-            margin: 0 auto;
+        .card-header h4 i {
+            margin-right: 10px;
+            color: #007bff;
         }
 
-        .monitoring-panel {
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            min-width: 1000px;
-            box-sizing: border-box;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .tab-container {
-            padding: 20px;
-            width: 100%;
-            min-width: 960px;
-            box-sizing: border-box;
-        }
-
-        .tab-buttons {
+        .card-actions {
             display: flex;
             gap: 10px;
-            flex: 3;
         }
 
-        .tab-button {
-            flex: 1;
-            padding: 8px 15px;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #666;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            text-align: center;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-        }
-
-        .tab-button:hover {
-            background-color: #e9ecef;
-            color: #333;
-            text-decoration: none;
-        }
-
-        .tab-button.active {
-            background-color: #007bff;
-            color: #fff;
-            border-color: #007bff;
-        }
-
-        .tab-button:not(.active) {
-            background-color: #f8f9fa;
-            color: #666;
-            border-color: #dee2e6;
-        }
-
-        /* Update the Send All to Service button styles to match search button */
-        #btnSendAllToService {
-            white-space: nowrap;
-            flex: none;
-            padding: 8px 16px;
-            font-size: 0.95rem;
-            min-width: 120px;
-            height: auto;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 15px;
-        }
-
-        .monitoring-grid {
-            width: 100%;
-            min-width: 960px;
-            margin-top: 15px;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        .monitoring-grid th {
-            background-color: #f8f9fa;
-            padding: 10px;
-            border: 1px solid #dee2e6;
-        }
-
-        .monitoring-grid td {
-            padding: 8px;
-            border: 1px solid #dee2e6;
-        }
-
-        .grid-section {
-            width: 100%;
-            max-width: 1100px;
-            min-width: 1000px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            box-sizing: border-box;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #007bff;
-        }
-
-        .grid-view {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        /* Table responsiveness */
-        .monitoring-grid, .grid-view {
-            table-layout: fixed;
-        }
-
-        .monitoring-grid td, .grid-view td,
-        .monitoring-grid th, .grid-view th {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-
-        /* Column widths for monitoring grid */
-        .monitoring-grid td:nth-child(1) { width: 20%; } /* Serial Number */
-        .monitoring-grid td:nth-child(2) { width: 30%; } /* Location */
-        .monitoring-grid td:nth-child(3) { width: 20%; } /* Date */
-        .monitoring-grid td:nth-child(4) { width: 15%; } /* Days */
-        .monitoring-grid td:nth-child(5) { width: 15%; } /* Action */
-
-        /* Column widths for main grid */
-        .grid-view td:nth-child(1) { width: 5%; }  /* No */
-        .grid-view td:nth-child(2) { width: 10%; } /* Serial Number */
-        .grid-view td:nth-child(3) { width: 8%; }  /* Plant */
-        .grid-view td:nth-child(4) { width: 8%; }  /* Level */
-        .grid-view td:nth-child(5) { width: 12%; } /* Location */
-        .grid-view td:nth-child(6) { width: 8%; }  /* Type */
-        .grid-view td:nth-child(7) { width: 10%; } /* Expiry Date */
-        .grid-view td:nth-child(8) { width: 14%; } /* Status - increased width */
-        .grid-view td:nth-child(9) { width: 10%; } /* Remarks */
-        .grid-view td:nth-child(10) { width: 15%; } /* Actions */
-
-        .grid-view td, .grid-view th {
-            vertical-align: middle;
-            text-align: center;
-        }
-
-        .empty-data-message {
-            padding: 20px;
-            text-align: center;
-            font-size: 1.1em;
-            color: #666;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 6px 8px;
-            border-radius: 4px;
-            color: white;
-            text-align: center;
-            min-width: 80px;
-            max-width: 100%;
-            font-size: 0.85rem;
-            font-weight: 500;
-            white-space: nowrap;
-            box-sizing: border-box;
-        }
-
-        /* Status-specific colors */
-        .status-valid {
-            background-color: #28a745;
-        }
-
-        .status-expired {
-            background-color: #dc3545;
-        }
-
-        .status-expiring-soon {
-            background-color: #ffc107;
-            color: #856404;
-        }
-
-        .status-under-service {
-            background-color: #17a2b8;
-        }
-
-        /* Ensure consistent button sizes in grids */
-        .btn-sm {
-            padding: 4px 8px;
-            font-size: 0.875rem;
-            min-width: 80px;
-        }
-
-        .action-buttons {
+        /* Section header styling */
+        .section-header {
             display: flex;
-            gap: 5px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .section-header h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-header h3 i {
+            margin-right: 10px;
+            color: #007bff;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Filter section styling */
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-content {
+            padding: 20px;
+        }
+
+        .filter-row {
+            display: flex;
             flex-wrap: wrap;
-        }
-
-        /* Rest of your existing styles... */
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-        
-        .modal-panel {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 400px;
-            margin: auto;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .modal-content h4 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #333;
-            text-align: center;
-            font-size: 1.2rem;
-        }
-
-        .form-group {
+            gap: 15px;
             margin-bottom: 15px;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #666;
-            font-size: 0.9rem;
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
         }
 
-        .form-control {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 0.9rem;
+        .search-group {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .select-container {
+            position: relative;
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #6c757d;
+        }
+
+        .custom-select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 30px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .search-box .form-control {
+            padding-left: 35px;
         }
 
         .button-group {
             display: flex;
-            justify-content: flex-end;
             gap: 10px;
-            margin-top: 20px;
         }
 
-        .button-group .btn {
-            min-width: 80px;
-            padding: 6px 12px;
-            overflow:hidden ;
-            max-width: 100%;
-        }
-
-        .validation-error {
-            color: #dc3545;
-            font-size: 0.875rem;
-            margin-top: 5px;
-            display: block;
-        }
-
-        .expired-row {
-            background-color: #615959 !important;
-        }
-
-        .expiring-soon-row {
-            background-color: #fff3cd !important;
-        }
-
-        .under-maintenance-row {
-            background-color: #e8f4f8 !important;
-        }
-
-        .confirmation-grid {
-            width: 100%;
-            margin: 15px 0;
-            border-collapse: collapse;
-        }
-
-        .confirmation-grid th {
+        .expiry-stats-container {
             background-color: #f8f9fa;
-            padding: 8px;
-            border: 1px solid #dee2e6;
-            font-size: 0.9rem;
+            padding: 10px 15px;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
         }
 
-        .confirmation-grid td {
-            padding: 6px;
-            border: 1px solid #dee2e6;
-            font-size: 0.9rem;
+        /* Monitoring section styling */
+        .monitoring-section {
+            margin-bottom: 20px;
         }
 
-        .modal-content {
-            max-height: 80vh;
-            overflow-y: auto;
+        .monitoring-panel {
+            padding: 0;
+        }
+
+        .modern-tabs {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 15px;
+        }
+
+        .tab-button {
+            padding: 10px 15px;
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tab-button i {
+            margin-right: 5px;
+        }
+
+        .tab-button.active {
+            color: #007bff;
+            font-weight: 600;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #007bff;
+        }
+
+        .tab-content {
+            padding: 15px;
+        }
+
+        /* Status indicators */
+        .status-indicator {
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-indicator i {
+            margin-right: 10px;
+        }
+
+        .status-indicator.expired {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border-left: 4px solid #dc3545;
+        }
+
+        .status-indicator.expiring-soon {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border-left: 4px solid #ffc107;
+        }
+
+        .status-indicator.under-service {
+            background-color: rgba(23, 162, 184, 0.1);
+            color: #17a2b8;
+            border-left: 4px solid #17a2b8;
+        }
+
+        /* Grid styling */
+        .grid-container {
+            position: relative;
+            padding: 15px;
+        }
+
+        .grid-view {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+
+        .grid-view th {
+            background-color: #f8f9fa;
+            padding: 12px 10px;
+            border: 1px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .grid-view td {
+            padding: 12px 10px;
+            border: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .grid-view tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .grid-view tr:hover {
+            background-color: #f2f2f2;
         }
 
         .grid-pager {
+            padding: 10px;
             text-align: center;
-            padding: 10px 0;
             background-color: #f8f9fa;
             border-top: 1px solid #dee2e6;
         }
 
-        .grid-pager table {
-            margin: 0 auto;
-        }
-
-        .grid-pager td {
-            padding: 0 5px;
-        }
-
         .grid-pager a, .grid-pager span {
+            display: inline-block;
             padding: 5px 10px;
             margin: 0 2px;
-            border: 1px solid #dee2e6;
-            border-radius: 3px;
-            text-decoration: none;
-            color: #007bff;
+            border-radius: 4px;
+        }
+
+        .grid-pager a {
             background-color: #fff;
-            display: inline-block;
-            min-width: 32px;
+            border: 1px solid #dee2e6;
+            color: #007bff;
+            text-decoration: none;
         }
 
         .grid-pager span {
             background-color: #007bff;
+            border: 1px solid #007bff;
             color: #fff;
-            border-color: #007bff;
         }
 
-        .grid-pager a:hover {
-            background-color: #e9ecef;
-            border-color: #dee2e6;
-            color: #0056b3;
+        /* Status badge styling */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        /* Action buttons styling */
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        /* Empty state styling */
+        .empty-state {
+            padding: 30px;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #dee2e6;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* Loading indicator */
+        .loading-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .filter-group {
+                min-width: 150px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .filter-group {
+            width: 100%;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .grid-view {
+                font-size: 14px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .card-header h4 {
+                margin-bottom: 10px;
+            }
         }
 
         /* Update the heading styles */
@@ -1146,6 +981,54 @@
         }
     </style>
 
+    <style>
+        /* Loading spinner */
+        .spinner-border {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 0.25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+        
+        .spinner-border.text-primary {
+            color: #007bff;
+        }
+        
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        @keyframes spinner-border {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .loading-indicator p {
+            margin-top: 1rem;
+        }
+    </style>
+
     <script type="text/javascript">
         // Add scroll position management
         var scrollPosition;
@@ -1160,118 +1043,85 @@
             }
         }
 
-        // Add this to your existing Sys.WebForms.PageRequestManager code
-        if (typeof (Sys) !== 'undefined') {
-            var prm = Sys.WebForms.PageRequestManager.getInstance();
-            prm.add_beginRequest(function() {
-                saveScrollPosition();
-            });
-            prm.add_endRequest(function() {
-                restoreScrollPosition();
-            });
+        // Show loading indicators during async operations
+        function showLoading(gridId) {
+            document.getElementById(gridId + 'LoadingIndicator').style.display = 'flex';
         }
 
-        function showExpiryDatePanel(button) {
-            var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
-            var feId = button.getAttribute('data-feid') || button.getAttribute('CommandArgument');
-            document.getElementById('<%= hdnSelectedFEID.ClientID %>').value = feId;
-            panel.style.display = 'flex';
-            document.getElementById('modalOverlay').style.display = 'block';
-            return false;
+        function hideLoading(gridId) {
+            document.getElementById(gridId + 'LoadingIndicator').style.display = 'none';
         }
 
-        function hideExpiryDatePanel() {
-            var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
-            panel.style.display = 'none';
-            document.getElementById('modalOverlay').style.display = 'none';
-            return false;
-        }
-
-        function showSendToServiceConfirmation(feId) {
-            // Set the hidden field value
-            document.getElementById('<%= hdnSelectedFEIDForService.ClientID %>').value = feId;
+        // Toggle filter section visibility
+        function toggleFilters() {
+            var filterContainer = document.getElementById('filterContainer');
+            var filterContent = filterContainer.querySelector('.filter-content');
+            var toggleText = document.getElementById('filterToggleText');
             
-            // Show the panel and overlay
-            document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'flex';
-            document.getElementById('modalOverlay').style.display = 'block';
-            
-            return false;
-        }
-
-        function hideSendToServicePanel() {
-            document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'none';
-            document.getElementById('modalOverlay').style.display = 'none';
-            return false;
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('modalOverlay').onclick = function() {
-            hideExpiryDatePanel();
-            hideSendToServicePanel();
-        };
-
-        // Prevent modal from closing when clicking inside it
-        document.querySelectorAll('.modal-panel').forEach(function(panel) {
-            panel.onclick = function(event) {
-                event.stopPropagation();
-            };
-        });
-
-        // Add this to your existing script section
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check sidebar state on page load
-            const sidebarState = localStorage.getItem('sidebarState');
-            if (sidebarState === 'collapsed') {
-                document.body.classList.add('sidebar-collapsed');
+            if (filterContent.style.display === 'none') {
+                filterContent.style.display = 'block';
+                toggleText.innerText = 'Hide Filters';
+                filterContainer.classList.remove('filters-collapsed');
             } else {
-                document.body.classList.remove('sidebar-collapsed');
+                filterContent.style.display = 'none';
+                toggleText.innerText = 'Show Filters';
+                filterContainer.classList.add('filters-collapsed');
+            }
+        }
+
+        // Add row hover effect
+        function addRowHoverEffect() {
+            var tables = document.querySelectorAll('.grid-view');
+            tables.forEach(function(table) {
+                var rows = table.querySelectorAll('tr');
+                rows.forEach(function(row) {
+                    row.addEventListener('mouseenter', function() {
+                        this.classList.add('row-hover');
+                    });
+                    row.addEventListener('mouseleave', function() {
+                        this.classList.remove('row-hover');
+                    });
+                });
+            });
+        }
+
+        // Initialize toast notifications
+        function showNotification(message, type = 'success') {
+            var toast = document.createElement('div');
+            toast.className = 'toast-notification ' + type;
+            
+            var icon = document.createElement('i');
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle';
+            } else if (type === 'warning') {
+                icon.className = 'fas fa-exclamation-triangle';
+            } else {
+                icon.className = 'fas fa-info-circle';
             }
             
-            // Listen for sidebar state changes
-            window.addEventListener('storage', function(e) {
-                if (e.key === 'sidebarState') {
-                    if (e.newValue === 'collapsed') {
-                        document.body.classList.add('sidebar-collapsed');
-                    } else {
-                        document.body.classList.remove('sidebar-collapsed');
-                    }
-                }
-            });
+            var messageSpan = document.createElement('span');
+            messageSpan.textContent = message;
             
-            // Add a custom event listener for sidebar toggle
-            document.addEventListener('sidebarToggled', function(e) {
-                if (e.detail.collapsed) {
-                    document.body.classList.add('sidebar-collapsed');
-                } else {
-                    document.body.classList.remove('sidebar-collapsed');
-                }
-            });
-        });
-
-        function showNotification(message, type = 'success', duration = 3000) {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `toast-notification ${type === 'error' ? 'error' : ''}`;
-            notification.innerHTML = message;
+            toast.appendChild(icon);
+            toast.appendChild(messageSpan);
             
-            // Add to DOM
-            document.body.appendChild(notification);
+            document.body.appendChild(toast);
             
-            // Trigger animation
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
+            setTimeout(function() {
+                toast.classList.add('show');
+            }, 100);
             
-            // Auto-hide after duration
-            setTimeout(() => {
-                notification.classList.add('hide');
-                setTimeout(() => {
-                    document.body.removeChild(notification);
+            setTimeout(function() {
+                toast.classList.remove('show');
+                setTimeout(function() {
+                    document.body.removeChild(toast);
                 }, 300);
-            }, duration);
+            }, 5000);
         }
 
-        // Service Selection Panel functions
+        // Add service selection panel functionality
         function showServiceSelectionPanel() {
             document.getElementById('modalOverlay').style.display = 'block';
             return true; // Allow the postback to occur
@@ -1279,21 +1129,64 @@
         
         function hideServiceSelectionPanel() {
             document.getElementById('modalOverlay').style.display = 'none';
-            return true; // Allow the postback to occur
+            return false; // Prevent default button behavior
+        }
+
+        // Add expiry date panel functionality
+        function showExpiryDatePanel(button) {
+            var feId = button.getAttribute('data-feid');
+            document.getElementById('hidSelectedFEID').value = feId;
+            document.getElementById('pnlExpiryDate').style.display = 'block';
+            return false; // Prevent default button behavior
         }
         
-        // Add select all functionality for the service selection grid
-        function toggleAllCheckboxes(checkbox) {
-            const grid = document.getElementById('<%= gvServiceSelection.ClientID %>');
-            if (!grid) return;
-            
-            const checkboxes = grid.getElementsByTagName('input');
-            for (let i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].type === 'checkbox' && checkboxes[i] !== checkbox) {
-                    checkboxes[i].checked = checkbox.checked;
-                }
-            }
+        function hideExpiryDatePanel() {
+            document.getElementById('pnlExpiryDate').style.display = 'none';
+            return false; // Prevent default button behavior
         }
+
+        // Add service confirmation functionality
+        function showSendToServiceConfirmation(feId) {
+            document.getElementById('hidServiceFEID').value = feId;
+            document.getElementById('pnlSendToService').style.display = 'block';
+            return false; // Prevent default button behavior
+        }
+        
+        function hideSendToServiceConfirmation() {
+            document.getElementById('pnlSendToService').style.display = 'none';
+            return false; // Prevent default button behavior
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add row hover effects
+            addRowHoverEffect();
+            
+            // Register for async postback events
+            if (typeof Sys !== 'undefined' && Sys.WebForms) {
+            var prm = Sys.WebForms.PageRequestManager.getInstance();
+                
+            prm.add_beginRequest(function() {
+                saveScrollPosition();
+                    document.getElementById('gridLoadingIndicator').style.display = 'flex';
+            });
+                
+            prm.add_endRequest(function() {
+                    document.getElementById('gridLoadingIndicator').style.display = 'none';
+                restoreScrollPosition();
+                    addRowHoverEffect();
+                    
+                    // Re-initialize any dynamic elements after partial postback
+                    var filterContent = document.querySelector('.filter-content');
+                    if (filterContent) {
+                        var toggleText = document.getElementById('filterToggleText');
+                        if (toggleText && toggleText.innerText === 'Show Filters') {
+                            filterContent.style.display = 'none';
+                        }
+                    }
+                });
+            }
+        });
     </script>
 
 <style>
@@ -1301,35 +1194,89 @@
         position: fixed;
         top: 20px;
         right: 20px;
-        padding: 12px 24px;
-        background-color: #4CAF50;
-        color: white;
+        padding: 15px 20px;
+        background-color: white;
+        color: #333;
         border-radius: 4px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
         display: flex;
         align-items: center;
         gap: 10px;
-        opacity: 0;
-        transform: translateY(-20px);
-        transition: opacity 0.3s, transform 0.3s;
+        z-index: 9999;
+        transform: translateX(120%);
+        transition: transform 0.3s ease;
+        max-width: 350px;
     }
-
-    .toast-notification.error {
-        background-color: #f44336;
-    }
-
+    
     .toast-notification.show {
-        opacity: 1;
-        transform: translateY(0);
+        transform: translateX(0);
+    }
+    
+    .toast-notification i {
+        font-size: 20px;
+    }
+    
+    .toast-notification.success i {
+        color: #28a745;
+    }
+    
+    .toast-notification.error i {
+        color: #dc3545;
+    }
+    
+    .toast-notification.warning i {
+        color: #ffc107;
+    }
+    
+    .toast-notification.info i {
+        color: #17a2b8;
     }
 
-    .toast-notification.hide {
-        opacity: 0;
-        transform: translateY(-20px);
+    /* Row hover effect */
+    .row-hover {
+        background-color: #f0f7ff !important;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Filter collapse animation */
+    .filters-collapsed {
+        max-height: 60px;
+        overflow: hidden;
+    }
+
+    .filter-content {
+        transition: all 0.3s ease;
+    }
+
+    /* Modal styling */
+    .modal-panel {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(3px);
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        width: 90%;
+        max-width: 450px;
+        animation: modalFadeIn 0.3s ease;
+    }
+
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: translate(-50%, -60%); }
+        to { opacity: 1; transform: translate(-50%, -50%); }
     }
 </style>
-    
 </asp:Content>
-
-
