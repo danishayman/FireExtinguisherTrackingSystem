@@ -343,13 +343,6 @@
                                                             <HeaderStyle CssClass="grid-header" />
                                                             <PagerStyle CssClass="grid-pager" />
                                                             <Columns>
-                                                                <asp:TemplateField HeaderText="No">
-                                                                    <ItemTemplate>
-                                                                        <%# Container.DataItemIndex + 1 %>
-                                                                    </ItemTemplate>
-                                                                    <ItemStyle HorizontalAlign="Center" />
-                                                                    <HeaderStyle HorizontalAlign="Center" />
-                                                                </asp:TemplateField>
                                                                 <asp:BoundField DataField="SerialNumber"
                                                                     HeaderText="Serial Number"
                                                                     SortExpression="SerialNumber">
