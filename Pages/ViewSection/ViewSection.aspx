@@ -100,12 +100,6 @@
                                                                             Under Service (<%= UnderServiceCount %>)
                                                                         </asp:LinkButton>
                                                                     </div>
-                                                                    <asp:Button ID="btnSendAllToService" runat="server"
-                                                                        Text="Send All to Service"
-                                                                        CssClass="btn btn-warning btn-sm"
-                                                                        OnClick="btnSendAllToService_Click"
-                                                                        CausesValidation="false"
-                                                                        OnClientClick="return confirm('Are you sure you want to send all expired and expiring soon fire extinguishers for service?');" />
                                                                 </div>
 
                                                                 <asp:MultiView ID="mvMonitoring" runat="server"
@@ -363,8 +357,6 @@
                                                     <asp:AsyncPostBackTrigger ControlID="btnExpiringSoonTab"
                                                         EventName="Click" />
                                                     <asp:AsyncPostBackTrigger ControlID="btnUnderServiceTab"
-                                                        EventName="Click" />
-                                                    <asp:AsyncPostBackTrigger ControlID="btnSendAllToService"
                                                         EventName="Click" />
                                                     <asp:AsyncPostBackTrigger ControlID="btnSaveExpiryDate"
                                                         EventName="Click" />
@@ -924,20 +916,6 @@
                 border-color: #dee2e6;
             }
 
-            /* Update the Send All to Service button styles to match search button */
-            #btnSendAllToService {
-                white-space: nowrap;
-                flex: none;
-                padding: 8px 16px;
-                font-size: 0.95rem;
-                min-width: 120px;
-                height: auto;
-                font-weight: 500;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                margin-left: 15px;
-            }
 
             .monitoring-grid {
                 width: 100%;

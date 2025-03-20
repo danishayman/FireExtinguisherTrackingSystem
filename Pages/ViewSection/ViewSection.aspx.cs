@@ -543,11 +543,6 @@ namespace FETS.Pages.ViewSection
         }
 
         /// <summary>
-        /// Event handler for sending all expired and expiring soon fire extinguishers to service.
-        /// Shows confirmation dialog before proceeding.
-        /// </summary>
-    
-        /// <summary>
         /// Event handler for under service grid page index changing.
         /// Handles pagination for the under service fire extinguishers grid.
         /// </summary>
@@ -1030,19 +1025,7 @@ namespace FETS.Pages.ViewSection
             }
         }
 
-        protected void btnSendAllToService_Click(object sender, EventArgs e)
-         {
-            string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Change this dynamically if needed
-
-            // Send Email
-            EmailService.SendEmail(recipientEmail, 
-                "All Expired Extinguishers Sent for Service", 
-                "All expired and expiring soon extinguishers have been sent for service.");
-
-            lblExpiryStats.Text = "All expired and expiring soon extinguishers sent for service. Email notification sent.";
-         }
-
-         private void LoadServiceSelectionGrid()
+        private void LoadServiceSelectionGrid()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
