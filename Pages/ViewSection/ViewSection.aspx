@@ -228,38 +228,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                <!-- Expiry Date Panel -->
-                                                <asp:Panel ID="pnlExpiryDate" runat="server" CssClass="modal-panel"
-                                                    Style="display: none;">
-                                                    <div class="modal-content">
-                                                        <h4>Enter New Expiry Date</h4>
-                                                        <asp:HiddenField ID="hdnSelectedFEID" runat="server" />
-                                                        <div class="form-group">
-                                                            <asp:Label ID="lblNewExpiryDate" runat="server"
-                                                                Text="New Expiry Date:"
-                                                                AssociatedControlID="txtNewExpiryDate"></asp:Label>
-                                                            <asp:TextBox ID="txtNewExpiryDate" runat="server"
-                                                                CssClass="form-control" TextMode="Date">
-                                                            </asp:TextBox>
-                                                            <asp:RequiredFieldValidator ID="rfvNewExpiryDate"
-                                                                runat="server" ControlToValidate="txtNewExpiryDate"
-                                                                ErrorMessage="Please enter a new expiry date"
-                                                                Display="Dynamic" ValidationGroup="ExpiryDate"
-                                                                CssClass="validation-error">
-                                                            </asp:RequiredFieldValidator>
-                                                        </div>
-                                                        <div class="button-group">
-                                                            <asp:Button ID="btnSaveExpiryDate" runat="server"
-                                                                Text="Confirm" CssClass="btn btn-primary"
-                                                                ValidationGroup="ExpiryDate"
-                                                                OnClick="btnSaveExpiryDate_Click"
-                                                                UseSubmitBehavior="false" />
-                                                            <button type="button" class="btn btn-secondary"
-                                                                onclick="hideExpiryDatePanel()">Cancel</button>
-                                                        </div>
-                                                    </div>
-                                                </asp:Panel>
                                             </ContentTemplate>
                                             <Triggers>
                                                 <asp:AsyncPostBackTrigger ControlID="btnExpiredTab"
@@ -267,8 +235,6 @@
                                                 <asp:AsyncPostBackTrigger ControlID="btnExpiringSoonTab"
                                                     EventName="Click" />
                                                 <asp:AsyncPostBackTrigger ControlID="btnUnderServiceTab"
-                                                    EventName="Click" />
-                                                <asp:AsyncPostBackTrigger ControlID="btnSaveExpiryDate"
                                                     EventName="Click" />
                                                 <asp:AsyncPostBackTrigger ControlID="gvExpired"
                                                     EventName="PageIndexChanging" />
@@ -410,15 +376,6 @@
                                                                 <asp:TemplateField HeaderText="Actions">
                                                                     <ItemTemplate>
                                                                         <div class="action-buttons">
-                                                                            <asp:Button ID="btnCompleteService"
-                                                                                runat="server"
-                                                                                CommandName="CompleteService"
-                                                                                CommandArgument='<%# Eval("FEID") %>'
-                                                                                data-feid='<%# Eval("FEID") %>'
-                                                                                CssClass='<%# Eval("StatusName").ToString() == "Under Service" ? "btn btn-sm btn-success" : "btn btn-sm btn-success disabled-service" %>'
-                                                                                Text="Complete Service"
-                                                                                Enabled='<%# Eval("StatusName").ToString() == "Under Service" %>'
-                                                                                OnClientClick="return showExpiryDatePanel(this);" />
                                                                             <asp:Button ID="btnEdit" runat="server"
                                                                                 CommandName="EditRow"
                                                                                 CommandArgument='<%# Eval("FEID") %>'
@@ -442,10 +399,6 @@
                                                     </div>
                                                 </div>
                                             </ContentTemplate>
-                                            <Triggers>
-                                                <asp:AsyncPostBackTrigger ControlID="btnSaveExpiryDate"
-                                                    EventName="Click" />
-                                            </Triggers>
                                         </asp:UpdatePanel>
                                     </div>
                                 </div>
@@ -465,30 +418,28 @@
                 </div>
                 <div class="modal-body">
                     <p class="selection-instruction">Select the fire extinguishers you want to send for service from the list below:</p>
-                    <div class="grid-container">
-                        <asp:GridView ID="gvServiceSelection" runat="server" Width="100%" AutoGenerateColumns="false" DataKeyNames="FEID" 
-                            CssClass="grid-view selection-grid" HeaderStyle-CssClass="grid-header" RowStyle-CssClass="grid-row"
-                            AlternatingRowStyle-CssClass="grid-row-alt">
-                            <Columns>
-                                <asp:TemplateField HeaderText="Select" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="80px">
-                                    <HeaderTemplate>
-                                        <input type="checkbox" onclick="toggleAllCheckboxes(this)" id="chkSelectAll" class="selection-checkbox" />
-                                    </HeaderTemplate>
-                                    <ItemTemplate>
-                                        <asp:CheckBox ID="chkSelect" runat="server" CssClass="selection-checkbox" />
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                                <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="150px" />
-                                <asp:BoundField DataField="PlantName" HeaderText="Plant" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="150px" />
-                                <asp:BoundField DataField="LevelName" HeaderText="Level" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
-                                <asp:BoundField DataField="TypeName" HeaderText="Type" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
-                                <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="250px" />
-                            </Columns>
-                            <EmptyDataTemplate>
-                                <div class="empty-data-message">No fire extinguishers available to send for service.</div>
-                            </EmptyDataTemplate>
-                        </asp:GridView>
-                    </div>
+                    <asp:GridView ID="gvServiceSelection" runat="server" Width="100%" AutoGenerateColumns="false" DataKeyNames="FEID" 
+                        CssClass="grid-view selection-grid" HeaderStyle-CssClass="grid-header" RowStyle-CssClass="grid-row"
+                        AlternatingRowStyle-CssClass="grid-row-alt" Style="max-height: 400px; overflow-y: auto;">
+                        <Columns>
+                            <asp:TemplateField HeaderText="Select" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="80px">
+                                <HeaderTemplate>
+                                    <input type="checkbox" onclick="toggleAllCheckboxes(this)" id="chkSelectAll" class="selection-checkbox" />
+                                </HeaderTemplate>
+                                <ItemTemplate>
+                                    <asp:CheckBox ID="chkSelect" runat="server" CssClass="selection-checkbox" />
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                            <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="150px" />
+                            <asp:BoundField DataField="PlantName" HeaderText="Plant" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="150px" />
+                            <asp:BoundField DataField="LevelName" HeaderText="Level" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
+                            <asp:BoundField DataField="TypeName" HeaderText="Type" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
+                            <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="250px" />
+                        </Columns>
+                        <EmptyDataTemplate>
+                            <div class="empty-data-message">No fire extinguishers available to send for service.</div>
+                        </EmptyDataTemplate>
+                    </asp:GridView>
                 </div>
                 <div class="modal-footer">
                     <asp:Button ID="btnConfirmSelection" runat="server" Text="Confirm Selection" CssClass="btn btn-primary btn-lg" OnClick="btnConfirmSelection_Click" />
@@ -1583,22 +1534,6 @@
                 });
             });
 
-            function showExpiryDatePanel(button) {
-                var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
-                var feId = button.getAttribute('data-feid') || button.getAttribute('CommandArgument');
-                document.getElementById('<%= hdnSelectedFEID.ClientID %>').value = feId;
-                panel.style.display = 'flex';
-                document.getElementById('modalOverlay').style.display = 'block';
-                return false;
-            }
-
-            function hideExpiryDatePanel() {
-                var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
-                panel.style.display = 'none';
-                document.getElementById('modalOverlay').style.display = 'none';
-                return false;
-            }
-
             function showEditPanel(button) {
                 var feId = button.getAttribute('data-feid') || button.getAttribute('CommandArgument');
                 document.getElementById('<%= hdnEditFEID.ClientID %>').value = feId;
@@ -1639,7 +1574,7 @@
 
             // Close modal when clicking outside
             document.getElementById('modalOverlay').onclick = function() {
-                hideExpiryDatePanel();
+                hideEditPanel();
                 hideSendToServicePanel();
                 hideCompleteServicePanel();
             };

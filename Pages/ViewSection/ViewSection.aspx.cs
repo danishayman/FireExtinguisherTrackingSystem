@@ -267,215 +267,11 @@ namespace FETS.Pages.ViewSection
         protected void btnClearFilters_Click(object sender, EventArgs e)
         {
             ddlFilterPlant.SelectedIndex = 0;
-            ddlFilterLevel.Items.Clear();
-            ddlFilterLevel.Items.Add(new ListItem("-- All Levels --", ""));
+            LoadDropDownLists();
+            ddlFilterLevel.SelectedIndex = 0;
             ddlFilterStatus.SelectedIndex = 0;
-            txtSearch.Text = "";
-            LoadFireExtinguishers();
-        }
-
-        /// <summary>
-        /// Event handler for saving a new expiry date after service completion.
-        /// Updates the fire extinguisher's status and expiry date.
-        /// </summary>
-        protected void btnSaveExpiryDate_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (!Page.IsValid)
-                    return;
-
-                string feIdString = hdnSelectedFEID.Value;
-                if (string.IsNullOrEmpty(feIdString))
-                {
-                    throw new Exception("No fire extinguisher selected for service completion.");
-                }
-
-                int feId;
-                if (!int.TryParse(feIdString, out feId))
-                {
-                    throw new Exception($"Invalid fire extinguisher ID format: {feIdString}");
-                }
-
-                if (string.IsNullOrEmpty(txtNewExpiryDate.Text))
-                {
-                    throw new Exception("Please enter a new expiry date.");
-                }
-
-                DateTime newExpiryDate;
-                if (!DateTime.TryParse(txtNewExpiryDate.Text, out newExpiryDate))
-                {
-                    throw new Exception("Invalid expiry date format. Please enter a valid date.");
-                }
-
-                string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-
-                    // Begin transaction to ensure all updates are atomic
-                    using (SqlTransaction transaction = conn.BeginTransaction())
-                    {
-                        try
-                        {
-                    // Get the 'Active' status ID
-                    int activeStatusId;
-                            using (SqlCommand cmd = new SqlCommand("SELECT StatusID FROM Status WHERE StatusName = 'Active'", conn, transaction))
-                    {
-                        object result = cmd.ExecuteScalar();
-                        if (result == null)
-                        {
-                            throw new Exception("Could not find 'Active' status in the database. Please check Status table configuration.");
-                        }
-                        activeStatusId = (int)result;
-                    }
-
-                            // Current date for service completion
-                            DateTime serviceDate = DateTime.Now;
-                            
-                            // Calculate reminder date (1 week after service completion)
-                            DateTime reminderDate = serviceDate.AddDays(7);
-
-                            // Update fire extinguisher with new expiry date and service date
-                    using (SqlCommand cmd = new SqlCommand(
-                                "UPDATE FireExtinguishers SET StatusID = @StatusID, DateExpired = @NewExpiryDate, DateServiced = @DateServiced WHERE FEID = @FEID", conn, transaction))
-                    {
-                        cmd.Parameters.AddWithValue("@StatusID", activeStatusId);
-                        cmd.Parameters.AddWithValue("@NewExpiryDate", newExpiryDate);
-                                cmd.Parameters.AddWithValue("@DateServiced", serviceDate);
-                        cmd.Parameters.AddWithValue("@FEID", feId);
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        
-                        if (rowsAffected == 0)
-                        {
-                            throw new Exception($"Fire extinguisher with ID {feId} not found.");
-                                }
-                            }
-                            
-                            // Create reminder entry
-                            using (SqlCommand cmd = new SqlCommand(
-                                "INSERT INTO ServiceReminders (FEID, DateServiced, ReminderDate) VALUES (@FEID, @DateServiced, @ReminderDate)", 
-                                conn, transaction))
-                            {
-                                cmd.Parameters.AddWithValue("@FEID", feId);
-                                cmd.Parameters.AddWithValue("@DateServiced", serviceDate);
-                                cmd.Parameters.AddWithValue("@ReminderDate", reminderDate);
-                                cmd.ExecuteNonQuery();
-                            }
-
-                            // Get extinguisher details for notification
-                            FireExtinguisherDetails extinguisher;
-                            using (SqlCommand cmd = new SqlCommand(
-                                @"SELECT fe.SerialNumber, p.PlantName, l.LevelName, fe.Location 
-                                FROM FireExtinguishers fe
-                                INNER JOIN Plants p ON fe.PlantID = p.PlantID
-                                INNER JOIN Levels l ON fe.LevelID = l.LevelID
-                                WHERE fe.FEID = @FEID", conn, transaction))
-                            {
-                                cmd.Parameters.AddWithValue("@FEID", feId);
-                                using (SqlDataReader reader = cmd.ExecuteReader())
-                                {
-                                    if (reader.Read())
-                                    {
-                                        extinguisher = new FireExtinguisherDetails
-                                        {
-                                            SerialNumber = reader["SerialNumber"].ToString(),
-                                            Plant = reader["PlantName"].ToString(),
-                                            Level = reader["LevelName"].ToString(),
-                                            Location = reader["Location"].ToString()
-                                        };
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Could not retrieve fire extinguisher details.");
-                                    }
-                                }
-                            }
-
-                            // Send service completion email
-                            string emailBody = GenerateServiceCompletionEmail(extinguisher, serviceDate, newExpiryDate);
-                            string recipientEmail = "danishaiman3b@gmail.com"; // Replace with actual recipient
-                            var (emailSent, emailMessage) = EmailService.SendEmail(
-                                recipientEmail, 
-                                $"Fire Extinguisher Service Completed - {extinguisher.SerialNumber}", 
-                                emailBody
-                            );
-
-                            if (!emailSent)
-                            {
-                                // Log the email failure but continue with the transaction
-                                System.Diagnostics.Debug.WriteLine($"Failed to send completion email: {emailMessage}");
-                            }
-
-                            // Commit all changes
-                            transaction.Commit();
-                        }
-                        catch (Exception ex)
-                        {
-                            // Roll back any changes if there was an error
-                            transaction.Rollback();
-                            throw new Exception($"Error during transaction: {ex.Message}");
-                        }
-                    }
-                }
-
-                // Clear the hidden field and textbox
-                hdnSelectedFEID.Value = string.Empty;
-                txtNewExpiryDate.Text = string.Empty;
-
-                // Refresh the data
-                LoadMonitoringPanels();
-                LoadFireExtinguishers();
-                upMonitoring.Update();
-                upMainGrid.Update();
-
-                // Hide the expiry date panel after successful update
-                ScriptManager.RegisterStartupScript(this, GetType(), "hideExpiryPanel", 
-                    "hideExpiryDatePanel();", true);
-
-                // Show success message
-                ScriptManager.RegisterStartupScript(this, GetType(), "success", 
-                    "alert('Service completed successfully. Fire extinguisher status updated to Active. A reminder has been scheduled for vendor follow-up.');", true);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error in btnSaveExpiryDate_Click: {ex.Message}");
-                ScriptManager.RegisterStartupScript(this, GetType(), "error", 
-                    $"alert('Error: {ex.Message.Replace("'", "\\'")}');", true);
-            }
-        }
-        
-        private string GenerateServiceCompletionEmail(FireExtinguisherDetails extinguisher, DateTime serviceDate, DateTime newExpiryDate)
-        {
-            return $@"
-                <html>
-                <head>
-                    <style>
-                        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                        h2 {{ color: #2c3e50; }}
-                        .details {{ background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0; }}
-                        .footer {{ font-size: 12px; color: #777; margin-top: 30px; }}
-                    </style>
-                </head>
-                <body>
-                    <div class='container'>
-                        <h2>Fire Extinguisher Service Completion Notification</h2>
-                        <p>The following fire extinguisher has completed service and is now active:</p>
-                        
-                        <div class='details'>
-                            <p><strong>Serial Number:</strong> {extinguisher.SerialNumber}</p>
-                            <p><strong>Location:</strong> {extinguisher.Plant}, {extinguisher.Level}, {extinguisher.Location}</p>
-                            <p><strong>Service Completed:</strong> {serviceDate.ToString("MMM dd, yyyy")}</p>
-                            <p><strong>New Expiry Date:</strong> {newExpiryDate.ToString("MMM dd, yyyy")}</p>
-                        </div>
-                        
-                        <p>A reminder will be sent in one week to follow up with the vendor regarding service quality.</p>
-                        
-                        <p class='footer'>This is an automated message from the Fire Extinguisher Tracking System.</p>
-                    </div>
-                </body>
-                </html>";
+            txtSearch.Text = string.Empty;
+            ApplyFilters(sender, e);
         }
 
         /// <summary>
@@ -744,13 +540,7 @@ namespace FETS.Pages.ViewSection
         /// </summary>
         protected void gvUnderService_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            if (e.CommandName == "CompleteService")
-            {
-                int feId = Convert.ToInt32(e.CommandArgument);
-                hdnSelectedFEID.Value = feId.ToString();
-                txtNewExpiryDate.Text = string.Empty;
-                ScriptManager.RegisterStartupScript(this, GetType(), "showPanel", "showExpiryDatePanel();", true);
-            }
+            // The CompleteService command has been replaced by the bulk completion functionality
         }
 
         /// <summary>
@@ -2056,6 +1846,42 @@ namespace FETS.Pages.ViewSection
             
             ScriptManager.RegisterStartupScript(this, GetType(), "hideCompleteServicePanel", 
                 "hideCompleteServicePanel();", true);
+        }
+
+        /// <summary>
+        /// Generates an email template for service completion notifications
+        /// </summary>
+        private string GenerateServiceCompletionEmail(FireExtinguisherDetails extinguisher, DateTime serviceDate, DateTime newExpiryDate)
+        {
+            return $@"
+                <html>
+                <head>
+                    <style>
+                        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                        h2 {{ color: #2c3e50; }}
+                        .details {{ background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0; }}
+                        .footer {{ font-size: 12px; color: #777; margin-top: 30px; }}
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <h2>Fire Extinguisher Service Completion Notification</h2>
+                        <p>The following fire extinguisher has completed service and is now active:</p>
+                        
+                        <div class='details'>
+                            <p><strong>Serial Number:</strong> {extinguisher.SerialNumber}</p>
+                            <p><strong>Location:</strong> {extinguisher.Plant}, {extinguisher.Level}, {extinguisher.Location}</p>
+                            <p><strong>Service Completed:</strong> {serviceDate.ToString("MMM dd, yyyy")}</p>
+                            <p><strong>New Expiry Date:</strong> {newExpiryDate.ToString("MMM dd, yyyy")}</p>
+                        </div>
+                        
+                        <p>A reminder will be sent in one week to follow up with the vendor regarding service quality.</p>
+                        
+                        <p class='footer'>This is an automated message from the Fire Extinguisher Tracking System.</p>
+                    </div>
+                </body>
+                </html>";
         }
     }
 }
