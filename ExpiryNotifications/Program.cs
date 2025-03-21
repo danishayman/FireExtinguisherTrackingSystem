@@ -266,7 +266,7 @@ namespace FETS.ExpiryNotifications
                     INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
                     INNER JOIN Status s ON fe.StatusID = s.StatusID
                     WHERE 
-                        s.StatusName = 'Active' AND
+                        (s.StatusName = 'Active' OR s.StatusName = 'Under Service' OR s.StatusName = 'Expiring Soon') AND
                         fe.DateExpired >= GETDATE() AND
                         fe.DateExpired <= DATEADD(day, 60, GETDATE())
                     ORDER BY DaysUntilExpiry ASC";
@@ -689,6 +689,26 @@ namespace FETS.ExpiryNotifications
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
+                
+                try
+                {
+                    // Try to use the ServiceReminders table first
+                    foreach (var reminder in reminders.Where(r => r.ReminderID > 0))
+                    {
+                        string updateQuery = "UPDATE ServiceReminders SET ReminderSent = 1 WHERE ReminderID = @ReminderID";
+                        
+                        using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@ReminderID", reminder.ReminderID);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (SqlException)
+                {
+                    // If ServiceReminders table doesn't exist or error, log the message
+                    Console.WriteLine("Note: Could not update ServiceReminders table status. This is expected if using the fallback method.");
+                }
                 
                 // First try to use the ServiceReminders table
                 try

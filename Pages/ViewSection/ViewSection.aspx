@@ -533,7 +533,6 @@
             box-sizing: border-box;
             overflow-x: auto;
         }
-<<<<<<< HEAD
         
         /* Reset min-width constraints that cause horizontal scrolling */
         .monitoring-panel,
@@ -549,164 +548,6 @@
         .monitoring-grid,
         .selection-grid,
         .confirmation-grid {
-=======
-
-        /* Make filter-row more responsive */
-        .filter-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: flex-start;
-            justify-content: space-between;
-        }
-
-        .filter-group {
-            flex: 1;
-            min-width: 200px;
-            margin-bottom: 15px;
-        }
-
-        /* On smaller screens, stack filter elements */
-        @media (max-width: 768px) {
-            .filter-row {
-                flex-direction: column;
-            }
-            
-            .filter-group {
-                width: 100%;
-            }
-
-            .button-container {
-                text-align: center !important;
-                margin-bottom: 20px;
-            }
-        }
-
-        /* Responsive table styles */
-        .monitoring-grid, 
-        .grid-view {
-            width: 100%;
-            table-layout: auto;
-        }
-
-        /* Remove fixed min-width from content layout */
-        .content-layout {
-            min-width: auto;
-            max-width: 100%;
-        }
-
-        /* Remove fixed widths from monitoring panel */
-        .monitoring-panel {
-            min-width: auto;
-            max-width: 100%;
-        }
-
-        /* Remove fixed widths from tab container */
-        .tab-container {
-            min-width: auto;
-            width: 100%;
-        }
-
-        /* Remove fixed min-width from grid section */
-        .grid-section {
-            min-width: auto;
-            max-width: 100%;
-        }
-
-        /* Ensure grid tables can scroll horizontally on small screens */
-        .grid-container {
-            overflow-x: auto;
-            width: 100%;
-        }
-
-        /* Service Selection Modal Styles */
-        .service-selection-modal {
-            max-width: 95%;
-            width: 95%;
-            padding: 20px;
-            border-radius: 8px;
-            max-height: 90vh;
-            min-height: auto;
-            min-width: auto;
-            overflow-y: auto;
-        }
-
-        @media (max-width: 768px) {
-            .service-selection-modal {
-                width: 95%;
-                padding: 15px;
-                max-height: 80vh;
-            }
-            
-            .modal-title {
-                font-size: 1.4rem;
-            }
-            
-            .selection-grid th, 
-            .selection-grid td {
-                padding: 8px 5px;
-                font-size: 0.9rem;
-            }
-        }
-
-        /* Modal content responsive styles */
-        .modal-content {
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .modal-content {
-                width: 95%;
-                padding: 15px;
-            }
-        }
-
-        /* Make sure table content doesn't get cut off */
-        .confirmation-grid {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        .modal-header {
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-
-        .modal-title {
-            color: #333;
-            margin: 0;
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-
-        .modal-body {
-            padding: 0 0 25px 0;
-            min-height: 400px;
-        }
-
-        .selection-instruction {
-            margin-bottom: 20px;
-            color: #555;
-            font-size: 1.1rem;
-        }
-
-        .grid-container {
-            margin-bottom: 20px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            background-color: #fff;
-            min-height: 350px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .selection-grid {
->>>>>>> 8026ea0327873904ac8253239a7ab6dc05d4a793
             width: 100%;
             table-layout: auto;
         }
@@ -743,7 +584,6 @@
         /* Monitoring Panel */
         .monitoring-section {
             width: 100%;
-<<<<<<< HEAD
             margin-bottom: 20px;
         }
 
@@ -770,18 +610,11 @@
             box-sizing: border-box;
         }
 
-=======
-            table-layout: fixed;
-        }
-
-        /* Make panel header responsive */
->>>>>>> 8026ea0327873904ac8253239a7ab6dc05d4a793
         .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
-<<<<<<< HEAD
             width: 100%;
         }
 
@@ -1269,94 +1102,6 @@
             .button-container {
                 text-align: center;
             }
-=======
-            gap: 15px;
-            width: 100%;
-            min-width: auto;
-            box-sizing: border-box;
-        }
-
-        /* Make tab container responsive */
-        .tab-container {
-            padding: 20px;
-            width: 100%;
-            min-width: auto;
-            box-sizing: border-box;
-        }
-
-        /* Ensure the monitoring panel adjusts properly */
-        .monitoring-panel .tab-container > div {
-            width: 100%;
-            min-width: auto;
-        }
-
-        /* Media queries for responsive layout */
-        @media (max-width: 1200px) {
-            body:not(.sidebar-collapsed) .filter-section,
-            body:not(.sidebar-collapsed) .monitoring-section,
-            body:not(.sidebar-collapsed) .grid-section,
-            body:not(.sidebar-collapsed) .monitoring-panel,
-            body:not(.sidebar-collapsed) .content-layout {
-                max-width: calc(100vw - 270px);
-            }
-            
-            body.sidebar-collapsed .filter-section,
-            body.sidebar-collapsed .monitoring-section,
-            body.sidebar-collapsed .grid-section,
-            body.sidebar-collapsed .monitoring-panel,
-            body.sidebar-collapsed .content-layout {
-                max-width: calc(100vw - 90px);
-            }
-        }
-
-        @media (max-width: 992px) {
-            .service-selection-modal {
-                width: 95%;
-                padding: 15px;
-            }
-            
-            .tab-buttons {
-                flex-wrap: wrap;
-            }
-            
-            .tab-button {
-                font-size: 0.85rem;
-                padding: 6px 10px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            body:not(.sidebar-collapsed) .filter-section,
-            body:not(.sidebar-collapsed) .monitoring-section,
-            body:not(.sidebar-collapsed) .grid-section,
-            body:not(.sidebar-collapsed) .monitoring-panel,
-            body:not(.sidebar-collapsed) .content-layout,
-            body.sidebar-collapsed .filter-section,
-            body.sidebar-collapsed .monitoring-section,
-            body.sidebar-collapsed .grid-section,
-            body.sidebar-collapsed .monitoring-panel,
-            body.sidebar-collapsed .content-layout {
-                max-width: 100%;
-                overflow-x: auto;
-            }
-            
-            .section-title {
-                font-size: 1.3rem;
-                text-align: center;
-            }
-            
-            .status-badge {
-                min-width: 60px;
-                font-size: 0.8rem;
-                padding: 4px 6px;
-            }
-            
-            .btn-sm {
-                min-width: 60px;
-                font-size: 0.8rem;
-                padding: 3px 6px;
-            }
->>>>>>> 8026ea0327873904ac8253239a7ab6dc05d4a793
         }
 
         /* Remove duplicate media queries and styles */
