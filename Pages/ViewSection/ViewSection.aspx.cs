@@ -1389,6 +1389,11 @@ namespace FETS.Pages.ViewSection
                     }
                 }
             }
+            
+            // Ensure the edit panel remains visible after the postback
+            ScriptManager.RegisterStartupScript(this, GetType(), "showEditPanelAfterPlantChange", 
+                "document.getElementById('" + pnlEditFireExtinguisher.ClientID + "').style.display = 'flex';" +
+                "document.getElementById('modalOverlay').style.display = 'block';", true);
         }
 
         /// <summary>
