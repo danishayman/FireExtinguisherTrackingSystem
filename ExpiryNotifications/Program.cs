@@ -60,6 +60,19 @@ namespace FETS.ExpiryNotifications
                     Console.WriteLine("Using fallback connection string. Please verify App.config is properly configured.");
                 }
 
+                // For service test scenario, only test service reminders
+                if (testMode && testScenario?.ToLower() == "service") 
+                {
+                    Console.WriteLine("Testing service reminder feature...");
+                    await SendServiceReminders(connectionString, true);
+                    Console.WriteLine("Service reminder test completed");
+                    return;
+                }
+
+                // Check for pending service reminders
+                Console.WriteLine("Checking for service follow-up reminders...");
+                await SendServiceReminders(connectionString, testMode);
+
                 // Check for fire extinguishers nearing expiry
                 List<FireExtinguisher> expiringExtinguishers;
                 
@@ -108,6 +121,12 @@ namespace FETS.ExpiryNotifications
             // Create test data based on scenario
             switch (scenario?.ToLower())
             {
+                case "service":
+                    // This scenario is handled directly in SendServiceReminders
+                    Console.WriteLine("Service reminder scenario selected - will test service reminder functionality");
+                    // Return empty list as we don't need expiry test data for this scenario
+                    return new List<FireExtinguisher>();
+                
                 case "two-months":
                     // Test fire extinguishers expiring in 1-2 months
                     for (int i = 31; i <= 60; i += 10)
@@ -592,6 +611,458 @@ namespace FETS.ExpiryNotifications
             
             return modifiedTemplate;
         }
+
+        /// <summary>
+        /// Sends reminder emails for fire extinguishers that were serviced 7 days ago
+        /// </summary>
+        private static async Task SendServiceReminders(string connectionString, bool testMode)
+        {
+            try
+            {
+                // In a real production scenario, we would check the ServiceReminders table
+                // But for simplicity and to avoid dependency on the table existing,
+                // we'll directly check for extinguishers with DateServiced being 7 days ago
+                List<ServiceReminderInfo> serviceReminders = GetPendingServiceReminders(connectionString, testMode);
+                
+                if (serviceReminders.Count == 0)
+                {
+                    Console.WriteLine("No service follow-up reminders are due today.");
+                    return;
+                }
+                
+                Console.WriteLine($"Found {serviceReminders.Count} fire extinguisher(s) that need service follow-up reminders");
+                
+                // Send email for each reminder or a single email with all reminders
+                await SendServiceReminderEmail(serviceReminders);
+                
+                // Update the reminder status to sent in the database
+                UpdateReminderStatus(connectionString, serviceReminders);
+                
+                Console.WriteLine("Service reminder emails have been sent");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending service reminders: {ex.Message}");
+                throw;
+            }
+        }
+        
+        /// <summary>
+        /// Gets a list of fire extinguishers that need service follow-up reminders
+        /// </summary>
+        private static List<ServiceReminderInfo> GetPendingServiceReminders(string connectionString, bool testMode)
+        {
+            List<ServiceReminderInfo> reminders = new List<ServiceReminderInfo>();
+            
+            // For test mode, create test data
+            if (testMode)
+            {
+                // Create 2 test reminders
+                reminders.Add(new ServiceReminderInfo
+                {
+                    FEID = 1001,
+                    SerialNumber = "TEST-SR-001",
+                    Plant = "Test Plant",
+                    Level = "Test Level",
+                    Location = "Test Location 1",
+                    ServiceDate = DateTime.Now.AddDays(-7),
+                    ExpiryDate = DateTime.Now.AddYears(1),
+                    ReminderID = 1
+                });
+                
+                reminders.Add(new ServiceReminderInfo
+                {
+                    FEID = 1002,
+                    SerialNumber = "TEST-SR-002",
+                    Plant = "Test Plant",
+                    Level = "Test Level",
+                    Location = "Test Location 2",
+                    ServiceDate = DateTime.Now.AddDays(-7),
+                    ExpiryDate = DateTime.Now.AddYears(1),
+                    ReminderID = 2
+                });
+                
+                return reminders;
+            }
+            
+            // For production, check the database
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                
+                // First try to use the ServiceReminders table
+                try
+                {
+                    string query = @"
+                        SELECT 
+                            sr.ReminderID,
+                            sr.FEID, 
+                            fe.SerialNumber,
+                            p.PlantName,
+                            l.LevelName,
+                            fe.Location,
+                            sr.DateServiced,
+                            fe.DateExpired
+                        FROM ServiceReminders sr
+                        INNER JOIN FireExtinguishers fe ON sr.FEID = fe.FEID
+                        INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                        INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                        WHERE 
+                            sr.ReminderDate <= GETDATE() AND
+                            sr.ReminderSent = 0
+                        ORDER BY sr.DateServiced ASC";
+                    
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                reminders.Add(new ServiceReminderInfo
+                                {
+                                    ReminderID = reader.GetInt32(reader.GetOrdinal("ReminderID")),
+                                    FEID = reader.GetInt32(reader.GetOrdinal("FEID")),
+                                    SerialNumber = reader.GetString(reader.GetOrdinal("SerialNumber")),
+                                    Plant = reader.GetString(reader.GetOrdinal("PlantName")),
+                                    Level = reader.GetString(reader.GetOrdinal("LevelName")),
+                                    Location = reader.GetString(reader.GetOrdinal("Location")),
+                                    ServiceDate = reader.GetDateTime(reader.GetOrdinal("DateServiced")),
+                                    ExpiryDate = reader.GetDateTime(reader.GetOrdinal("DateExpired"))
+                                });
+                            }
+                        }
+                    }
+                }
+                catch (SqlException)
+                {
+                    // If the ServiceReminders table doesn't exist or other SQL error, fall back to directly checking DateServiced
+                    Console.WriteLine("ServiceReminders table query failed. Falling back to direct DateServiced check.");
+                    
+                    string fallbackQuery = @"
+                        SELECT 
+                            fe.FEID,
+                            fe.SerialNumber,
+                            p.PlantName,
+                            l.LevelName,
+                            fe.Location,
+                            fe.DateServiced,
+                            fe.DateExpired
+                        FROM FireExtinguishers fe
+                        INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                        INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                        WHERE 
+                            fe.DateServiced IS NOT NULL AND
+                            DATEDIFF(day, fe.DateServiced, GETDATE()) = 7
+                        ORDER BY fe.DateServiced ASC";
+                    
+                    using (SqlCommand cmd = new SqlCommand(fallbackQuery, conn))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                reminders.Add(new ServiceReminderInfo
+                                {
+                                    FEID = reader.GetInt32(reader.GetOrdinal("FEID")),
+                                    SerialNumber = reader.GetString(reader.GetOrdinal("SerialNumber")),
+                                    Plant = reader.GetString(reader.GetOrdinal("PlantName")),
+                                    Level = reader.GetString(reader.GetOrdinal("LevelName")),
+                                    Location = reader.GetString(reader.GetOrdinal("Location")),
+                                    ServiceDate = reader.GetDateTime(reader.GetOrdinal("DateServiced")),
+                                    ExpiryDate = reader.GetDateTime(reader.GetOrdinal("DateExpired"))
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return reminders;
+        }
+        
+        /// <summary>
+        /// Updates the reminder status in the database to mark as sent
+        /// </summary>
+        private static void UpdateReminderStatus(string connectionString, List<ServiceReminderInfo> reminders)
+        {
+            // Skip if there are no reminders
+            if (reminders.Count == 0) return;
+            
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                
+                try
+                {
+                    // Try to update the ServiceReminders table first
+                    foreach (var reminder in reminders.Where(r => r.ReminderID > 0))
+                    {
+                        string updateQuery = "UPDATE ServiceReminders SET ReminderSent = 1 WHERE ReminderID = @ReminderID";
+                        
+                        using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@ReminderID", reminder.ReminderID);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (SqlException)
+                {
+                    // If ServiceReminders table doesn't exist or error, log the message
+                    Console.WriteLine("Note: Could not update ServiceReminders table status. This is expected if using the fallback method.");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Sends a reminder email for fire extinguishers that were serviced 7 days ago
+        /// </summary>
+        private static async Task SendServiceReminderEmail(List<ServiceReminderInfo> reminders)
+        {
+            if (reminders.Count == 0) return;
+            
+            try
+            {
+                var smtpSection = ConfigurationManager.GetSection("system.net/mailSettings/smtp") as System.Net.Configuration.SmtpSection;
+                if (smtpSection == null)
+                {
+                    throw new ConfigurationErrorsException("SMTP configuration not found in App.config");
+                }
+                
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress("Fire Extinguisher Tracking System", smtpSection.From));
+                message.To.Add(new MailboxAddress("", "irfandanishnoorazlin@gmail.com")); // Replace with actual recipient
+                message.Subject = "Fire Extinguisher Service Follow-up Reminder";
+                
+                string body;
+                if (reminders.Count == 1)
+                {
+                    // Single extinguisher reminder
+                    body = GenerateServiceReminderEmail(reminders[0]);
+                }
+                else
+                {
+                    // Multiple extinguisher reminder
+                    body = GenerateMultipleServiceReminderEmail(reminders);
+                }
+                
+                var bodyBuilder = new BodyBuilder { HtmlBody = body };
+                message.Body = bodyBuilder.ToMessageBody();
+                
+                using (var client = new SmtpClient())
+                {
+                    await client.ConnectAsync(smtpSection.Network.Host, smtpSection.Network.Port,
+                        smtpSection.Network.EnableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto);
+                    
+                    if (!string.IsNullOrEmpty(smtpSection.Network.UserName))
+                    {
+                        await client.AuthenticateAsync(smtpSection.Network.UserName, smtpSection.Network.Password);
+                    }
+                    
+                    await client.SendAsync(message);
+                    await client.DisconnectAsync(true);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send service reminder email: {ex.Message}");
+                throw;
+            }
+        }
+        
+        /// <summary>
+        /// Generates an HTML email body for a single extinguisher service reminder
+        /// </summary>
+        private static string GenerateServiceReminderEmail(ServiceReminderInfo reminder)
+        {
+            try
+            {
+                // Path to the template file
+                string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates", "ServiceReminderTemplate.html");
+                
+                // Check if template exists
+                if (!File.Exists(templatePath))
+                {
+                    Console.WriteLine($"Warning: Service reminder template not found at {templatePath}");
+                    return CreateFallbackServiceReminderEmail(reminder);
+                }
+                
+                // Read the template
+                string template = File.ReadAllText(templatePath);
+                
+                // Replace placeholders with actual data
+                template = template.Replace("{{SerialNumber}}", reminder.SerialNumber);
+                template = template.Replace("{{Plant}}", reminder.Plant);
+                template = template.Replace("{{Level}}", reminder.Level);
+                template = template.Replace("{{Location}}", reminder.Location);
+                template = template.Replace("{{ServiceDate}}", reminder.ServiceDate.ToString("MMM dd, yyyy"));
+                template = template.Replace("{{ExpiryDate}}", reminder.ExpiryDate.ToString("MMM dd, yyyy"));
+                template = template.Replace("{{GenerationDate}}", DateTime.Now.ToString("MMM dd, yyyy HH:mm"));
+                
+                // Hide the table for single extinguisher
+                template = template.Replace("data-display=\"{{TableStyle}}\"", "style=\"display: none;\"");
+                template = template.Replace("{{TableRows}}", ""); // Empty as we're not showing the table
+                
+                return template;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error generating service reminder email: {ex.Message}");
+                return CreateFallbackServiceReminderEmail(reminder);
+            }
+        }
+        
+        /// <summary>
+        /// Creates a simple HTML email when the template file is not available
+        /// </summary>
+        private static string CreateFallbackServiceReminderEmail(ServiceReminderInfo reminder)
+        {
+            return $@"
+                <html>
+                <head>
+                    <style>
+                        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                        h2 {{ color: #e74c3c; }}
+                        .details {{ background-color: #f9f9f9; padding: 15px; margin: 15px 0; }}
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <h2>Fire Extinguisher Service Follow-up Reminder</h2>
+                        <p>This is a reminder to follow up with your vendor regarding the recently serviced fire extinguisher.</p>
+                        
+                        <div class='details'>
+                            <p><strong>Serial Number:</strong> {reminder.SerialNumber}</p>
+                            <p><strong>Location:</strong> {reminder.Plant}, {reminder.Level}, {reminder.Location}</p>
+                            <p><strong>Service Date:</strong> {reminder.ServiceDate.ToString("MMM dd, yyyy")}</p>
+                            <p><strong>New Expiry Date:</strong> {reminder.ExpiryDate.ToString("MMM dd, yyyy")}</p>
+                        </div>
+                        
+                        <p>Please ensure that the service was performed correctly and all documentation has been received.</p>
+                        
+                        <p>Generated on {DateTime.Now.ToString("MMM dd, yyyy HH:mm")}</p>
+                    </div>
+                </body>
+                </html>";
+        }
+        
+        /// <summary>
+        /// Generates an HTML email body for multiple extinguisher service reminders
+        /// </summary>
+        private static string GenerateMultipleServiceReminderEmail(List<ServiceReminderInfo> reminders)
+        {
+            try 
+            {
+                // Path to the template file
+                string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates", "ServiceReminderTemplate.html");
+                
+                // Check if template exists
+                if (!File.Exists(templatePath))
+                {
+                    Console.WriteLine($"Warning: Service reminder template not found at {templatePath}");
+                    return CreateFallbackMultipleServiceReminderEmail(reminders);
+                }
+                
+                // Read the template
+                string template = File.ReadAllText(templatePath);
+                
+                // Hide the single extinguisher display
+                template = template.Replace("<div class=\"extinguisher-details\">", "<div class=\"extinguisher-details\" style=\"display: none;\">");
+                
+                // Show the table
+                template = template.Replace("data-display=\"{{TableStyle}}\"", "style=\"\"");
+                
+                // Generate table rows
+                string tableRows = "";
+                foreach (var reminder in reminders)
+                {
+                    tableRows += $@"
+                        <tr>
+                            <td>{reminder.SerialNumber}</td>
+                            <td>{reminder.Plant}, {reminder.Level}, {reminder.Location}</td>
+                            <td>{reminder.ServiceDate.ToString("MMM dd, yyyy")}</td>
+                            <td>{reminder.ExpiryDate.ToString("MMM dd, yyyy")}</td>
+                        </tr>";
+                }
+                
+                template = template.Replace("{{TableRows}}", tableRows);
+                template = template.Replace("{{GenerationDate}}", DateTime.Now.ToString("MMM dd, yyyy HH:mm"));
+                
+                // Replace single extinguisher placeholders with empty strings
+                template = template.Replace("{{SerialNumber}}", "");
+                template = template.Replace("{{Plant}}", "");
+                template = template.Replace("{{Level}}", "");
+                template = template.Replace("{{Location}}", "");
+                template = template.Replace("{{ServiceDate}}", "");
+                template = template.Replace("{{ExpiryDate}}", "");
+                
+                return template;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error generating multiple service reminder email: {ex.Message}");
+                return CreateFallbackMultipleServiceReminderEmail(reminders);
+            }
+        }
+        
+        /// <summary>
+        /// Creates a simple HTML email for multiple reminders when the template file is not available
+        /// </summary>
+        private static string CreateFallbackMultipleServiceReminderEmail(List<ServiceReminderInfo> reminders)
+        {
+            // Generate table rows
+            string tableRows = "";
+            foreach (var reminder in reminders)
+            {
+                tableRows += $@"
+                    <tr>
+                        <td>{reminder.SerialNumber}</td>
+                        <td>{reminder.Plant}, {reminder.Level}, {reminder.Location}</td>
+                        <td>{reminder.ServiceDate.ToString("MMM dd, yyyy")}</td>
+                        <td>{reminder.ExpiryDate.ToString("MMM dd, yyyy")}</td>
+                    </tr>";
+            }
+            
+            return $@"
+                <html>
+                <head>
+                    <style>
+                        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                        h2 {{ color: #e74c3c; }}
+                        table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
+                        table, th, td {{ border: 1px solid #ddd; }}
+                        th, td {{ padding: 10px; text-align: left; }}
+                        th {{ background-color: #f2f2f2; }}
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <h2>Fire Extinguisher Service Follow-up Reminders</h2>
+                        <p>This is a reminder to follow up with your vendor regarding recently serviced fire extinguishers.</p>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Serial Number</th>
+                                    <th>Location</th>
+                                    <th>Service Date</th>
+                                    <th>New Expiry Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {tableRows}
+                            </tbody>
+                        </table>
+                        
+                        <p>Please ensure that the service was performed correctly and all documentation has been received.</p>
+                        
+                        <p>Generated on {DateTime.Now.ToString("MMM dd, yyyy HH:mm")}</p>
+                    </div>
+                </body>
+                </html>";
+        }
     }
 
     public class FireExtinguisher
@@ -618,5 +1089,20 @@ namespace FETS.ExpiryNotifications
         public string Location { get; set; }
         public DateTime ExpiryDate { get; set; }
         public string Remarks { get; set; }
+    }
+
+    /// <summary>
+    /// Data class to hold service reminder information
+    /// </summary>
+    public class ServiceReminderInfo
+    {
+        public int FEID { get; set; }
+        public string SerialNumber { get; set; }
+        public string Plant { get; set; }
+        public string Level { get; set; }
+        public string Location { get; set; }
+        public DateTime ServiceDate { get; set; }
+        public DateTime ExpiryDate { get; set; }
+        public int ReminderID { get; set; }
     }
 }

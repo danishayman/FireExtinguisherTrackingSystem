@@ -35,7 +35,7 @@ namespace FETS
                 : "<tr>\r\n                        <th>Remarks</th>\r\n                        <td>" + remarks + "</td>\r\n                    </tr>";
             
             // Set default estimated return date if not provided (14 days from now)
-            DateTime returnDate = estimatedReturnDate ?? DateTime.Now.AddDays(14);
+            DateTime returnDate = estimatedReturnDate ?? DateTime.Now.AddDays(21);
             
             // Replace placeholders with actual data
             template = template.Replace("{SerialNumber}", serialNumber)

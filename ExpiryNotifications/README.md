@@ -1,102 +1,107 @@
-# Fire Extinguisher Expiry Notification System
+# Fire Extinguisher Tracking System - Notification Service
 
-This console application checks for fire extinguishers that are nearing their expiry dates and sends email notifications based on the following schedule:
+This console application sends automated email notifications for fire extinguishers that are expiring soon and service follow-up reminders.
 
-- **Two months before expiry**: Send one email per week (on Mondays)
-- **One month before expiry**: Send one email every day
+## Features
 
-## Setup Instructions
+1. **Expiry Notifications**:
+   - Sends notifications for extinguishers expiring in 31-60 days (weekly on Mondays)
+   - Sends notifications for extinguishers expiring in 0-30 days (daily)
 
-### 1. Build the Application
+2. **Service Follow-up Reminders**:
+   - Sends reminders 7 days after a fire extinguisher has been serviced
+   - Prompts PIC to verify proper service completion with the vendor
 
-1. Open the solution in Visual Studio
-2. Right-click on the ExpiryNotifications project and select "Build"
-3. The compiled executable will be in the `bin\Debug` or `bin\Release` folder
+## Configuration
 
-### 2. Configure Windows Task Scheduler
+Configuration is stored in the `App.config` file:
 
-To run the application automatically every day:
-
-1. Open Windows Task Scheduler (search for "Task Scheduler" in the Start menu)
-2. Click "Create Basic Task..."
-3. Enter a name (e.g., "Fire Extinguisher Expiry Check") and description
-4. Select "Daily" for the trigger
-5. Choose a start time (recommended: early morning, e.g., 7:00 AM)
-6. Select "Start a program" for the action
-7. Browse to the location of the compiled executable (`ExpiryNotifications.exe`)
-8. Complete the wizard
-
-### 3. Configuration Settings
-
-Before running the application, you need to configure the following settings in the `App.config` file:
-
-1. **Database Connection String**: Update the `FETSConnection` connection string with your SQL Server details
-   ```xml
-   <connectionStrings>
-     <add name="FETSConnection" connectionString="Data Source=localhost\SQLEXPRESS;Initial Catalog=FireExtinguisherTrackingSystem;Integrated Security=True" providerName="System.Data.SqlClient" />
-   </connectionStrings>
-   ```
-
-2. **Email Settings**: Update the SMTP settings with your email provider details
-   ```xml
-   <system.net>
-     <mailSettings>
-       <smtp from="fireextinguisher@example.com">
-         <network host="smtp.gmail.com" port="587" userName="your-email@gmail.com" password="your-app-password" enableSsl="true" />
-       </smtp>
-     </mailSettings>
-   </system.net>
-   ```
-
-3. **Email Recipient**: Update the email recipient in the appSettings section
-   ```xml
-   <appSettings>
-     <add key="EmailRecipient" value="your-email@example.com" />
-   </appSettings>
-   ```
-
-## Testing the Application
-
-The application includes a test mode that allows you to simulate different expiry scenarios without waiting for actual days to pass. Use the following command-line arguments:
-
-```
-ExpiryNotifications.exe --test [--scenario SCENARIO_NAME]
+```xml
+<configuration>
+  <appSettings>
+    <add key="EmailRecipient" value="irfandanishnoorazlin@gmail.com" />
+  </appSettings>
+  <connectionStrings>
+    <add name="FETSConnection" connectionString="Data Source=localhost;Initial Catalog=FETS;User ID=irfandanish;Password=1234;Connection Timeout=30" providerName="System.Data.SqlClient" />
+  </connectionStrings>
+  <system.net>
+    <mailSettings>
+      <smtp from="sender@example.com">
+        <network host="smtp.gmail.com" port="587" userName="youremail@gmail.com" password="your-app-password" enableSsl="true" />
+      </smtp>
+    </mailSettings>
+  </system.net>
+</configuration>
 ```
 
-Available test scenarios:
+## Usage
 
-- `two-months`: Tests notifications for fire extinguishers expiring in 1-2 months
-- `one-month`: Tests notifications for fire extinguishers expiring within a month
-- `critical`: Tests notifications for fire extinguishers expiring within a week
-- If no scenario is specified, it will test all scenarios
-
-Examples:
+### Running Manually
 
 ```
-# Test all scenarios
+ExpiryNotifications.exe
+```
+
+### Testing Mode
+
+Run with test data instead of accessing the database:
+
+```
 ExpiryNotifications.exe --test
+```
 
-# Test only the two-months scenario
+Test specific scenarios:
+
+```
 ExpiryNotifications.exe --test --scenario two-months
-
-# Test only the critical scenario
+ExpiryNotifications.exe --test --scenario one-month
 ExpiryNotifications.exe --test --scenario critical
 ```
 
-When running in test mode:
-- The application uses mock data instead of querying the database
-- Email notifications are sent regardless of the day of week
-- Subject lines are prefixed with "[TEST]" to distinguish test emails
-- The console window will stay open until you press a key
+## Scheduling as a Task
 
-## Troubleshooting
+### Windows Task Scheduler Setup
 
-If you encounter issues with the notification system:
+1. Open Task Scheduler
+2. Click "Create Basic Task"
+3. Name: "Fire Extinguisher Notifications"
+4. Description: "Sends notifications for expiring fire extinguishers and service follow-ups"
+5. Trigger: Daily at 8:00 AM
+6. Action: Start a Program
+7. Program/script: Browse to the ExpiryNotifications.exe location
+8. Finish
 
-1. Check the Windows Event Viewer for any error logs
-2. Verify that the SMTP settings in App.config are correct
-3. Ensure the application has access to the database
-4. Check that the fire extinguisher data in the database is up to date
+### Best Practices
+
+- Ensure the application can access the database from the scheduled task context
+- Verify email settings are correctly configured
+- Run the task manually with --test flag to verify it works before scheduling
+
+## Database Changes
+
+The application looks for a `ServiceReminders` table to track reminders:
+
+```sql
+CREATE TABLE ServiceReminders (
+    ReminderID INT IDENTITY(1,1) PRIMARY KEY,
+    FEID INT NOT NULL,
+    DateServiced DATETIME NOT NULL,
+    ReminderDate DATETIME NOT NULL,
+    ReminderSent BIT DEFAULT 0,
+    DateCreated DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (FEID) REFERENCES FireExtinguishers(FEID)
+);
+```
+
+If this table is not found, the application will fall back to using the `DateServiced` column in the `FireExtinguishers` table.
+
+## Service Follow-up Process
+
+1. When a fire extinguisher service is completed, the PIC enters a new expiry date
+2. The system records the service date and schedules a reminder for 7 days later
+3. After 7 days, the notification service sends a follow-up email
+4. The PIC should verify with the vendor that service was properly completed
+5. Any issues found should be reported to the vendor immediately
 
 ## Dependencies
 
