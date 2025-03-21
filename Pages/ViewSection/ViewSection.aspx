@@ -322,6 +322,9 @@
                                                 <ContentTemplate>
                                                     <div class="grid-section">
                                                         <h3 class="section-title">Fire Extinguisher List</h3>
+                                                        <div class="button-container" style="margin-bottom: 15px; text-align: right;">
+                                                            <asp:Button ID="btnShowSelection" runat="server" Text="Send Multiple to Service" CssClass="btn btn-warning" OnClick="btnShowSelection_Click" OnClientClick="showServiceSelectionPanel(); return true;" />
+                                                        </div>
                                                         <asp:GridView ID="gvFireExtinguishers" runat="server"
                                                             AutoGenerateColumns="False" CssClass="grid-view"
                                                             AllowPaging="True" AllowSorting="True" PageSize="10"
@@ -472,7 +475,6 @@
         </asp:Panel>
     </ContentTemplate>
 </asp:UpdatePanel>
-<asp:Button ID="btnShowSelection" runat="server" Text="Send Multiple to Service" CssClass="btn btn-warning" OnClick="btnShowSelection_Click" OnClientClick="showServiceSelectionPanel(); return true;" />
 
     <!-- Send to Service Confirmation Modal -->
     <asp:UpdatePanel ID="upServiceConfirmation" runat="server" UpdateMode="Conditional">
@@ -518,7 +520,6 @@
             min-width: auto;
             margin: 0 auto;
             box-sizing: border-box;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Service Selection Modal Styles */
@@ -632,7 +633,6 @@
         .filter-section {
             background-color: #fff;
             border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin-bottom: 30px;
         }
@@ -645,12 +645,11 @@
             width: 100%;
             padding: 30px;
             box-sizing: border-box;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .view-section {
             background-color: #fff;
-            border-radius: 5px;
+            border-radius: 0px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
@@ -659,7 +658,6 @@
         .grid-view {
             width: 100%;
             table-layout: fixed;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Make panel header responsive */
@@ -672,7 +670,6 @@
             width: 100%;
             min-width: auto;
             box-sizing: border-box;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Make tab container responsive */
@@ -681,21 +678,18 @@
             width: 100%;
             min-width: auto;
             box-sizing: border-box;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Ensure the monitoring panel adjusts properly */
         .monitoring-panel {
             width: 100%;
             min-width: auto;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Add this to ensure MultiView content adjusts properly */
         .monitoring-panel .tab-container > div {
             width: 100%;
             min-width: auto;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Responsive styles for smaller screens */
@@ -721,7 +715,7 @@
                 background-color: #fff;
                 border-radius: 5px;
                 padding: 20px;
-                margin-bottom: -20px;
+                margin-bottom: -15rem;
             }
 
             /* Update the view-section container */
@@ -732,7 +726,6 @@
                 width: auto;
                 padding: 30px;
                 box-sizing: border-box;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             /* Update table layout to be more responsive */
@@ -740,7 +733,6 @@
             .grid-view {
                 width: 100%;
                 table-layout: fixed;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             /* Make panel header responsive */
@@ -753,7 +745,6 @@
                 width: 100%;
                 min-width: auto;
                 box-sizing: border-box;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             /* Make tab container responsive */
@@ -762,21 +753,12 @@
                 width: 100%;
                 min-width: auto;
                 box-sizing: border-box;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             /* Ensure the monitoring panel adjusts properly */
-            .monitoring-panel {
-                width: 100%;
-                min-width: auto;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-
-            /* Add this to ensure MultiView content adjusts properly */
             .monitoring-panel .tab-container>div {
                 width: 100%;
                 min-width: auto;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             /* Responsive styles for smaller screens */
@@ -876,7 +858,6 @@
                 border: 1px solid #dee2e6;
                 text-align: center;
                 font-size: 0.9rem;
-                transition: all 0.2s ease;
             }
 
             .tab-button:hover {
@@ -936,7 +917,7 @@
                 max-width: 1100px;
                 min-width: 1000px;
                 background-color: #fff;
-                border-radius: 5px;
+                border-radius: 0px;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 padding: 20px;
                 box-sizing: border-box;
@@ -1105,8 +1086,7 @@
 
         .monitoring-panel {
             background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 0px;
             width: 100%;
             min-width: 1000px;
             box-sizing: border-box;
@@ -1137,7 +1117,7 @@
             border: 1px solid #dee2e6;
             text-align: center;
             font-size: 0.9rem;
-            transition: all 0.2s ease;
+            
         }
 
         .tab-button:hover {
@@ -1712,7 +1692,7 @@
         gap: 10px;
         opacity: 0;
         transform: translateY(-20px);
-        transition: opacity 0.3s, transform 0.3s;
+    
     }
 
     .toast-notification.error {
