@@ -618,8 +618,30 @@ namespace FETS.Pages.ViewSection
         /// </summary>
         protected void gvExpired_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
-            gvExpired.PageIndex = e.NewPageIndex;
-            LoadTabData();
+            try
+            {
+                gvExpired.PageIndex = e.NewPageIndex;
+                
+                // Set the active tab to ensure correct data is loaded
+                activeTab = "expired";
+                mvMonitoring.SetActiveView(vwExpired);
+                
+                // Update all monitoring data
+                LoadTabData();
+                
+                // Ensure the UpdatePanel is refreshed
+                upMonitoring.Update();
+                
+                // Add debug information
+                System.Diagnostics.Debug.WriteLine($"Changed Expired grid to page {e.NewPageIndex}");
+            }
+            catch (Exception ex)
+            {
+                // Log error and show user notification
+                System.Diagnostics.Debug.WriteLine($"Error in gvExpired_PageIndexChanging: {ex.Message}");
+                ScriptManager.RegisterStartupScript(this, GetType(), "paginationError", 
+                    $"showNotification('❌ Error changing page: {ex.Message.Replace("'", "\\'")}', 'error');", true);
+            }
         }
 
         /// <summary>
@@ -643,8 +665,30 @@ namespace FETS.Pages.ViewSection
         /// </summary>
         protected void gvExpiringSoon_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
-            gvExpiringSoon.PageIndex = e.NewPageIndex;
-            LoadTabData();
+            try
+            {
+                gvExpiringSoon.PageIndex = e.NewPageIndex;
+                
+                // Set the active tab to ensure correct data is loaded
+                activeTab = "expiringSoon";
+                mvMonitoring.SetActiveView(vwExpiringSoon);
+                
+                // Update all monitoring data
+                LoadTabData();
+                
+                // Ensure the UpdatePanel is refreshed
+                upMonitoring.Update();
+                
+                // Add debug information
+                System.Diagnostics.Debug.WriteLine($"Changed ExpiringSoon grid to page {e.NewPageIndex}");
+            }
+            catch (Exception ex)
+            {
+                // Log error and show user notification
+                System.Diagnostics.Debug.WriteLine($"Error in gvExpiringSoon_PageIndexChanging: {ex.Message}");
+                ScriptManager.RegisterStartupScript(this, GetType(), "paginationError", 
+                    $"showNotification('❌ Error changing page: {ex.Message.Replace("'", "\\'")}', 'error');", true);
+            }
         }
 
         /// <summary>
@@ -668,8 +712,30 @@ namespace FETS.Pages.ViewSection
         /// </summary>
         protected void gvUnderService_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
-            gvUnderService.PageIndex = e.NewPageIndex;
-            LoadTabData();
+            try
+            {
+                gvUnderService.PageIndex = e.NewPageIndex;
+                
+                // Set the active tab to ensure correct data is loaded
+                activeTab = "underService";
+                mvMonitoring.SetActiveView(vwUnderService);
+                
+                // Update all monitoring data
+                LoadTabData();
+                
+                // Ensure the UpdatePanel is refreshed
+                upMonitoring.Update();
+                
+                // Add debug information
+                System.Diagnostics.Debug.WriteLine($"Changed UnderService grid to page {e.NewPageIndex}");
+            }
+            catch (Exception ex)
+            {
+                // Log error and show user notification
+                System.Diagnostics.Debug.WriteLine($"Error in gvUnderService_PageIndexChanging: {ex.Message}");
+                ScriptManager.RegisterStartupScript(this, GetType(), "paginationError", 
+                    $"showNotification('❌ Error changing page: {ex.Message.Replace("'", "\\'")}', 'error');", true);
+            }
         }
 
         /// <summary>
@@ -825,110 +891,149 @@ namespace FETS.Pages.ViewSection
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
+                try
                 {
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"
-                        WITH MonitoringData AS (
-                            SELECT 
-                                fe.FEID,
-                                fe.SerialNumber,
-                                p.PlantName,
-                                l.LevelName,
-                                fe.Location,
-                                t.TypeName,
-                                fe.DateExpired,
-                                s.StatusName,
-                                DATEDIFF(day, fe.DateExpired, GETDATE()) as DaysExpired,
-                                DATEDIFF(day, GETDATE(), fe.DateExpired) as DaysLeft,
-                                CASE 
-                                    WHEN fe.DateExpired < GETDATE() AND s.StatusName != 'Under Service' THEN 'Expired'
-                                    WHEN fe.DateExpired >= GETDATE() AND fe.DateExpired <= DATEADD(day, 60, GETDATE()) AND s.StatusName != 'Under Service' THEN 'ExpiringSoon'
-                                    WHEN s.StatusName = 'Under Service' THEN 'UnderService'
-                                END as Category
-                            FROM FireExtinguishers fe
-                            INNER JOIN Status s ON fe.StatusID = s.StatusID
-                            INNER JOIN Plants p ON fe.PlantID = p.PlantID
-                            INNER JOIN Levels l ON fe.LevelID = l.LevelID
-                            INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
-                        )
+                    conn.Open();
+                    
+                    // First, get counts for all categories regardless of which tab is active
+                    string countQuery = @"
                         SELECT 
-                            md.*,
-                            (SELECT COUNT(*) FROM MonitoringData WHERE Category = 'Expired') as ExpiredCount,
-                            (SELECT COUNT(*) FROM MonitoringData WHERE Category = 'ExpiringSoon') as ExpiringSoonCount,
-                            (SELECT COUNT(*) FROM MonitoringData WHERE Category = 'UnderService') as UnderServiceCount
-                        FROM MonitoringData md
-                        WHERE md.Category = @Category
-                        ORDER BY md.DateExpired ASC";
-
-                    cmd.Parameters.AddWithValue("@Category", activeTab == "expired" ? "Expired" : 
-                                                          activeTab == "expiringSoon" ? "ExpiringSoon" : "UnderService");
-
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                            SUM(CASE WHEN fe.DateExpired < GETDATE() AND s.StatusName != 'Under Service' THEN 1 ELSE 0 END) as ExpiredCount,
+                            SUM(CASE WHEN fe.DateExpired >= GETDATE() AND fe.DateExpired <= DATEADD(day, 60, GETDATE()) AND s.StatusName != 'Under Service' THEN 1 ELSE 0 END) as ExpiringSoonCount,
+                            SUM(CASE WHEN s.StatusName = 'Under Service' THEN 1 ELSE 0 END) as UnderServiceCount
+                        FROM FireExtinguishers fe
+                        INNER JOIN Status s ON fe.StatusID = s.StatusID";
+                        
+                    using (SqlCommand countCmd = new SqlCommand(countQuery, conn))
                     {
-                        DataTable dt = new DataTable();
-                        adapter.Fill(dt);
-
-                        if (dt.Rows.Count > 0)
+                        using (SqlDataReader countReader = countCmd.ExecuteReader())
                         {
-                            // Get the counts from the first row (they'll be the same in all rows)
-                            ExpiredCount = Convert.ToInt32(dt.Rows[0]["ExpiredCount"]);
-                            ExpiringSoonCount = Convert.ToInt32(dt.Rows[0]["ExpiringSoonCount"]);
-                            UnderServiceCount = Convert.ToInt32(dt.Rows[0]["UnderServiceCount"]);
-
-                            // Remove the count columns before binding to grid
-                            dt.Columns.Remove("ExpiredCount");
-                            dt.Columns.Remove("ExpiringSoonCount");
-                            dt.Columns.Remove("UnderServiceCount");
-                        }
-                        else
-                        {
-                            // If no rows, get counts with a separate query
-                            cmd.CommandText = @"
-                                SELECT 
-                                    SUM(CASE WHEN DateExpired < GETDATE() AND StatusName != 'Under Service' THEN 1 ELSE 0 END) as ExpiredCount,
-                                    SUM(CASE WHEN DateExpired >= GETDATE() AND DateExpired <= DATEADD(day, 60, GETDATE()) AND StatusName != 'Under Service' THEN 1 ELSE 0 END) as ExpiringSoonCount,
-                                    SUM(CASE WHEN StatusName = 'Under Service' THEN 1 ELSE 0 END) as UnderServiceCount
-                                FROM FireExtinguishers fe
-                                INNER JOIN Status s ON fe.StatusID = s.StatusID";
-
-                            using (SqlDataReader reader = cmd.ExecuteReader())
+                            if (countReader.Read())
                             {
-                                if (reader.Read())
-                                {
-                                    ExpiredCount = reader.IsDBNull(0) ? 0 : reader.GetInt32(0);
-                                    ExpiringSoonCount = reader.IsDBNull(1) ? 0 : reader.GetInt32(1);
-                                    UnderServiceCount = reader.IsDBNull(2) ? 0 : reader.GetInt32(2);
-                                }
+                                // Set the count properties for the badge displays
+                                ExpiredCount = countReader.IsDBNull(0) ? 0 : countReader.GetInt32(0);
+                                ExpiringSoonCount = countReader.IsDBNull(1) ? 0 : countReader.GetInt32(1);
+                                UnderServiceCount = countReader.IsDBNull(2) ? 0 : countReader.GetInt32(2);
+                            }
+                            else
+                            {
+                                // Default to 0 if no data found
+                                ExpiredCount = 0;
+                                ExpiringSoonCount = 0;
+                                UnderServiceCount = 0;
                             }
                         }
-
-                        // Bind data to appropriate grid
-                        switch (activeTab)
+                    }
+                    
+                    // Now get the specific data for the active tab
+                    string dataQuery = "";
+                    
+                    switch (activeTab)
+                    {
+                        case "expired":
+                            dataQuery = @"
+                                SELECT 
+                                    fe.FEID,
+                                    fe.SerialNumber,
+                                    p.PlantName,
+                                    l.LevelName,
+                                    fe.Location,
+                                    t.TypeName,
+                                    fe.DateExpired,
+                                    s.StatusName,
+                                    DATEDIFF(day, fe.DateExpired, GETDATE()) as DaysExpired
+                                FROM FireExtinguishers fe
+                                INNER JOIN Status s ON fe.StatusID = s.StatusID
+                                INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                                INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                                INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                                WHERE fe.DateExpired < GETDATE() AND s.StatusName != 'Under Service'
+                                ORDER BY fe.DateExpired ASC";
+                            break;
+                            
+                        case "expiringSoon":
+                            dataQuery = @"
+                                SELECT 
+                                    fe.FEID,
+                                    fe.SerialNumber,
+                                    p.PlantName,
+                                    l.LevelName,
+                                    fe.Location,
+                                    t.TypeName,
+                                    fe.DateExpired,
+                                    s.StatusName,
+                                    DATEDIFF(day, GETDATE(), fe.DateExpired) as DaysLeft
+                                FROM FireExtinguishers fe
+                                INNER JOIN Status s ON fe.StatusID = s.StatusID
+                                INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                                INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                                INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                                WHERE fe.DateExpired >= GETDATE() AND fe.DateExpired <= DATEADD(day, 60, GETDATE()) AND s.StatusName != 'Under Service'
+                                ORDER BY fe.DateExpired ASC";
+                            break;
+                            
+                        case "underService":
+                            dataQuery = @"
+                                SELECT 
+                                    fe.FEID,
+                                    fe.SerialNumber,
+                                    p.PlantName,
+                                    l.LevelName,
+                                    fe.Location,
+                                    t.TypeName,
+                                    fe.DateExpired,
+                                    s.StatusName
+                                FROM FireExtinguishers fe
+                                INNER JOIN Status s ON fe.StatusID = s.StatusID
+                                INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                                INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                                INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                                WHERE s.StatusName = 'Under Service'
+                                ORDER BY fe.DateExpired ASC";
+                            break;
+                    }
+                    
+                    // Execute the query and bind data to the appropriate grid
+                    using (SqlCommand dataCmd = new SqlCommand(dataQuery, conn))
+                    {
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(dataCmd))
                         {
-                            case "expired":
-                                gvExpired.DataSource = dt;
-                                gvExpired.DataBind();
-                                break;
-                            case "expiringSoon":
-                                gvExpiringSoon.DataSource = dt;
-                                gvExpiringSoon.DataBind();
-                                break;
-                            case "underService":
-                                gvUnderService.DataSource = dt;
-                                gvUnderService.DataBind();
-                                break;
+                            DataTable dt = new DataTable();
+                            adapter.Fill(dt);
+                            
+                            switch (activeTab)
+                            {
+                                case "expired":
+                                    gvExpired.DataSource = dt;
+                                    gvExpired.DataBind();
+                                    break;
+                                case "expiringSoon":
+                                    gvExpiringSoon.DataSource = dt;
+                                    gvExpiringSoon.DataBind();
+                                    break;
+                                case "underService":
+                                    gvUnderService.DataSource = dt;
+                                    gvUnderService.DataBind();
+                                    break;
+                            }
                         }
                     }
+                    
+                    // Update UI with count badges
+                    btnExpiredTab.DataBind();
+                    btnExpiringSoonTab.DataBind();
+                    btnUnderServiceTab.DataBind();
+                    upMonitoring.Update();
+                }
+                catch (Exception ex)
+                {
+                    // Log the error
+                    System.Diagnostics.Debug.WriteLine($"Error in LoadTabData: {ex.Message}");
+                    // Show error notification to user
+                    ScriptManager.RegisterStartupScript(this, GetType(), "loadDataError", 
+                        $"showNotification('❌ Error loading monitoring data: {ex.Message.Replace("'", "\\'")}', 'error');", true);
                 }
             }
-
-            // Update UI
-            btnExpiredTab.DataBind();
-            btnExpiringSoonTab.DataBind();
-            btnUnderServiceTab.DataBind();
-            upMonitoring.Update();
         }
 
         /// <summary>

@@ -270,6 +270,12 @@
                                                     EventName="Click" />
                                                 <asp:AsyncPostBackTrigger ControlID="btnSaveExpiryDate"
                                                     EventName="Click" />
+                                                <asp:AsyncPostBackTrigger ControlID="gvExpired"
+                                                    EventName="PageIndexChanging" />
+                                                <asp:AsyncPostBackTrigger ControlID="gvExpiringSoon"
+                                                    EventName="PageIndexChanging" />
+                                                <asp:AsyncPostBackTrigger ControlID="gvUnderService"
+                                                    EventName="PageIndexChanging" />
                                             </Triggers>
                                         </asp:UpdatePanel>
 
@@ -1314,17 +1320,103 @@
                     }
                 }
 
+                // Enhance pagination for monitoring grids
+                enhanceMonitoringPagination();
+
                 // Setup PageRequestManager for ASP.NET AJAX handling
                 if (typeof (Sys) !== 'undefined') {
                     var prm = Sys.WebForms.PageRequestManager.getInstance();
                     prm.add_beginRequest(function() {
                         saveScrollPosition();
+                        // Show loading indicator
+                        showLoadingOverlay();
                     });
                     prm.add_endRequest(function() {
                         restoreScrollPosition();
                         // Reinitialize touch events and responsive UI after partial postbacks
                         initResponsiveUI();
+                        // Enhance pagination again after postback
+                        enhanceMonitoringPagination();
+                        // Hide loading indicator
+                        hideLoadingOverlay();
                     });
+                    
+                    // Add error handling for AJAX requests
+                    prm.add_endRequest(function(sender, args) {
+                        if (args.get_error() != undefined) {
+                            var errorMessage = args.get_error().message;
+                            showNotification('❌ Error: ' + errorMessage, 'error');
+                            args.set_errorHandled(true);
+                            hideLoadingOverlay();
+                        }
+                    });
+                }
+
+                function enhanceMonitoringPagination() {
+                    // Add click handling for pagination links
+                    document.querySelectorAll('.grid-pager a').forEach(function(link) {
+                        link.addEventListener('click', function() {
+                            showLoadingOverlay();
+                        });
+                    });
+                }
+                
+                function showLoadingOverlay() {
+                    // Create loading overlay if it doesn't exist
+                    if (!document.getElementById('loadingOverlay')) {
+                        var overlay = document.createElement('div');
+                        overlay.id = 'loadingOverlay';
+                        overlay.innerHTML = '<div class="spinner"></div><div class="loading-text">Loading...</div>';
+                        document.body.appendChild(overlay);
+                        
+                        // Add styles if not already defined
+                        if (!document.getElementById('loadingOverlayStyles')) {
+                            var style = document.createElement('style');
+                            style.id = 'loadingOverlayStyles';
+                            style.innerHTML = `
+                                #loadingOverlay {
+                                    position: fixed;
+                                    top: 0;
+                                    left: 0;
+                                    width: 100%;
+                                    height: 100%;
+                                    background-color: rgba(0, 0, 0, 0.5);
+                                    display: flex;
+                                    flex-direction: column;
+                                    justify-content: center;
+                                    align-items: center;
+                                    z-index: 9999;
+                                }
+                                .spinner {
+                                    border: 4px solid rgba(255, 255, 255, 0.3);
+                                    border-radius: 50%;
+                                    border-top: 4px solid #fff;
+                                    width: 40px;
+                                    height: 40px;
+                                    animation: spin 1s linear infinite;
+                                }
+                                .loading-text {
+                                    color: white;
+                                    margin-top: 10px;
+                                    font-weight: bold;
+                                }
+                                @keyframes spin {
+                                    0% { transform: rotate(0deg); }
+                                    100% { transform: rotate(360deg); }
+                                }
+                            `;
+                            document.head.appendChild(style);
+                        }
+                    }
+                    
+                    document.getElementById('loadingOverlay').style.display = 'flex';
+                }
+                
+                function hideLoadingOverlay() {
+                    var overlay = document.getElementById('loadingOverlay');
+                    if (overlay) {
+                        overlay.style.display = 'none';
+                    }
                 }
 
                 function initResponsiveUI() {
