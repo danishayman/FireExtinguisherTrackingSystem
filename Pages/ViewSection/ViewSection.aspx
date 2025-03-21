@@ -267,48 +267,6 @@
                                         </asp:UpdatePanel>
 
                                         <!-- STEP 2: Then place the Filter Section below Monitoring Panel -->
-                                        <div class="filter-section">
-                                            <div class="filter-row">
-                                                <div class="filter-group">
-                                                    <asp:Label ID="lblFilterPlant" runat="server" Text="Plant:"
-                                                        AssociatedControlID="ddlFilterPlant"></asp:Label>
-                                                    <asp:DropDownList ID="ddlFilterPlant" runat="server"
-                                                        CssClass="form-control" AutoPostBack="true"
-                                                        OnSelectedIndexChanged="ddlFilterPlant_SelectedIndexChanged">
-                                                    </asp:DropDownList>
-                                                </div>
-                                                <div class="filter-group">
-                                                    <asp:Label ID="lblFilterLevel" runat="server" Text="Level:"
-                                                        AssociatedControlID="ddlFilterLevel"></asp:Label>
-                                                    <asp:DropDownList ID="ddlFilterLevel" runat="server"
-                                                        CssClass="form-control" AutoPostBack="true"
-                                                        OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
-                                                </div>
-                                                <div class="filter-group">
-                                                    <asp:Label ID="lblFilterStatus" runat="server" Text="Status:"
-                                                        AssociatedControlID="ddlFilterStatus"></asp:Label>
-                                                    <asp:DropDownList ID="ddlFilterStatus" runat="server"
-                                                        CssClass="form-control" AutoPostBack="true"
-                                                        OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
-                                                </div>
-                                                <div class="filter-group">
-                                                    <asp:Label ID="lblSearch" runat="server" Text="Search:"
-                                                        AssociatedControlID="txtSearch"></asp:Label>
-                                                    <div class="search-box">
-                                                        <asp:TextBox ID="txtSearch" runat="server"
-                                                            CssClass="form-control"
-                                                            placeholder="Serial Number or Location"></asp:TextBox>
-                                                    </div>
-                                                    <div class="button-group">
-                                                        <asp:Button ID="btnSearch" runat="server" Text="Search"
-                                                            OnClick="ApplyFilters" CssClass="btn btn-primary" />
-                                                        <asp:Button ID="btnClearFilters" runat="server"
-                                                            Text="Clear Filters" OnClick="btnClearFilters_Click"
-                                                            CssClass="btn btn-secondary" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                         <div class="expiry-filters">
                                             <div class="button-group">
                                                 <asp:Label ID="lblExpiryStats" runat="server" CssClass="expiry-stats"></asp:Label>
@@ -322,6 +280,51 @@
                                                 <ContentTemplate>
                                                     <div class="grid-section">
                                                         <h3 class="section-title">Fire Extinguisher List</h3>
+                                                        
+                                                        <!-- Moved Filter Section here - below the heading but above the grid -->
+                                                        <div class="filter-section" style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 5px; border: 1px solid #dee2e6;">
+                                                            <div class="filter-row">
+                                                                <div class="filter-group">
+                                                                    <asp:Label ID="lblFilterPlant" runat="server" Text="Plant:"
+                                                                        AssociatedControlID="ddlFilterPlant"></asp:Label>
+                                                                    <asp:DropDownList ID="ddlFilterPlant" runat="server"
+                                                                        CssClass="form-control" AutoPostBack="true"
+                                                                        OnSelectedIndexChanged="ddlFilterPlant_SelectedIndexChanged">
+                                                                    </asp:DropDownList>
+                                                                </div>
+                                                                <div class="filter-group">
+                                                                    <asp:Label ID="lblFilterLevel" runat="server" Text="Level:"
+                                                                        AssociatedControlID="ddlFilterLevel"></asp:Label>
+                                                                    <asp:DropDownList ID="ddlFilterLevel" runat="server"
+                                                                        CssClass="form-control" AutoPostBack="true"
+                                                                        OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
+                                                                </div>
+                                                                <div class="filter-group">
+                                                                    <asp:Label ID="lblFilterStatus" runat="server" Text="Status:"
+                                                                        AssociatedControlID="ddlFilterStatus"></asp:Label>
+                                                                    <asp:DropDownList ID="ddlFilterStatus" runat="server"
+                                                                        CssClass="form-control" AutoPostBack="true"
+                                                                        OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
+                                                                </div>
+                                                                <div class="filter-group">
+                                                                    <asp:Label ID="lblSearch" runat="server" Text="Search:"
+                                                                        AssociatedControlID="txtSearch"></asp:Label>
+                                                                    <div class="search-box">
+                                                                        <asp:TextBox ID="txtSearch" runat="server"
+                                                                            CssClass="form-control"
+                                                                            placeholder="Serial Number or Location"></asp:TextBox>
+                                                                    </div>
+                                                                    <div class="button-group">
+                                                                        <asp:Button ID="btnSearch" runat="server" Text="Search"
+                                                                            OnClick="ApplyFilters" CssClass="btn btn-primary" />
+                                                                        <asp:Button ID="btnClearFilters" runat="server"
+                                                                            Text="Clear Filters" OnClick="btnClearFilters_Click"
+                                                                            CssClass="btn btn-secondary" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
                                                         <div class="button-container" style="margin-bottom: 15px; text-align: right;">
                                                             <asp:Button ID="btnShowSelection" runat="server" Text="Send Multiple to Service" CssClass="btn btn-warning" OnClick="btnShowSelection_Click" OnClientClick="showServiceSelectionPanel(); return true;" />
                                                         </div>
