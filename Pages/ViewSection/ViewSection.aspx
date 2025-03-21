@@ -403,13 +403,6 @@
                                                                 <asp:TemplateField HeaderText="Actions">
                                                                     <ItemTemplate>
                                                                         <div class="action-buttons">
-                                                                            <asp:Button ID="btnEdit" runat="server"
-                                                                                CommandName="EditRow"
-                                                                                CommandArgument='<%# Eval("FEID") %>'
-                                                                                data-feid='<%# Eval("FEID") %>'
-                                                                                CssClass="btn btn-sm btn-primary"
-                                                                                Text="Edit"
-                                                                                OnClientClick="return showEditPanel(this);" />
                                                                             <asp:Button ID="btnCompleteService"
                                                                                 runat="server"
                                                                                 CommandName="CompleteService"
@@ -419,6 +412,13 @@
                                                                                 Text="Complete Service"
                                                                                 Enabled='<%# Eval("StatusName").ToString() == "Under Service" %>'
                                                                                 OnClientClick="return showExpiryDatePanel(this);" />
+                                                                            <asp:Button ID="btnEdit" runat="server"
+                                                                                CommandName="EditRow"
+                                                                                CommandArgument='<%# Eval("FEID") %>'
+                                                                                data-feid='<%# Eval("FEID") %>'
+                                                                                CssClass="btn btn-sm btn-primary"
+                                                                                Text="Edit"
+                                                                                OnClientClick="return showEditPanel(this);" />
                                                                             <asp:Button ID="btnDelete" runat="server"
                                                                                 CommandName="DeleteRow"
                                                                                 CommandArgument='<%# Eval("FEID") %>'
@@ -905,7 +905,7 @@
         /* Action buttons */
         .action-buttons {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 5px;
             justify-content: center;
         }
@@ -914,6 +914,24 @@
             padding: 4px 8px;
             font-size: 0.8rem;
             white-space: nowrap;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover:not(.disabled-service) {
+            background-color: #218838;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
         }
 
         /* Button container */
