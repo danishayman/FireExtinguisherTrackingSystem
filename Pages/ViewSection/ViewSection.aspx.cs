@@ -13,7 +13,7 @@ using FETS;
 
 namespace FETS.Pages.ViewSection
 {
-    public partial class ViewSection : System.Web.UI.Page
+    public partial class ViewSection : System.Web.UI.Page, IPostBackEventHandler
     {
         // Class to store fire extinguisher details for emails and notifications
         public class FireExtinguisherDetails
@@ -982,11 +982,16 @@ namespace FETS.Pages.ViewSection
 
         /// <summary>
         /// Event handler for the main grid's row commands.
-        /// Handles actions like deleting fire extinguishers or sending them for service.
+        /// Handles actions like editing, deleting fire extinguishers or sending them for service.
         /// </summary>
         protected void gvFireExtinguishers_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            if (e.CommandName == "SendForService")
+            if (e.CommandName == "EditRow")
+            {
+                int feId = Convert.ToInt32(e.CommandArgument);
+                LoadFireExtinguisherForEdit(feId);
+            }
+            else if (e.CommandName == "SendForService")
             {
                 int feId = Convert.ToInt32(e.CommandArgument);
                 hdnSelectedFEIDForService.Value = feId.ToString();
@@ -1329,6 +1334,317 @@ namespace FETS.Pages.ViewSection
         {
             pnlServiceSelection.Visible = false;
             upServiceSelection.Update();
+        }
+
+        /// <summary>
+        /// IPostBackEventHandler implementation to handle custom events
+        /// </summary>
+        public void RaisePostBackEvent(string eventArgument)
+        {
+            if (eventArgument.StartsWith("LoadFireExtinguisherDetails:"))
+            {
+                string feIdStr = eventArgument.Substring("LoadFireExtinguisherDetails:".Length);
+                int feId;
+                if (int.TryParse(feIdStr, out feId))
+                {
+                    LoadFireExtinguisherForEdit(feId);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event handler for Plant dropdown change during edit
+        /// </summary>
+        protected void ddlPlant_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(ddlPlant.SelectedValue))
+            {
+                // Clear levels dropdown if no plant is selected
+                ddlLevel.Items.Clear();
+                ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+                return;
+            }
+
+            // Load levels based on selected plant
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT LevelID, LevelName FROM Levels WHERE PlantID = @PlantID ORDER BY LevelName", conn))
+                {
+                    cmd.Parameters.AddWithValue("@PlantID", ddlPlant.SelectedValue);
+                    ddlLevel.Items.Clear();
+                    ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlLevel.Items.Add(new ListItem(
+                                reader["LevelName"].ToString(),
+                                reader["LevelID"].ToString()
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Load fire extinguisher details for editing
+        /// </summary>
+        private void LoadFireExtinguisherForEdit(int feId)
+        {
+            // Load dropdown options
+            LoadDropdownsForEdit();
+
+            // Load fire extinguisher details
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = @"
+                    SELECT 
+                        fe.SerialNumber, 
+                        fe.PlantID, 
+                        fe.LevelID, 
+                        fe.Location, 
+                        fe.TypeID, 
+                        fe.StatusID, 
+                        fe.DateExpired, 
+                        fe.Remarks
+                    FROM FireExtinguishers fe
+                    WHERE fe.FEID = @FEID";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@FEID", feId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            hdnEditFEID.Value = feId.ToString();
+                            txtSerialNumber.Text = reader["SerialNumber"].ToString();
+                            
+                            // Set the plant dropdown
+                            string plantId = reader["PlantID"].ToString();
+                            ddlPlant.SelectedValue = plantId;
+                            
+                            // Get levels for selected plant then set level dropdown
+                            LoadLevelsForPlant(plantId);
+                            ddlLevel.SelectedValue = reader["LevelID"].ToString();
+                            
+                            txtLocation.Text = reader["Location"].ToString();
+                            ddlType.SelectedValue = reader["TypeID"].ToString();
+                            ddlStatus.SelectedValue = reader["StatusID"].ToString();
+                            
+                            // Format date for the date input
+                            DateTime expiryDate = Convert.ToDateTime(reader["DateExpired"]);
+                            txtExpiryDate.Text = expiryDate.ToString("yyyy-MM-dd");
+                            
+                            txtRemarks.Text = reader["Remarks"] as string ?? string.Empty;
+                        }
+                    }
+                }
+            }
+
+            // Update the panel
+            upEditFireExtinguisher.Update();
+            
+            // Show the panel with JavaScript
+            ScriptManager.RegisterStartupScript(this, GetType(), "showEditPanel", 
+                "document.getElementById('" + pnlEditFireExtinguisher.ClientID + "').style.display = 'flex';" +
+                "document.getElementById('modalOverlay').style.display = 'block';", true);
+        }
+
+        /// <summary>
+        /// Load dropdown lists for the edit form
+        /// </summary>
+        private void LoadDropdownsForEdit()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                // Load Plants
+                using (SqlCommand cmd = new SqlCommand("SELECT PlantID, PlantName FROM Plants ORDER BY PlantName", conn))
+                {
+                    ddlPlant.Items.Clear();
+                    ddlPlant.Items.Add(new ListItem("-- Select Plant --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlPlant.Items.Add(new ListItem(
+                                reader["PlantName"].ToString(),
+                                reader["PlantID"].ToString()
+                            ));
+                        }
+                    }
+                }
+
+                // Load Fire Extinguisher Types
+                using (SqlCommand cmd = new SqlCommand("SELECT TypeID, TypeName FROM FireExtinguisherTypes ORDER BY TypeName", conn))
+                {
+                    ddlType.Items.Clear();
+                    ddlType.Items.Add(new ListItem("-- Select Type --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlType.Items.Add(new ListItem(
+                                reader["TypeName"].ToString(),
+                                reader["TypeID"].ToString()
+                            ));
+                        }
+                    }
+                }
+
+                // Load Status
+                using (SqlCommand cmd = new SqlCommand("SELECT StatusID, StatusName FROM Status ORDER BY StatusName", conn))
+                {
+                    ddlStatus.Items.Clear();
+                    ddlStatus.Items.Add(new ListItem("-- Select Status --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlStatus.Items.Add(new ListItem(
+                                reader["StatusName"].ToString(),
+                                reader["StatusID"].ToString()
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Load levels for a specific plant
+        /// </summary>
+        private void LoadLevelsForPlant(string plantId)
+        {
+            if (string.IsNullOrEmpty(plantId))
+            {
+                ddlLevel.Items.Clear();
+                ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+                return;
+            }
+
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT LevelID, LevelName FROM Levels WHERE PlantID = @PlantID ORDER BY LevelName", conn))
+                {
+                    cmd.Parameters.AddWithValue("@PlantID", plantId);
+                    ddlLevel.Items.Clear();
+                    ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlLevel.Items.Add(new ListItem(
+                                reader["LevelName"].ToString(),
+                                reader["LevelID"].ToString()
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Save edited fire extinguisher details
+        /// </summary>
+        protected void btnSaveEdit_Click(object sender, EventArgs e)
+        {
+            if (!Page.IsValid)
+                return;
+
+            try
+            {
+                int feId;
+                if (!int.TryParse(hdnEditFEID.Value, out feId))
+                {
+                    throw new Exception("Invalid fire extinguisher ID.");
+                }
+
+                string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string query = @"
+                        UPDATE FireExtinguishers 
+                        SET 
+                            SerialNumber = @SerialNumber,
+                            PlantID = @PlantID,
+                            LevelID = @LevelID,
+                            Location = @Location,
+                            TypeID = @TypeID,
+                            StatusID = @StatusID,
+                            DateExpired = @DateExpired,
+                            Remarks = @Remarks
+                        WHERE FEID = @FEID";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@FEID", feId);
+                        cmd.Parameters.AddWithValue("@SerialNumber", txtSerialNumber.Text.Trim());
+                        cmd.Parameters.AddWithValue("@PlantID", ddlPlant.SelectedValue);
+                        cmd.Parameters.AddWithValue("@LevelID", ddlLevel.SelectedValue);
+                        cmd.Parameters.AddWithValue("@Location", txtLocation.Text.Trim());
+                        cmd.Parameters.AddWithValue("@TypeID", ddlType.SelectedValue);
+                        cmd.Parameters.AddWithValue("@StatusID", ddlStatus.SelectedValue);
+                        
+                        DateTime expiryDate;
+                        if (DateTime.TryParse(txtExpiryDate.Text, out expiryDate))
+                        {
+                            cmd.Parameters.AddWithValue("@DateExpired", expiryDate);
+                        }
+                        else
+                        {
+                            throw new Exception("Invalid expiry date format.");
+                        }
+                        
+                        if (string.IsNullOrEmpty(txtRemarks.Text))
+                        {
+                            cmd.Parameters.AddWithValue("@Remarks", DBNull.Value);
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@Remarks", txtRemarks.Text.Trim());
+                        }
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("Fire extinguisher not found or could not be updated.");
+                        }
+                    }
+                }
+
+                // Refresh the data
+                LoadMonitoringPanels();
+                LoadFireExtinguishers();
+                
+                // Hide the edit panel
+                ScriptManager.RegisterStartupScript(this, GetType(), "hideEditPanel", 
+                    "hideEditPanel();", true);
+                
+                // Show success notification
+                ScriptManager.RegisterStartupScript(this, GetType(), "saveSuccess", 
+                    "showNotification('✅ Fire extinguisher updated successfully!');", true);
+            }
+            catch (Exception ex)
+            {
+                // Show error notification
+                ScriptManager.RegisterStartupScript(this, GetType(), "saveError", 
+                    $"showNotification('❌ Error: {ex.Message.Replace("'", "\\'")}', 'error');", true);
+            }
         }
     }
 }

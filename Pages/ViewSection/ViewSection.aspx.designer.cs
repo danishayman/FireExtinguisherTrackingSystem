@@ -142,5 +142,26 @@ namespace FETS.Pages.ViewSection
 
         protected global::System.Web.UI.ScriptManager ScriptManager1;
         protected global::System.Web.UI.UpdatePanel UpdatePanel1;
+        
+        // Edit Panel Controls
+        protected global::System.Web.UI.UpdatePanel upEditFireExtinguisher;
+        protected global::System.Web.UI.WebControls.Panel pnlEditFireExtinguisher;
+        protected global::System.Web.UI.WebControls.HiddenField hdnEditFEID;
+        protected global::System.Web.UI.WebControls.TextBox txtSerialNumber;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvSerialNumber;
+        protected global::System.Web.UI.WebControls.DropDownList ddlPlant;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvPlant;
+        protected global::System.Web.UI.WebControls.DropDownList ddlLevel;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvLevel;
+        protected global::System.Web.UI.WebControls.TextBox txtLocation;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvLocation;
+        protected global::System.Web.UI.WebControls.DropDownList ddlType;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvType;
+        protected global::System.Web.UI.WebControls.DropDownList ddlStatus;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvStatus;
+        protected global::System.Web.UI.WebControls.TextBox txtExpiryDate;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvExpiryDate;
+        protected global::System.Web.UI.WebControls.TextBox txtRemarks;
+        protected global::System.Web.UI.WebControls.Button btnSaveEdit;
     }
 } 

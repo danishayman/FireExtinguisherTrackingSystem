@@ -403,6 +403,13 @@
                                                                 <asp:TemplateField HeaderText="Actions">
                                                                     <ItemTemplate>
                                                                         <div class="action-buttons">
+                                                                            <asp:Button ID="btnEdit" runat="server"
+                                                                                CommandName="EditRow"
+                                                                                CommandArgument='<%# Eval("FEID") %>'
+                                                                                data-feid='<%# Eval("FEID") %>'
+                                                                                CssClass="btn btn-sm btn-primary"
+                                                                                Text="Edit"
+                                                                                OnClientClick="return showEditPanel(this);" />
                                                                             <asp:Button ID="btnCompleteService"
                                                                                 runat="server"
                                                                                 CommandName="CompleteService"
@@ -516,6 +523,125 @@
     </asp:UpdatePanel>
 
     <div id="modalOverlay" class="modal-overlay" style="display: none;"></div>
+
+    <!-- Fire Extinguisher Edit Panel -->
+    <asp:UpdatePanel ID="upEditFireExtinguisher" runat="server" UpdateMode="Conditional">
+        <ContentTemplate>
+            <asp:Panel ID="pnlEditFireExtinguisher" runat="server" CssClass="modal-panel" Style="display: none;">
+                <div class="modal-content edit-modal">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Edit Fire Extinguisher</h4>
+                    </div>
+                    <div class="modal-body">
+                        <asp:HiddenField ID="hdnEditFEID" runat="server" />
+                        
+                        <div class="form-group">
+                            <asp:Label ID="lblSerialNumber" runat="server" Text="Serial Number:" AssociatedControlID="txtSerialNumber"></asp:Label>
+                            <asp:TextBox ID="txtSerialNumber" runat="server" CssClass="form-control"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvSerialNumber" runat="server" 
+                                ControlToValidate="txtSerialNumber" 
+                                ErrorMessage="Serial number is required" 
+                                ValidationGroup="EditFE" 
+                                CssClass="validation-error" 
+                                Display="Dynamic">
+                            </asp:RequiredFieldValidator>
+                        </div>
+                        
+                        <div class="form-group">
+                            <asp:Label ID="lblPlant" runat="server" Text="Plant:" AssociatedControlID="ddlPlant"></asp:Label>
+                            <asp:DropDownList ID="ddlPlant" runat="server" CssClass="form-control" AutoPostBack="true" OnSelectedIndexChanged="ddlPlant_SelectedIndexChanged"></asp:DropDownList>
+                            <asp:RequiredFieldValidator ID="rfvPlant" runat="server" 
+                                ControlToValidate="ddlPlant" 
+                                ErrorMessage="Plant is required" 
+                                ValidationGroup="EditFE" 
+                                CssClass="validation-error" 
+                                Display="Dynamic"
+                                InitialValue="">
+                            </asp:RequiredFieldValidator>
+                        </div>
+                        
+                        <div class="form-group">
+                            <asp:Label ID="lblLevel" runat="server" Text="Level:" AssociatedControlID="ddlLevel"></asp:Label>
+                            <asp:DropDownList ID="ddlLevel" runat="server" CssClass="form-control"></asp:DropDownList>
+                            <asp:RequiredFieldValidator ID="rfvLevel" runat="server" 
+                                ControlToValidate="ddlLevel" 
+                                ErrorMessage="Level is required" 
+                                ValidationGroup="EditFE" 
+                                CssClass="validation-error" 
+                                Display="Dynamic"
+                                InitialValue="">
+                            </asp:RequiredFieldValidator>
+                        </div>
+                        
+                        <div class="form-group">
+                            <asp:Label ID="lblLocation" runat="server" Text="Location:" AssociatedControlID="txtLocation"></asp:Label>
+                            <asp:TextBox ID="txtLocation" runat="server" CssClass="form-control"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvLocation" runat="server" 
+                                ControlToValidate="txtLocation" 
+                                ErrorMessage="Location is required" 
+                                ValidationGroup="EditFE" 
+                                CssClass="validation-error" 
+                                Display="Dynamic">
+                            </asp:RequiredFieldValidator>
+                        </div>
+                        
+                        <div class="form-group">
+                            <asp:Label ID="lblType" runat="server" Text="Type:" AssociatedControlID="ddlType"></asp:Label>
+                            <asp:DropDownList ID="ddlType" runat="server" CssClass="form-control"></asp:DropDownList>
+                            <asp:RequiredFieldValidator ID="rfvType" runat="server" 
+                                ControlToValidate="ddlType" 
+                                ErrorMessage="Type is required" 
+                                ValidationGroup="EditFE" 
+                                CssClass="validation-error" 
+                                Display="Dynamic"
+                                InitialValue="">
+                            </asp:RequiredFieldValidator>
+                        </div>
+                        
+                        <div class="form-group">
+                            <asp:Label ID="lblStatus" runat="server" Text="Status:" AssociatedControlID="ddlStatus"></asp:Label>
+                            <asp:DropDownList ID="ddlStatus" runat="server" CssClass="form-control"></asp:DropDownList>
+                            <asp:RequiredFieldValidator ID="rfvStatus" runat="server" 
+                                ControlToValidate="ddlStatus" 
+                                ErrorMessage="Status is required" 
+                                ValidationGroup="EditFE" 
+                                CssClass="validation-error" 
+                                Display="Dynamic"
+                                InitialValue="">
+                            </asp:RequiredFieldValidator>
+                        </div>
+                        
+                        <div class="form-group">
+                            <asp:Label ID="lblExpiryDate" runat="server" Text="Expiry Date:" AssociatedControlID="txtExpiryDate"></asp:Label>
+                            <asp:TextBox ID="txtExpiryDate" runat="server" CssClass="form-control" TextMode="Date"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvExpiryDate" runat="server" 
+                                ControlToValidate="txtExpiryDate" 
+                                ErrorMessage="Expiry date is required" 
+                                ValidationGroup="EditFE" 
+                                CssClass="validation-error" 
+                                Display="Dynamic">
+                            </asp:RequiredFieldValidator>
+                        </div>
+                        
+                        <div class="form-group">
+                            <asp:Label ID="lblRemarks" runat="server" Text="Remarks:" AssociatedControlID="txtRemarks"></asp:Label>
+                            <asp:TextBox ID="txtRemarks" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3"></asp:TextBox>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <asp:Button ID="btnSaveEdit" runat="server" Text="Save Changes" 
+                            CssClass="btn btn-primary" ValidationGroup="EditFE" 
+                            OnClick="btnSaveEdit_Click" UseSubmitBehavior="false" />
+                        <button type="button" class="btn btn-secondary" onclick="hideEditPanel()">Cancel</button>
+                    </div>
+                </div>
+            </asp:Panel>
+        </ContentTemplate>
+        <Triggers>
+            <asp:AsyncPostBackTrigger ControlID="btnSaveEdit" EventName="Click" />
+            <asp:AsyncPostBackTrigger ControlID="ddlPlant" EventName="SelectedIndexChanged" />
+        </Triggers>
+    </asp:UpdatePanel>
 
     <style type="text/css">
         /* Base styles with mobile-first approach */
@@ -1111,6 +1237,45 @@
                 text-align: center;
             }
         }
+
+        .edit-modal {
+            max-width: 90%;
+            width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        .validation-error {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        .modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 15px;
+        }
     </style>
 
         <script type="text/javascript">
@@ -1259,6 +1424,27 @@
             function hideExpiryDatePanel() {
                 var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
                 panel.style.display = 'none';
+                document.getElementById('modalOverlay').style.display = 'none';
+                return false;
+            }
+
+            function showEditPanel(button) {
+                var feId = button.getAttribute('data-feid') || button.getAttribute('CommandArgument');
+                document.getElementById('<%= hdnEditFEID.ClientID %>').value = feId;
+                
+                // Display the panel
+                document.getElementById('<%= pnlEditFireExtinguisher.ClientID %>').style.display = 'flex';
+                document.getElementById('modalOverlay').style.display = 'block';
+                
+                // Call server-side method to load fire extinguisher details
+                var postbackArg = 'LoadFireExtinguisherDetails:' + feId;
+                __doPostBack('<%= Page.UniqueID %>', postbackArg);
+                
+                return false;
+            }
+
+            function hideEditPanel() {
+                document.getElementById('<%= pnlEditFireExtinguisher.ClientID %>').style.display = 'none';
                 document.getElementById('modalOverlay').style.display = 'none';
                 return false;
             }
