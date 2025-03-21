@@ -19,10 +19,10 @@ Configuration is stored in the `App.config` file:
 ```xml
 <configuration>
   <appSettings>
-    <add key="EmailRecipient" value="irfandanishnoorazlin@gmail.com" />
+    <add key="EmailRecipient" value="danishaiman3b@gmail.com" />
   </appSettings>
   <connectionStrings>
-    <add name="FETSConnection" connectionString="Data Source=localhost;Initial Catalog=FETS;User ID=irfandanish;Password=1234;Connection Timeout=30" providerName="System.Data.SqlClient" />
+    <add name="FETSConnection" connectionString="Data Source=localhost;Initial Catalog=FETS;User ID=danishaiman;Password=12345;Connection Timeout=30" providerName="System.Data.SqlClient" />
   </connectionStrings>
   <system.net>
     <mailSettings>

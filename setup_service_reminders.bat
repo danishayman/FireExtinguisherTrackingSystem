@@ -16,7 +16,7 @@ ECHO.
 REM Set your SQL Server connection details here
 SET SERVER=localhost
 SET DATABASE=FETS
-SET USERNAME=irfandanish
+SET USERNAME=danishaiman
 SET PASSWORD=1234
 
 REM Run the SQL script through SQLCMD

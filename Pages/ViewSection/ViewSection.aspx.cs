@@ -394,7 +394,7 @@ namespace FETS.Pages.ViewSection
 
                             // Send service completion email
                             string emailBody = GenerateServiceCompletionEmail(extinguisher, serviceDate, newExpiryDate);
-                            string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Replace with actual recipient
+                            string recipientEmail = "danishaiman3b@gmail.com"; // Replace with actual recipient
                             var (emailSent, emailMessage) = EmailService.SendEmail(
                                 recipientEmail, 
                                 $"Fire Extinguisher Service Completed - {extinguisher.SerialNumber}", 
@@ -519,7 +519,7 @@ namespace FETS.Pages.ViewSection
                                 string type = reader["TypeName"].ToString();
 
                                 // Send email using the template
-                                string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Replace with the recipient's email
+                                string recipientEmail = "danishaiman3b@gmail.com"; // Replace with the recipient's email
                                 string subject = "Fire Extinguisher Sent for Service";
                                 string body = EmailTemplateManager.GetServiceEmailTemplate(
                                     serialNumber,
@@ -1127,7 +1127,7 @@ namespace FETS.Pages.ViewSection
         {
             LinkButton btn = (LinkButton)sender;
             string extinguisherId = btn.CommandArgument;
-            string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Change dynamically if needed
+            string recipientEmail = "danishaiman3b@gmail.com"; // Change dynamically if needed
 
             // Get fire extinguisher details
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -1302,7 +1302,7 @@ namespace FETS.Pages.ViewSection
                 }
                 
                 // Send email with the professional template
-                string recipientEmail = "irfandanishnoorazlin@gmail.com";
+                string recipientEmail = "danishaiman3b@gmail.com";
                 string subject = $"{extinguisherDetails.Count} Fire Extinguishers Sent for Service";
                 string body = EmailTemplateManager.GetMultipleServiceEmailTemplate(extinguisherDetails);
 
