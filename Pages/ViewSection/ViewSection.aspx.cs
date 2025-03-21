@@ -1109,7 +1109,14 @@ namespace FETS.Pages.ViewSection
                     INNER JOIN Plants p ON fe.PlantID = p.PlantID
                     INNER JOIN Levels l ON fe.LevelID = l.LevelID
                     INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
-                    WHERE fe.StatusID != (SELECT StatusID FROM Status WHERE StatusName = 'Under Service')";
+                    INNER JOIN Status s ON fe.StatusID = s.StatusID
+                    WHERE s.StatusName != 'Under Service'
+                    AND (
+                        fe.DateExpired < GETDATE() -- Expired
+                        OR 
+                        (fe.DateExpired >= GETDATE() AND fe.DateExpired <= DATEADD(day, 60, GETDATE())) -- Expiring Soon (within 60 days)
+                    )
+                    ORDER BY fe.DateExpired ASC";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {

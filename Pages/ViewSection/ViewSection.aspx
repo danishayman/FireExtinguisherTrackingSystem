@@ -963,6 +963,12 @@
             padding: 8px 15px;
             font-weight: 500;
             font-size: 0.95rem;
+            color: white !important;
+        }
+
+        /* Override btn-warning class specifically for this button */
+        .button-container .btn-warning {
+            color: white !important;
         }
 
         /* Modal Styles */
