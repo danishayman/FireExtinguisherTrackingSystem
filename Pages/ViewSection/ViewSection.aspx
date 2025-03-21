@@ -509,7 +509,7 @@
     <div id="modalOverlay" class="modal-overlay" style="display: none;"></div>
 
     <style type="text/css">
-        /* Update the width-related styles for dynamic adjustment with sidebar */
+        /* Base styles with mobile-first approach */
         .filter-section,
         .monitoring-section,
         .grid-section,
@@ -517,607 +517,115 @@
         .content-layout {
             width: 100%;
             max-width: 100%;
-            min-width: auto;
             margin: 0 auto;
             box-sizing: border-box;
+            overflow-x: auto;
+        }
+        
+        /* Reset min-width constraints that cause horizontal scrolling */
+        .monitoring-panel,
+        .content-layout,
+        .tab-container,
+        .monitoring-grid,
+        .grid-section {
+            min-width: auto !important;
         }
 
-        /* Service Selection Modal Styles */
-        .service-selection-modal {
-            max-width: 1200px;
-            width: 95%;
-            padding: 30px;
-            border-radius: 8px;
-            min-height: 600px;
-            min-width: 800px;
-        }
-
-        .modal-header {
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-
-        .modal-title {
-            color: #333;
-            margin: 0;
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-
-        .modal-body {
-            padding: 0 0 25px 0;
-            min-height: 400px;
-        }
-
-        .selection-instruction {
-            margin-bottom: 20px;
-            color: #555;
-            font-size: 1.1rem;
-        }
-
-        .grid-container {
-            margin-bottom: 20px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            background-color: #fff;
-            min-height: 350px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .selection-grid {
+        /* Make tables responsive */
+        .grid-view, 
+        .monitoring-grid,
+        .selection-grid,
+        .confirmation-grid {
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 0;
-            table-layout: fixed;
+            table-layout: auto;
         }
 
-        .selection-grid th {
-            background-color: #f0f2f5;
-            padding: 14px 10px;
-            border: 1px solid #dee2e6;
-            font-weight: 600;
-            color: #333;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        /* Container structure */
+        .container-fluid {
+            padding: 0 15px;
         }
 
-        .selection-grid td {
-            padding: 12px 10px;
-            border: 1px solid #dee2e6;
-            vertical-align: middle;
-            word-break: break-word;
-        }
-
-        .selection-checkbox {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .modal-footer {
-            border-top: 1px solid #dee2e6;
-            padding-top: 20px;
+        .dashboard-container {
             display: flex;
-            justify-content: flex-end;
-            gap: 15px;
+            flex-direction: column;
         }
 
-        #btnShowSelection {
-            margin: 15px 0;
-            padding: 10px 18px;
-            font-weight: 500;
-            font-size: 1rem;
+        .content-container {
+            width: 100%;
+            padding: 10px;
         }
 
-        /* Set max-width for expanded sidebar state */
-        body:not(.sidebar-collapsed) .filter-section,
-        body:not(.sidebar-collapsed) .monitoring-section,
-        body:not(.sidebar-collapsed) .grid-section,
-        body:not(.sidebar-collapsed) .monitoring-panel,
-        body:not(.sidebar-collapsed) .content-layout {
-            max-width: calc(100vw - 290px); /* 250px sidebar + 40px padding */
+        .panels-layout {
+            width: 100%;
         }
 
-        /* Set max-width for collapsed sidebar state */
-        body.sidebar-collapsed .filter-section,
-        body.sidebar-collapsed .monitoring-section,
-        body.sidebar-collapsed .grid-section,
-        body.sidebar-collapsed .monitoring-panel,
-        body.sidebar-collapsed .content-layout {
-            max-width: calc(100vw - 110px); /* 70px sidebar + 40px padding */
-        }
-
-        .filter-section {
-            background-color: #fff;
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        /* Update the view-section container */
         .view-section {
             display: flex;
             flex-direction: column;
-            align-items: center;
             width: 100%;
-            padding: 30px;
-            box-sizing: border-box;
-        }
-
-        .view-section {
+            padding: 15px;
             background-color: #fff;
-            border-radius: 0px;
+            border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        /* Update table layout to be more responsive */
-        .monitoring-grid, 
-        .grid-view {
+        /* Monitoring Panel */
+        .monitoring-section {
             width: 100%;
-            table-layout: fixed;
-        }
-
-        /* Make panel header responsive */
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            gap: 15px;
-            width: 100%;
-            min-width: auto;
-            box-sizing: border-box;
-        }
-
-        /* Make tab container responsive */
-        .tab-container {
-            padding: 20px;
-            width: 100%;
-            min-width: auto;
-            box-sizing: border-box;
-        }
-
-        /* Ensure the monitoring panel adjusts properly */
-        .monitoring-panel {
-            width: 100%;
-            min-width: auto;
-        }
-
-        /* Add this to ensure MultiView content adjusts properly */
-        .monitoring-panel .tab-container > div {
-            width: 100%;
-            min-width: auto;
-        }
-
-        /* Responsive styles for smaller screens */
-        @media (max-width: 1200px) {
-            body:not(.sidebar-collapsed) .filter-section,
-            body:not(.sidebar-collapsed) .monitoring-section,
-            body:not(.sidebar-collapsed) .grid-section,
-            body:not(.sidebar-collapsed) .monitoring-panel,
-            body:not(.sidebar-collapsed) .content-layout {
-                max-width: calc(100vw - 270px);
-            }
-            
-            body.sidebar-collapsed .filter-section,
-            body.sidebar-collapsed .monitoring-section,
-            body.sidebar-collapsed .grid-section,
-            body.sidebar-collapsed .monitoring-panel,
-            body.sidebar-collapsed .content-layout {
-                max-width: calc(100vw - 90px);
-            }
-        
-
-            .filter-section {
-                background-color: #fff;
-                border-radius: 5px;
-                padding: 20px;
-                margin-bottom: -15rem;
-            }
-
-            /* Update the view-section container */
-            .view-section {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                width: auto;
-                padding: 30px;
-                box-sizing: border-box;
-            }
-
-            /* Update table layout to be more responsive */
-            .monitoring-grid,
-            .grid-view {
-                width: 100%;
-                table-layout: fixed;
-            }
-
-            /* Make panel header responsive */
-            .panel-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 15px;
-                gap: 15px;
-                width: 100%;
-                min-width: auto;
-                box-sizing: border-box;
-            }
-
-            /* Make tab container responsive */
-            .tab-container {
-                padding: 20px;
-                width: 100%;
-                min-width: auto;
-                box-sizing: border-box;
-            }
-
-            /* Ensure the monitoring panel adjusts properly */
-            .monitoring-panel .tab-container>div {
-                width: 100%;
-                min-width: auto;
-            }
-
-            /* Responsive styles for smaller screens */
-            @media (max-width: 1200px) {
-
-                body:not(.sidebar-collapsed) .filter-section,
-                body:not(.sidebar-collapsed) .monitoring-section,
-                body:not(.sidebar-collapsed) .grid-section,
-                body:not(.sidebar-collapsed) .monitoring-panel,
-                body:not(.sidebar-collapsed) .content-layout {
-                    max-width: calc(100vw - 270px);
-                }
-
-                body.sidebar-collapsed .filter-section,
-                body.sidebar-collapsed .monitoring-section,
-                body.sidebar-collapsed .grid-section,
-                body.sidebar-collapsed .monitoring-panel,
-                body.sidebar-collapsed .content-layout {
-                    max-width: calc(100vw - 90px);
-                }
-            }
-
-            @media (max-width: 768px) {
-
-                body:not(.sidebar-collapsed) .filter-section,
-                body:not(.sidebar-collapsed) .monitoring-section,
-                body:not(.sidebar-collapsed) .grid-section,
-                body:not(.sidebar-collapsed) .monitoring-panel,
-                body:not(.sidebar-collapsed) .content-layout,
-                body.sidebar-collapsed .filter-section,
-                body.sidebar-collapsed .monitoring-section,
-                body.sidebar-collapsed .grid-section,
-                body.sidebar-collapsed .monitoring-panel,
-                body.sidebar-collapsed .content-layout {
-                    max-width: 100%;
-                    overflow-x: auto;
-                }
-            }
-
-            .monitoring-panel .section-title {
-                font-size: 1.5rem;
-                color: #333;
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #007bff;
-                text-align: center;
-            }
-
-            .content-layout {
-                display: flex;
-                flex-direction: column;
-                gap: 30px;
-                width: 100%;
-                max-width: 1100px;
-                min-width: 1000px;
-                margin: 0 auto;
-                box-sizing: border-box;
-            }
-
-            .monitoring-section {
-                width: 100%;
-                max-width: 1100px;
-                box-sizing: border-box;
-                margin: 0 auto;
-            }
-
-            .monitoring-panel {
-                background-color: #fff;
-                border-radius: 5px;
-                width: 100%;
-                min-width: 1000px;
-                box-sizing: border-box;
-                margin: 0 auto;
-                padding: 20px;
-            }
-
-            .tab-container {
-                padding: 20px;
-                width: 100%;
-                min-width: 960px;
-                box-sizing: border-box;
-            }
-
-            .tab-buttons {
-                display: flex;
-                gap: 10px;
-                flex: 3;
-            }
-
-            .tab-button {
-                flex: 1;
-                padding: 8px 15px;
-                border-radius: 4px;
-                text-decoration: none;
-                color: #666;
-                background-color: #f8f9fa;
-                border: 1px solid #dee2e6;
-                text-align: center;
-                font-size: 0.9rem;
-            }
-
-            .tab-button:hover {
-                background-color: #e9ecef;
-                color: #333;
-                text-decoration: none;
-            }
-
-            .tab-button.active {
-                background-color: #007bff;
-                color: #fff;
-                border-color: #007bff;
-            }
-
-            .tab-button:not(.active) {
-                background-color: #f8f9fa;
-                color: #666;
-                border-color: #dee2e6;
-            }
-
-            /* Update the Send All to Service button styles to match search button */
-            #btnSendAllToService {
-                white-space: nowrap;
-                flex: none;
-                padding: 8px 16px;
-                font-size: 0.95rem;
-                min-width: 120px;
-                height: auto;
-                font-weight: 500;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                margin-left: 15px;
-            }
-
-            .monitoring-grid {
-                width: 100%;
-                min-width: 960px;
-                margin-top: 15px;
-                border-collapse: collapse;
-                table-layout: fixed;
-            }
-
-            .monitoring-grid th {
-                background-color: #f8f9fa;
-                padding: 10px;
-                border: 1px solid #dee2e6;
-            }
-
-            .monitoring-grid td {
-                padding: 8px;
-                border: 1px solid #dee2e6;
-            }
-
-            .grid-section {
-                width: 100%;
-                max-width: 1100px;
-                min-width: 1000px;
-                background-color: #fff;
-                border-radius: 0px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                padding: 20px;
-                box-sizing: border-box;
-                margin: 0 auto;
-            }
-
-            .section-title {
-                font-size: 1.5rem;
-                color: #333;
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #007bff;
-            }
-
-            .grid-view {
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-            /* Table responsiveness */
-            .monitoring-grid,
-            .grid-view {
-                table-layout: fixed;
-            }
-
-            .monitoring-grid td,
-            .grid-view td,
-            .monitoring-grid th,
-            .grid-view th {
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-            }
-
-            /* Column widths for monitoring grid */
-            .monitoring-grid td:nth-child(1) {
-                width: 20%;
-            }
-
-            /* Serial Number */
-            .monitoring-grid td:nth-child(2) {
-                width: 30%;
-            }
-
-            /* Location */
-            .monitoring-grid td:nth-child(3) {
-                width: 20%;
-            }
-
-            /* Date */
-            .monitoring-grid td:nth-child(4) {
-                width: 15%;
-            }
-
-            /* Days */
-            .monitoring-grid td:nth-child(5) {
-                width: 15%;
-            }
-
-            /* Action */
-
-            /* Column widths for main grid */
-            .grid-view td:nth-child(1) {
-                width: 5%;
-            }
-
-            /* No */
-            .grid-view td:nth-child(2) {
-                width: 10%;
-            }
-
-            /* Serial Number */
-            .grid-view td:nth-child(3) {
-                width: 8%;
-            }
-
-            /* Plant */
-            .grid-view td:nth-child(4) {
-                width: 8%;
-            }
-
-            /* Level */
-            .grid-view td:nth-child(5) {
-                width: 12%;
-            }
-
-            /* Location */
-            .grid-view td:nth-child(6) {
-                width: 8%;
-            }
-
-            /* Type */
-            .grid-view td:nth-child(7) {
-                width: 10%;
-            }
-
-            /* Expiry Date */
-            .grid-view td:nth-child(8) {
-                width: 14%;
-            }
-
-            /* Status - increased width */
-            .grid-view td:nth-child(9) {
-                width: 10%;
-            }
-
-            /* Remarks */
-            .grid-view td:nth-child(10) {
-                width: 15%;
-            }
-
-            /* Actions */
-
-            .grid-view td,
-            .grid-view th {
-                vertical-align: middle;
-                text-align: center;
-            }
-
-            .empty-data-message {
-                padding: 20px;
-                text-align: center;
-                font-size: 1.1em;
-                color: #666;
-                background-color: #f8f9fa;
-                border: 1px solid #dee2e6;
-            }
-
-            .status-badge {
-                display: inline-block;
-                padding: 6px 8px;
-                border-radius: 4px;
-                color: white;
-                text-align: center;
-                min-width: 80px;
-                max-width: 100%;
-                overflow-x: auto;
-            }
-        }
-
-        .monitoring-panel .section-title {
-            font-size: 1.5rem;
-            color: #333;
             margin-bottom: 20px;
+        }
+
+        .monitoring-panel {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid #007bff;
             text-align: center;
         }
 
-        .content-layout {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            width: 100%;
-            max-width: 1100px;
-            min-width: 1000px;
-            margin: 0 auto;
-            box-sizing: border-box;
-        }
-
-        .monitoring-section {
-            width: 100%;
-            max-width: 1100px;
-            box-sizing: border-box;
-            margin: 0 auto;
-        }
-
-        .monitoring-panel {
-            background-color: #fff;
-            border-radius: 0px;
-            width: 100%;
-            min-width: 1000px;
-            box-sizing: border-box;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
+        /* Tab System */
         .tab-container {
-            padding: 20px;
+            padding: 10px;
             width: 100%;
-            min-width: 960px;
             box-sizing: border-box;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            width: 100%;
         }
 
         .tab-buttons {
             display: flex;
-            gap: 10px;
-            flex: 3;
+            gap: 8px;
+            flex: 1;
+            overflow-x: auto;
+            padding-bottom: 5px; /* For scrollbar space */
         }
 
         .tab-button {
             flex: 1;
-            padding: 8px 15px;
+            padding: 8px 10px;
             border-radius: 4px;
             text-decoration: none;
+            white-space: nowrap;
             color: #666;
             background-color: #f8f9fa;
             border: 1px solid #dee2e6;
             text-align: center;
-            font-size: 0.9rem;
-            
+            font-size: 0.85rem;
+            min-width: 110px;
         }
 
         .tab-button:hover {
@@ -1132,125 +640,105 @@
             border-color: #007bff;
         }
 
-        .tab-button:not(.active) {
-            background-color: #f8f9fa;
-            color: #666;
-            border-color: #dee2e6;
+        /* Filter section */
+        .filter-section {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        /* Update the Send All to Service button styles to match search button */
-        #btnSendAllToService {
-            white-space: nowrap;
-            flex: none;
-            padding: 8px 16px;
-            font-size: 0.95rem;
-            min-width: 120px;
-            height: auto;
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .filter-group label {
+            margin-bottom: 5px;
             font-weight: 500;
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 5px;
+        }
+
+        .filter-group .button-group {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-top: 10px; /* Adjusted from 100px */
+        }
+
+        .filter-group .button-group .btn {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            min-width: 100px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-left: 15px;
+            height: auto;
+            white-space: nowrap;
         }
 
-        .monitoring-grid {
+        /* Grid section */
+        .content-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
             width: 100%;
-            min-width: 960px;
-            margin-top: 15px;
-            border-collapse: collapse;
-            table-layout: fixed;
         }
 
-        .monitoring-grid th {
-            background-color: #f8f9fa;
-            padding: 10px;
-            border: 1px solid #dee2e6;
-        }
-
-        .monitoring-grid td {
-            padding: 8px;
-            border: 1px solid #dee2e6;
-        }
-
-            .button-group {
-                display: flex;
-                justify-content: flex-end;
-                gap: 10px;
-                margin-top: -70px;
-            }
-
-        .section-title {
-            font-size: 1.5rem;
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #007bff;
+        .grid-section {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .grid-view {
             width: 100%;
             border-collapse: collapse;
+            font-size: 0.9rem;
         }
 
-        /* Table responsiveness */
-        .monitoring-grid, .grid-view {
-            table-layout: fixed;
+        .grid-header th {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            font-weight: 500;
         }
 
-        .monitoring-grid td, .grid-view td,
-        .monitoring-grid th, .grid-view th {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-
-        /* Column widths for monitoring grid */
-        .monitoring-grid td:nth-child(1) { width: 20%; } /* Serial Number */
-        .monitoring-grid td:nth-child(2) { width: 30%; } /* Location */
-        .monitoring-grid td:nth-child(3) { width: 20%; } /* Date */
-        .monitoring-grid td:nth-child(4) { width: 15%; } /* Days */
-        .monitoring-grid td:nth-child(5) { width: 15%; } /* Action */
-
-        /* Column widths for main grid */
-        .grid-view td:nth-child(1) { width: 5%; }  /* No */
-        .grid-view td:nth-child(2) { width: 10%; } /* Serial Number */
-        .grid-view td:nth-child(3) { width: 8%; }  /* Plant */
-        .grid-view td:nth-child(4) { width: 8%; }  /* Level */
-        .grid-view td:nth-child(5) { width: 12%; } /* Location */
-        .grid-view td:nth-child(6) { width: 8%; }  /* Type */
-        .grid-view td:nth-child(7) { width: 10%; } /* Expiry Date */
-        .grid-view td:nth-child(8) { width: 14%; } /* Status - increased width */
-        .grid-view td:nth-child(9) { width: 10%; } /* Remarks */
-        .grid-view td:nth-child(10) { width: 15%; } /* Actions */
-
-        .grid-view td, .grid-view th {
+        .grid-row td, .grid-row-alt td {
+            padding: 8px;
+            border-bottom: 1px solid #dee2e6;
             vertical-align: middle;
-            text-align: center;
         }
 
-        .empty-data-message {
-            padding: 20px;
-            text-align: center;
-            font-size: 1.1em;
-            color: #666;
+        .grid-row-alt {
             background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
         }
 
+        /* Status Badges */
         .status-badge {
             display: inline-block;
-            padding: 6px 8px;
+            padding: 5px 8px;
             border-radius: 4px;
             color: white;
             text-align: center;
-            min-width: 80px;
-            max-width: 100%;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 500;
             white-space: nowrap;
-            box-sizing: border-box;
         }
 
-        /* Status-specific colors */
         .status-valid {
             background-color: #28a745;
         }
@@ -1268,21 +756,34 @@
             background-color: #17a2b8;
         }
 
-        /* Ensure consistent button sizes in grids */
-        .btn-sm {
-            padding: 4px 8px;
-            font-size: 0.875rem;
-            min-width: 80px;
-        }
-
+        /* Action buttons */
         .action-buttons {
             display: flex;
-            gap: 5px;
             flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
         }
 
-        /* Rest of your existing styles... */
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
 
+        /* Button container */
+        .button-container {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+        #btnShowSelection {
+            margin-bottom: 10px;
+            padding: 8px 15px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        /* Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -1294,7 +795,6 @@
         }
         
         .modal-panel {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -1310,119 +810,86 @@
         .modal-content {
             background-color: white;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             width: 90%;
             max-width: 400px;
-            margin: auto;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
         }
 
-        .modal-content h4 {
-            margin-top: 0;
+        .service-selection-modal {
+            max-width: 90%;
+            width: 90%;
+            padding: 20px;
+            border-radius: 8px;
+            max-height: 85vh;
+        }
+
+        /* Modal components */
+        .modal-header {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 15px;
             margin-bottom: 20px;
+        }
+
+        .modal-title {
             color: #333;
-            text-align: center;
-            font-size: 1.2rem;
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
         }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 0.9rem;
-        }
-
-        .button-group {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .button-group .btn {
-            min-width: 80px;
-            padding: 6px 12px;
-            overflow:hidden ;
-            max-width: 100%;
-        }
-
-        .validation-error {
-            color: #dc3545;
-            font-size: 0.875rem;
-            margin-top: 5px;
-            display: block;
-        }
-
-        .expired-row {
-            background-color: #615959 !important;
-        }
-
-        .expiring-soon-row {
-            background-color: #fff3cd !important;
-        }
-
-        .under-maintenance-row {
-            background-color: #e8f4f8 !important;
-        }
-
-        .confirmation-grid {
-            width: 100%;
-            margin: 15px 0;
-            border-collapse: collapse;
-        }
-
-        .confirmation-grid th {
-            background-color: #f8f9fa;
-            padding: 8px;
-            border: 1px solid #dee2e6;
-            font-size: 0.9rem;
-        }
-
-        .confirmation-grid td {
-            padding: 6px;
-            border: 1px solid #dee2e6;
-            font-size: 0.9rem;
-        }
-
-        .modal-content {
-            max-height: 80vh;
+        .modal-body {
+            padding: 0 0 20px 0;
             overflow-y: auto;
         }
 
+        .modal-footer {
+            border-top: 1px solid #dee2e6;
+            padding-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .selection-instruction {
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 1rem;
+        }
+
+        .grid-container {
+            margin-bottom: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #fff;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .selection-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* Pagination */
         .grid-pager {
             text-align: center;
-            padding: 10px 0;
+            padding: 8px 0;
             background-color: #f8f9fa;
             border-top: 1px solid #dee2e6;
+            font-size: 0.9rem;
         }
 
         .grid-pager table {
             margin: 0 auto;
         }
 
-        .grid-pager td {
-            padding: 0 5px;
-        }
-
         .grid-pager a, .grid-pager span {
-            padding: 5px 10px;
+            padding: 4px 8px;
             margin: 0 2px;
             border: 1px solid #dee2e6;
             border-radius: 3px;
@@ -1430,7 +897,7 @@
             color: #007bff;
             background-color: #fff;
             display: inline-block;
-            min-width: 32px;
+            min-width: 30px;
         }
 
         .grid-pager span {
@@ -1439,244 +906,456 @@
             border-color: #007bff;
         }
 
-        .grid-pager a:hover {
-            background-color: #e9ecef;
-            border-color: #dee2e6;
-            color: #0056b3;
+        /* Toast notification */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1050;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-            /* Update the heading styles */
-            .view-section h3 {
-                text-align: center;
-                margin: 0 0 30px 0;
-                color: #333;
-                font-size: 1.75rem;
-                font-weight: 600;
-                padding-bottom: 15px;
-                border-bottom: 2px solid #007bff;
+        .toast-notification.error {
+            background-color: #f44336;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast-notification.hide {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        /* Empty message */
+        .empty-data-message {
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        /* Media Queries for Responsive Design */
+        @media (min-width: 576px) {
+            .view-section {
+                padding: 20px;
             }
+            
+            .section-title {
+                font-size: 1.4rem;
+            }
+            
+            .tab-button {
+                font-size: 0.9rem;
+            }
+            
+            .modal-content {
+                width: 80%;
+            }
+        }
 
-            /* Update the button styles */
-            .filter-group .button-group .btn {
+        @media (min-width: 768px) {
+            .container-fluid {
+                padding: 0 20px;
+            }
+            
+            .content-container {
+                padding: 15px;
+            }
+            
+            .view-section {
+                padding: 25px;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .filter-row {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .modal-content {
+                width: 70%;
+                max-width: 500px;
+            }
+            
+            .service-selection-modal {
+                max-width: 80%;
+            }
+            
+            .btn-sm {
+                min-width: 90px;
+            }
+        }
 
-                margin-top: 100px;
-                padding: 8px 16px;
-                font-size: 0.95rem;
-                min-width: 120px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                height: auto;
+        @media (min-width: 992px) {
+            .filter-row {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .service-selection-modal {
+                max-width: 70%;
+                width: 850px;
+            }
+            
+            /* Adjustments for sidebar states */
+            body:not(.sidebar-collapsed) .filter-section,
+            body:not(.sidebar-collapsed) .monitoring-section,
+            body:not(.sidebar-collapsed) .grid-section,
+            body:not(.sidebar-collapsed) .monitoring-panel,
+            body:not(.sidebar-collapsed) .content-layout {
+                max-width: calc(100vw - 280px);
+            }
+            
+            body.sidebar-collapsed .filter-section,
+            body.sidebar-collapsed .monitoring-section,
+            body.sidebar-collapsed .grid-section,
+            body.sidebar-collapsed .monitoring-panel,
+            body.sidebar-collapsed .content-layout {
+                max-width: calc(100vw - 100px);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .service-selection-modal {
+                width: 1000px;
+            }
+            
+            .tab-button {
+                font-size: 1rem;
+            }
+            
+            .grid-view, 
+            .monitoring-grid {
+                font-size: 1rem;
+            }
+            
+            body:not(.sidebar-collapsed) .filter-section,
+            body:not(.sidebar-collapsed) .monitoring-section,
+            body:not(.sidebar-collapsed) .grid-section,
+            body:not(.sidebar-collapsed) .monitoring-panel,
+            body:not(.sidebar-collapsed) .content-layout {
+                max-width: calc(100vw - 290px);
+            }
+            
+            body.sidebar-collapsed .filter-section,
+            body.sidebar-collapsed .monitoring-section,
+            body.sidebar-collapsed .grid-section,
+            body.sidebar-collapsed .monitoring-panel,
+            body.sidebar-collapsed .content-layout {
+                max-width: calc(100vw - 110px);
+            }
+        }
+
+        /* Table adjustments for small screens */
+        @media (max-width: 767px) {
+            .grid-view, 
+            .monitoring-grid,
+            .selection-grid {
+                display: block;
+                overflow-x: auto;
                 white-space: nowrap;
             }
-
-            /* Specific style for the Clear Filters button */
-            .filter-group .button-group .btn-secondary {
-                background-color: #6c757d;
-                color: white;
-                border: none;
-                font-weight: 500;
+            
+            .action-buttons {
+                flex-direction: column;
             }
-
-            .filter-group .button-group .btn-secondary:hover {
-                background-color: #5a6268;
+            
+            .tab-buttons {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+                padding-bottom: 8px;
             }
-
-            /* Add width control to the MultiView */
-            .monitoring-panel .tab-container>div {
-                width: 100%;
-                min-width: 960px;
+            
+            .tab-button {
+                min-width: 120px;
             }
-
-            @media (max-width: 992px) {
-                .service-selection-modal {
-                    min-width: 800px;
-                    min-height: 500px;
-                }
+            
+            .button-container {
+                text-align: center;
             }
-
-            #serviceSummaryPanel {
-                padding: 20px;
-                background-color: #f9f9f9;
-                border-radius: 6px;
-                margin-top: 20px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-
-            #serviceSummaryPanel h4 {
-                margin-bottom: 15px;
-                color: #495057;
-                font-weight: 600;
-            }
-
-            #serviceSummaryPanel .summary-row {
-                display: flex;
-                margin-bottom: 10px;
-                align-items: center;
-            }
-
-            #serviceSummaryPanel .summary-label {
-                font-weight: 600;
-                width: 180px;
-                color: #495057;
-            }
-
-        #serviceSummaryPanel .summary-value {
-            flex: 1;
         }
     </style>
 
         <script type="text/javascript">
-            // Add scroll position management
-            var scrollPosition;
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize responsive adjustments
+                initResponsiveUI();
+                
+                // Add scroll position management
+                var scrollPosition;
 
-            function saveScrollPosition() {
-                scrollPosition = window.scrollY;
-            }
-
-            function restoreScrollPosition() {
-                if (scrollPosition !== undefined) {
-                    window.scrollTo(0, scrollPosition);
+                function saveScrollPosition() {
+                    scrollPosition = window.scrollY;
                 }
-            }
 
-        // Add this to your existing Sys.WebForms.PageRequestManager code
-        if (typeof (Sys) !== 'undefined') {
-            var prm = Sys.WebForms.PageRequestManager.getInstance();
-            prm.add_beginRequest(function() {
-                saveScrollPosition();
-            });
-            prm.add_endRequest(function() {
-                restoreScrollPosition();
-            });
-        }
+                function restoreScrollPosition() {
+                    if (scrollPosition !== undefined) {
+                        window.scrollTo(0, scrollPosition);
+                    }
+                }
 
-        function showExpiryDatePanel(button) {
-            var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
-            var feId = button.getAttribute('data-feid') || button.getAttribute('CommandArgument');
-            document.getElementById('<%= hdnSelectedFEID.ClientID %>').value = feId;
-            panel.style.display = 'flex';
-            document.getElementById('modalOverlay').style.display = 'block';
-            return false;
-        }
+                // Setup PageRequestManager for ASP.NET AJAX handling
+                if (typeof (Sys) !== 'undefined') {
+                    var prm = Sys.WebForms.PageRequestManager.getInstance();
+                    prm.add_beginRequest(function() {
+                        saveScrollPosition();
+                    });
+                    prm.add_endRequest(function() {
+                        restoreScrollPosition();
+                        // Reinitialize touch events and responsive UI after partial postbacks
+                        initResponsiveUI();
+                    });
+                }
 
-        function hideExpiryDatePanel() {
-            var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
-            panel.style.display = 'none';
-            document.getElementById('modalOverlay').style.display = 'none';
-            return false;
-        }
-
-        function showSendToServiceConfirmation(feId) {
-            // Set the hidden field value
-            document.getElementById('<%= hdnSelectedFEIDForService.ClientID %>').value = feId;
-            
-            // Show the panel and overlay
-            document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'flex';
-            document.getElementById('modalOverlay').style.display = 'block';
-            
-            return false;
-        }
-
-        function hideSendToServicePanel() {
-            document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'none';
-            document.getElementById('modalOverlay').style.display = 'none';
-            return false;
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('modalOverlay').onclick = function() {
-            hideExpiryDatePanel();
-            hideSendToServicePanel();
-        };
-
-        // Prevent modal from closing when clicking inside it
-        document.querySelectorAll('.modal-panel').forEach(function(panel) {
-            panel.onclick = function(event) {
-                event.stopPropagation();
-            };
-        });
-
-        // Add this to your existing script section
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check sidebar state on page load
-            const sidebarState = localStorage.getItem('sidebarState');
-            if (sidebarState === 'collapsed') {
-                document.body.classList.add('sidebar-collapsed');
-            } else {
-                document.body.classList.remove('sidebar-collapsed');
-            }
-            
-            // Listen for sidebar state changes
-            window.addEventListener('storage', function(e) {
-                if (e.key === 'sidebarState') {
-                    if (e.newValue === 'collapsed') {
+                function initResponsiveUI() {
+                    // Check if user is on touch device
+                    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                    
+                    // Apply touch-specific adjustments
+                    if (isTouchDevice) {
+                        // Increase touch targets for better mobile experience
+                        document.querySelectorAll('.btn, .tab-button, .form-control').forEach(function(elem) {
+                            elem.classList.add('touch-friendly');
+                        });
+                        
+                        // Add specific handling for tables on touch devices
+                        document.querySelectorAll('.grid-view, .monitoring-grid').forEach(function(table) {
+                            table.classList.add('touch-table');
+                            
+                            // Add horizontal swipe indication for tables if they overflow
+                            if (table.scrollWidth > table.clientWidth) {
+                                const container = table.parentElement;
+                                const indicator = document.createElement('div');
+                                indicator.className = 'swipe-indicator';
+                                indicator.innerHTML = '<i class="swipe-icon">↔</i> Swipe to view more';
+                                container.insertBefore(indicator, table);
+                                
+                                // Hide indicator after user has swiped
+                                table.addEventListener('scroll', function() {
+                                    indicator.style.opacity = '0';
+                                    setTimeout(function() {
+                                        indicator.style.display = 'none';
+                                    }, 300);
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Check sidebar state on page load
+                    const sidebarState = localStorage.getItem('sidebarState');
+                    if (sidebarState === 'collapsed') {
                         document.body.classList.add('sidebar-collapsed');
                     } else {
                         document.body.classList.remove('sidebar-collapsed');
                     }
+                    
+                    // Make button interactions more responsive
+                    document.querySelectorAll('.btn').forEach(function(btn) {
+                        btn.addEventListener('mousedown', function() {
+                            this.classList.add('btn-active');
+                        });
+                        
+                        btn.addEventListener('mouseup mouseleave', function() {
+                            this.classList.remove('btn-active');
+                        });
+                    });
+                    
+                    // Ensure grid views are properly scrollable on mobile
+                    makeTableResponsive();
                 }
-            });
-            
-            // Add a custom event listener for sidebar toggle
-            document.addEventListener('sidebarToggled', function(e) {
-                if (e.detail.collapsed) {
-                    document.body.classList.add('sidebar-collapsed');
-                } else {
-                    document.body.classList.remove('sidebar-collapsed');
+                
+                function makeTableResponsive() {
+                    document.querySelectorAll('.grid-view, .monitoring-grid').forEach(function(table) {
+                        const parent = table.parentElement;
+                        
+                        // If table is wider than container, ensure container allows horizontal scrolling
+                        if (table.scrollWidth > parent.clientWidth) {
+                            parent.style.overflowX = 'auto';
+                            parent.style.WebkitOverflowScrolling = 'touch'; // For smooth scrolling on iOS
+                        }
+                    });
                 }
-            });
-        });
 
-        function showNotification(message, type = 'success', duration = 3000) {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `toast-notification ${type === 'error' ? 'error' : ''}`;
-            notification.innerHTML = message;
-            
-            // Add to DOM
-            document.body.appendChild(notification);
-            
-            // Trigger animation
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
-            
-            // Auto-hide after duration
-            setTimeout(() => {
-                notification.classList.add('hide');
+                // Listen for sidebar state changes
+                window.addEventListener('storage', function(e) {
+                    if (e.key === 'sidebarState') {
+                        if (e.newValue === 'collapsed') {
+                            document.body.classList.add('sidebar-collapsed');
+                        } else {
+                            document.body.classList.remove('sidebar-collapsed');
+                        }
+                        // Adjust table containers after sidebar state changes
+                        makeTableResponsive();
+                    }
+                });
+                
+                // Add a custom event listener for sidebar toggle
+                document.addEventListener('sidebarToggled', function(e) {
+                    if (e.detail.collapsed) {
+                        document.body.classList.add('sidebar-collapsed');
+                    } else {
+                        document.body.classList.remove('sidebar-collapsed');
+                    }
+                    // Adjust table containers after sidebar toggle
+                    makeTableResponsive();
+                });
+                
+                // Handle window resize events
+                let resizeTimer;
+                window.addEventListener('resize', function() {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(function() {
+                        makeTableResponsive();
+                    }, 250);
+                });
+            });
+
+            function showExpiryDatePanel(button) {
+                var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
+                var feId = button.getAttribute('data-feid') || button.getAttribute('CommandArgument');
+                document.getElementById('<%= hdnSelectedFEID.ClientID %>').value = feId;
+                panel.style.display = 'flex';
+                document.getElementById('modalOverlay').style.display = 'block';
+                return false;
+            }
+
+            function hideExpiryDatePanel() {
+                var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
+                panel.style.display = 'none';
+                document.getElementById('modalOverlay').style.display = 'none';
+                return false;
+            }
+
+            function showSendToServiceConfirmation(feId) {
+                // Set the hidden field value
+                document.getElementById('<%= hdnSelectedFEIDForService.ClientID %>').value = feId;
+                
+                // Show the panel and overlay
+                document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'flex';
+                document.getElementById('modalOverlay').style.display = 'block';
+                
+                return false;
+            }
+
+            function hideSendToServicePanel() {
+                document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'none';
+                document.getElementById('modalOverlay').style.display = 'none';
+                return false;
+            }
+
+            // Close modal when clicking outside
+            document.getElementById('modalOverlay').onclick = function() {
+                hideExpiryDatePanel();
+                hideSendToServicePanel();
+            };
+
+            // Prevent modal from closing when clicking inside it
+            document.querySelectorAll('.modal-panel').forEach(function(panel) {
+                panel.onclick = function(event) {
+                    event.stopPropagation();
+                };
+            });
+
+            function showNotification(message, type = 'success', duration = 3000) {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `toast-notification ${type === 'error' ? 'error' : ''}`;
+                notification.innerHTML = message;
+                
+                // Add to DOM
+                document.body.appendChild(notification);
+                
+                // Trigger animation
                 setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, duration);
-        }
+                    notification.classList.add('show');
+                }, 10);
+                
+                // Auto-hide after duration
+                setTimeout(() => {
+                    notification.classList.add('hide');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, duration);
+            }
 
-        // Service Selection Panel functions
-        function showServiceSelectionPanel() {
-            document.getElementById('modalOverlay').style.display = 'block';
-            return true; // Allow the postback to occur
-        }
-        
-        function hideServiceSelectionPanel() {
-            document.getElementById('modalOverlay').style.display = 'none';
-            return true; // Allow the postback to occur
-        }
-        
-        // Add select all functionality for the service selection grid
-        function toggleAllCheckboxes(checkbox) {
-            const grid = document.getElementById('<%= gvServiceSelection.ClientID %>');
-            if (!grid) return;
+            // Service Selection Panel functions
+            function showServiceSelectionPanel() {
+                document.getElementById('modalOverlay').style.display = 'block';
+                return true; // Allow the postback to occur
+            }
             
-            const checkboxes = grid.getElementsByTagName('input');
-            for (let i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].type === 'checkbox' && checkboxes[i] !== checkbox) {
-                    checkboxes[i].checked = checkbox.checked;
+            function hideServiceSelectionPanel() {
+                document.getElementById('modalOverlay').style.display = 'none';
+                return true; // Allow the postback to occur
+            }
+            
+            // Add select all functionality for the service selection grid
+            function toggleAllCheckboxes(checkbox) {
+                const grid = document.getElementById('<%= gvServiceSelection.ClientID %>');
+                if (!grid) return;
+                
+                const checkboxes = grid.getElementsByTagName('input');
+                for (let i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].type === 'checkbox' && checkboxes[i] !== checkbox) {
+                        checkboxes[i].checked = checkbox.checked;
+                    }
                 }
             }
-        }
-    </script>
+        </script>
 
 <style>
+    /* Additional responsive styles */
+    .touch-friendly {
+        min-height: 44px; /* Minimum touch target size */
+    }
+    
+    .btn-active {
+        transform: scale(0.97);
+    }
+    
+    .swipe-indicator {
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+        padding: 5px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 4px;
+        margin-bottom: 8px;
+        transition: opacity 0.3s ease;
+    }
+    
+    .swipe-icon {
+        display: inline-block;
+        animation: swipe-anim 1.5s infinite;
+        font-style: normal;
+        margin-right: 5px;
+    }
+    
+    @keyframes swipe-anim {
+        0% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        100% { transform: translateX(-5px); }
+    }
+    
+    /* Toast notifications */
     .toast-notification {
         position: fixed;
         top: 20px;
@@ -1686,13 +1365,13 @@
         color: white;
         border-radius: 4px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
+        z-index: 1050;
         display: flex;
         align-items: center;
         gap: 10px;
         opacity: 0;
         transform: translateY(-20px);
-    
+        transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
     .toast-notification.error {
@@ -1707,6 +1386,18 @@
     .toast-notification.hide {
         opacity: 0;
         transform: translateY(-20px);
+    }
+    
+    /* Better table behavior on small screens */
+    @media (max-width: 767px) {
+        .touch-table td, .touch-table th {
+            padding: 10px 8px; /* Increase padding for touch targets */
+        }
+        
+        .action-buttons .btn-sm {
+            padding: 8px 10px;
+            margin: 2px 0;
+        }
     }
 </style>
     
