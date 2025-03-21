@@ -9,7 +9,7 @@ using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using System.Collections.Generic;
-
+using FETS;
 
 namespace FETS.Pages.ViewSection
 {
@@ -396,18 +396,16 @@ namespace FETS.Pages.ViewSection
                                 string location = reader["Location"].ToString();
                                 string type = reader["TypeName"].ToString();
 
-                                // Send email
+                                // Send email using the template
                                 string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Replace with the recipient's email
                                 string subject = "Fire Extinguisher Sent for Service";
-                                string body = $@"
-                                    <h3>The following fire extinguisher has been sent for service:</h3>
-                                    <ul>
-                                        <li>Serial Number: {serialNumber}</li>
-                                        <li>Plant: {plant}</li>
-                                        <li>Level: {level}</li>
-                                        <li>Location: {location}</li>
-                                        <li>Type: {type}</li>
-                                    </ul>";
+                                string body = EmailTemplateManager.GetServiceEmailTemplate(
+                                    serialNumber,
+                                    plant,
+                                    level,
+                                    location,
+                                    type
+                                );
 
                                 var (success, message) = EmailService.SendEmail(recipientEmail, subject, body);
 
@@ -1009,19 +1007,65 @@ namespace FETS.Pages.ViewSection
             string extinguisherId = btn.CommandArgument;
             string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Change dynamically if needed
 
-            var (success, message) = EmailService.SendEmail(recipientEmail, 
-                $"Fire Extinguisher {extinguisherId} Sent for Service", 
-                $"Fire Extinguisher with ID {extinguisherId} has been sent for service.");
+            // Get fire extinguisher details
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = @"   
+                    SELECT 
+                        fe.SerialNumber,
+                        p.PlantName,
+                        l.LevelName,
+                        fe.Location,
+                        t.TypeName,
+                        fe.Remarks
+                    FROM FireExtinguishers fe
+                    INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                    INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                    INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                    WHERE fe.FEID = @FEID";
 
-            if (success)
-            {
-                ScriptManager.RegisterStartupScript(this, GetType(), "emailSentPopup",
-                    "showNotification('✅ Email sent successfully!'); setTimeout(function() { window.location.reload(); }, 2000);", true);
-            }
-            else
-            {
-                ScriptManager.RegisterStartupScript(this, GetType(), "emailErrorPopup",
-                    $"showNotification('❌ Email failed: {message.Replace("'", "\'")}', 'error');", true);
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@FEID", extinguisherId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            string serialNumber = reader["SerialNumber"].ToString();
+                            string plant = reader["PlantName"].ToString();
+                            string level = reader["LevelName"].ToString();
+                            string location = reader["Location"].ToString();
+                            string type = reader["TypeName"].ToString();
+                            string remarks = reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null;
+
+                            // Use the template manager to get the formatted email body
+                            string subject = $"Fire Extinguisher {serialNumber} Sent for Service";
+                            string body = EmailTemplateManager.GetServiceEmailTemplate(
+                                serialNumber,
+                                plant,
+                                level,
+                                location,
+                                type,
+                                remarks
+                            );
+
+                            var (success, message) = EmailService.SendEmail(recipientEmail, subject, body);
+
+                            if (success)
+                            {
+                                ScriptManager.RegisterStartupScript(this, GetType(), "emailSentPopup",
+                                    "showNotification('✅ Email sent successfully!'); setTimeout(function() { window.location.reload(); }, 2000);", true);
+                            }
+                            else
+                            {
+                                ScriptManager.RegisterStartupScript(this, GetType(), "emailErrorPopup",
+                                    $"showNotification('❌ Email failed: {message.Replace("'", "\'")}', 'error');", true);
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -1068,8 +1112,7 @@ namespace FETS.Pages.ViewSection
         protected void btnConfirmSelection_Click(object sender, EventArgs e)
         {
             List<int> selectedFEIDs = new List<int>();
-            List<string> selectedFEDetails = new List<string>();
-
+            
             foreach (GridViewRow row in gvServiceSelection.Rows)
             {
                 CheckBox chkSelect = (CheckBox)row.FindControl("chkSelect");
@@ -1077,15 +1120,69 @@ namespace FETS.Pages.ViewSection
                 {
                     int feId = Convert.ToInt32(gvServiceSelection.DataKeys[row.RowIndex].Value);
                     selectedFEIDs.Add(feId);
-                    selectedFEDetails.Add($"Serial Number: {row.Cells[1].Text}, Location: {row.Cells[2].Text}");
                 }
             }
 
             if (selectedFEIDs.Count > 0)
             {
+                // Get details for all selected fire extinguishers
+                List<FireExtinguisherServiceInfo> extinguisherDetails = new List<FireExtinguisherServiceInfo>();
+                string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+                
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string feIdList = string.Join(",", selectedFEIDs);
+                    string query = $@"   
+                        SELECT 
+                            fe.FEID,
+                            fe.SerialNumber,
+                            p.PlantName,
+                            l.LevelName,
+                            fe.Location,
+                            t.TypeName,
+                            fe.Remarks
+                        FROM FireExtinguishers fe
+                        INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                        INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                        INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                        WHERE fe.FEID IN ({feIdList})";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                extinguisherDetails.Add(new FireExtinguisherServiceInfo
+                                {
+                                    SerialNumber = reader["SerialNumber"].ToString(),
+                                    Plant = reader["PlantName"].ToString(),
+                                    Level = reader["LevelName"].ToString(),
+                                    Location = reader["Location"].ToString(),
+                                    Type = reader["TypeName"].ToString(),
+                                    Remarks = reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null
+                                });
+                            }
+                        }
+                    }
+                    
+                    // Update status to "Under Service" for all selected extinguishers
+                    string updateQuery = $@"
+                        UPDATE FireExtinguishers
+                        SET StatusID = (SELECT StatusID FROM Status WHERE StatusName = 'Under Service')
+                        WHERE FEID IN ({feIdList})";
+                    
+                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
+                    {
+                        updateCmd.ExecuteNonQuery();
+                    }
+                }
+                
+                // Send email with the professional template
                 string recipientEmail = "irfandanishnoorazlin@gmail.com";
-                string subject = "Fire Extinguishers Sent for Service";
-                string body = "<h3>The following fire extinguishers have been sent for service:</h3><ul>" + string.Join("", selectedFEDetails.ConvertAll(d => $"<li>{d}</li>")) + "</ul>";
+                string subject = $"{extinguisherDetails.Count} Fire Extinguishers Sent for Service";
+                string body = EmailTemplateManager.GetMultipleServiceEmailTemplate(extinguisherDetails);
 
                 var (success, message) = EmailService.SendEmail(recipientEmail, subject, body);
 
@@ -1113,4 +1210,3 @@ namespace FETS.Pages.ViewSection
         }
     }
 }
-

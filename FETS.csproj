@@ -100,6 +100,8 @@
     <Content Include="Pages\DataEntry\DataEntry.aspx" />
     <Content Include="Pages\ViewSection\ViewSection.aspx" />
     <Content Include="Pages\Profile\Profile.aspx" />
+    <Content Include="EmailTemplates\ServiceEmailTemplate.html" />
+    <Content Include="EmailTemplates\ExpiryEmailTemplate.html" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Default.aspx.cs">
@@ -109,6 +111,7 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="App_Code\EmailTemplateManager.cs" />
     <Compile Include="Pages\Dashboard\Dashboard.aspx.cs">
       <DependentUpon>Dashboard.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -150,6 +153,8 @@
     <Folder Include="App_Data\" />
     <Folder Include="Assets\images\" />
     <Folder Include="Assets\js\" />
+    <Folder Include="EmailTemplates\" />
+    <Folder Include="App_Code\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Pages\MapLayout\MapLayout.aspx.cs">
