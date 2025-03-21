@@ -521,7 +521,7 @@
     <div id="modalOverlay" class="modal-overlay" style="display: none;"></div>
 
     <style type="text/css">
-        /* Update the width-related styles for dynamic adjustment with sidebar */
+        /* Base styles with mobile-first approach */
         .filter-section,
         .monitoring-section,
         .grid-section,
@@ -529,11 +529,27 @@
         .content-layout {
             width: 100%;
             max-width: 100%;
-            min-width: auto;
             margin: 0 auto;
             box-sizing: border-box;
             overflow-x: auto;
         }
+<<<<<<< HEAD
+        
+        /* Reset min-width constraints that cause horizontal scrolling */
+        .monitoring-panel,
+        .content-layout,
+        .tab-container,
+        .monitoring-grid,
+        .grid-section {
+            min-width: auto !important;
+        }
+
+        /* Make tables responsive */
+        .grid-view, 
+        .monitoring-grid,
+        .selection-grid,
+        .confirmation-grid {
+=======
 
         /* Make filter-row more responsive */
         .filter-row {
@@ -690,105 +706,570 @@
         }
 
         .selection-grid {
+>>>>>>> 8026ea0327873904ac8253239a7ab6dc05d4a793
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 0;
-            table-layout: fixed;
+            table-layout: auto;
         }
 
-        .selection-grid th {
-            background-color: #f0f2f5;
-            padding: 14px 10px;
-            border: 1px solid #dee2e6;
-            font-weight: 600;
-            color: #333;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        /* Container structure */
+        .container-fluid {
+            padding: 0 15px;
         }
 
-        .selection-grid td {
-            padding: 12px 10px;
-            border: 1px solid #dee2e6;
-            vertical-align: middle;
-            word-break: break-word;
-        }
-
-        .selection-checkbox {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .modal-footer {
-            border-top: 1px solid #dee2e6;
-            padding-top: 20px;
+        .dashboard-container {
             display: flex;
-            justify-content: flex-end;
-            gap: 15px;
+            flex-direction: column;
         }
 
-        #btnShowSelection {
-            margin: 15px 0;
-            padding: 10px 18px;
-            font-weight: 500;
-            font-size: 1rem;
+        .content-container {
+            width: 100%;
+            padding: 10px;
         }
 
-        /* Set max-width for expanded sidebar state */
-        body:not(.sidebar-collapsed) .filter-section,
-        body:not(.sidebar-collapsed) .monitoring-section,
-        body:not(.sidebar-collapsed) .grid-section,
-        body:not(.sidebar-collapsed) .monitoring-panel,
-        body:not(.sidebar-collapsed) .content-layout {
-            max-width: calc(100vw - 290px); /* 250px sidebar + 40px padding */
+        .panels-layout {
+            width: 100%;
         }
 
-        /* Set max-width for collapsed sidebar state */
-        body.sidebar-collapsed .filter-section,
-        body.sidebar-collapsed .monitoring-section,
-        body.sidebar-collapsed .grid-section,
-        body.sidebar-collapsed .monitoring-panel,
-        body.sidebar-collapsed .content-layout {
-            max-width: calc(100vw - 110px); /* 70px sidebar + 40px padding */
-        }
-
-        .filter-section {
-            background-color: #fff;
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        /* Update the view-section container */
         .view-section {
             display: flex;
             flex-direction: column;
-            align-items: center;
             width: 100%;
-            padding: 30px;
-            box-sizing: border-box;
-        }
-
-        .view-section {
+            padding: 15px;
             background-color: #fff;
-            border-radius: 0px;
+            border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        /* Update table layout to be more responsive */
-        .monitoring-grid, 
-        .grid-view {
+        /* Monitoring Panel */
+        .monitoring-section {
             width: 100%;
+<<<<<<< HEAD
+            margin-bottom: 20px;
+        }
+
+        .monitoring-panel {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+            text-align: center;
+        }
+
+        /* Tab System */
+        .tab-container {
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+=======
             table-layout: fixed;
         }
 
         /* Make panel header responsive */
+>>>>>>> 8026ea0327873904ac8253239a7ab6dc05d4a793
         .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+<<<<<<< HEAD
+            width: 100%;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            overflow-x: auto;
+            padding-bottom: 5px; /* For scrollbar space */
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            white-space: nowrap;
+            color: #666;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            text-align: center;
+            font-size: 0.85rem;
+            min-width: 110px;
+        }
+
+        .tab-button:hover {
+            background-color: #e9ecef;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .tab-button.active {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
+
+        /* Filter section */
+        .filter-section {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .filter-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 5px;
+        }
+
+        .filter-group .button-group {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-top: 10px; /* Adjusted from 100px */
+        }
+
+        .filter-group .button-group .btn {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            min-width: 100px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: auto;
+            white-space: nowrap;
+        }
+
+        /* Grid section */
+        .content-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .grid-section {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .grid-view {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .grid-header th {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            font-weight: 500;
+        }
+
+        .grid-row td, .grid-row-alt td {
+            padding: 8px;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .grid-row-alt {
+            background-color: #f8f9fa;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 8px;
+            border-radius: 4px;
+            color: white;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .status-valid {
+            background-color: #28a745;
+        }
+
+        .status-expired {
+            background-color: #dc3545;
+        }
+
+        .status-expiring-soon {
+            background-color: #ffc107;
+            color: #856404;
+        }
+
+        .status-under-service {
+            background-color: #17a2b8;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        /* Button container */
+        .button-container {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+        #btnShowSelection {
+            margin-bottom: 10px;
+            padding: 8px 15px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        
+        .modal-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .service-selection-modal {
+            max-width: 90%;
+            width: 90%;
+            padding: 20px;
+            border-radius: 8px;
+            max-height: 85vh;
+        }
+
+        /* Modal components */
+        .modal-header {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            color: #333;
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 0 0 20px 0;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #dee2e6;
+            padding-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .selection-instruction {
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 1rem;
+        }
+
+        .grid-container {
+            margin-bottom: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #fff;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .selection-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* Pagination */
+        .grid-pager {
+            text-align: center;
+            padding: 8px 0;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.9rem;
+        }
+
+        .grid-pager table {
+            margin: 0 auto;
+        }
+
+        .grid-pager a, .grid-pager span {
+            padding: 4px 8px;
+            margin: 0 2px;
+            border: 1px solid #dee2e6;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #007bff;
+            background-color: #fff;
+            display: inline-block;
+            min-width: 30px;
+        }
+
+        .grid-pager span {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
+
+        /* Toast notification */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1050;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .toast-notification.error {
+            background-color: #f44336;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast-notification.hide {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        /* Empty message */
+        .empty-data-message {
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        /* Media Queries for Responsive Design */
+        @media (min-width: 576px) {
+            .view-section {
+                padding: 20px;
+            }
+            
+            .section-title {
+                font-size: 1.4rem;
+            }
+            
+            .tab-button {
+                font-size: 0.9rem;
+            }
+            
+            .modal-content {
+                width: 80%;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container-fluid {
+                padding: 0 20px;
+            }
+            
+            .content-container {
+                padding: 15px;
+            }
+            
+            .view-section {
+                padding: 25px;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .filter-row {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .modal-content {
+                width: 70%;
+                max-width: 500px;
+            }
+            
+            .service-selection-modal {
+                max-width: 80%;
+            }
+            
+            .btn-sm {
+                min-width: 90px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .filter-row {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .service-selection-modal {
+                max-width: 70%;
+                width: 850px;
+            }
+            
+            /* Adjustments for sidebar states */
+            body:not(.sidebar-collapsed) .filter-section,
+            body:not(.sidebar-collapsed) .monitoring-section,
+            body:not(.sidebar-collapsed) .grid-section,
+            body:not(.sidebar-collapsed) .monitoring-panel,
+            body:not(.sidebar-collapsed) .content-layout {
+                max-width: calc(100vw - 280px);
+            }
+            
+            body.sidebar-collapsed .filter-section,
+            body.sidebar-collapsed .monitoring-section,
+            body.sidebar-collapsed .grid-section,
+            body.sidebar-collapsed .monitoring-panel,
+            body.sidebar-collapsed .content-layout {
+                max-width: calc(100vw - 100px);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .service-selection-modal {
+                width: 1000px;
+            }
+            
+            .tab-button {
+                font-size: 1rem;
+            }
+            
+            .grid-view, 
+            .monitoring-grid {
+                font-size: 1rem;
+            }
+            
+            body:not(.sidebar-collapsed) .filter-section,
+            body:not(.sidebar-collapsed) .monitoring-section,
+            body:not(.sidebar-collapsed) .grid-section,
+            body:not(.sidebar-collapsed) .monitoring-panel,
+            body:not(.sidebar-collapsed) .content-layout {
+                max-width: calc(100vw - 290px);
+            }
+            
+            body.sidebar-collapsed .filter-section,
+            body.sidebar-collapsed .monitoring-section,
+            body.sidebar-collapsed .grid-section,
+            body.sidebar-collapsed .monitoring-panel,
+            body.sidebar-collapsed .content-layout {
+                max-width: calc(100vw - 110px);
+            }
+        }
+
+        /* Table adjustments for small screens */
+        @media (max-width: 767px) {
+            .grid-view, 
+            .monitoring-grid,
+            .selection-grid {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .tab-buttons {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+                padding-bottom: 8px;
+            }
+            
+            .tab-button {
+                min-width: 120px;
+            }
+            
+            .button-container {
+                text-align: center;
+            }
+=======
             gap: 15px;
             width: 100%;
             min-width: auto;
@@ -875,162 +1356,275 @@
                 font-size: 0.8rem;
                 padding: 3px 6px;
             }
+>>>>>>> 8026ea0327873904ac8253239a7ab6dc05d4a793
         }
 
         /* Remove duplicate media queries and styles */
     </style>
 
         <script type="text/javascript">
-            // Add scroll position management
-            var scrollPosition;
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize responsive adjustments
+                initResponsiveUI();
+                
+                // Add scroll position management
+                var scrollPosition;
 
-            function saveScrollPosition() {
-                scrollPosition = window.scrollY;
-            }
-
-            function restoreScrollPosition() {
-                if (scrollPosition !== undefined) {
-                    window.scrollTo(0, scrollPosition);
+                function saveScrollPosition() {
+                    scrollPosition = window.scrollY;
                 }
-            }
 
-        // Add this to your existing Sys.WebForms.PageRequestManager code
-        if (typeof (Sys) !== 'undefined') {
-            var prm = Sys.WebForms.PageRequestManager.getInstance();
-            prm.add_beginRequest(function() {
-                saveScrollPosition();
-            });
-            prm.add_endRequest(function() {
-                restoreScrollPosition();
-            });
-        }
+                function restoreScrollPosition() {
+                    if (scrollPosition !== undefined) {
+                        window.scrollTo(0, scrollPosition);
+                    }
+                }
 
-        function showExpiryDatePanel(button) {
-            var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
-            var feId = button.getAttribute('data-feid') || button.getAttribute('CommandArgument');
-            document.getElementById('<%= hdnSelectedFEID.ClientID %>').value = feId;
-            panel.style.display = 'flex';
-            document.getElementById('modalOverlay').style.display = 'block';
-            return false;
-        }
+                // Setup PageRequestManager for ASP.NET AJAX handling
+                if (typeof (Sys) !== 'undefined') {
+                    var prm = Sys.WebForms.PageRequestManager.getInstance();
+                    prm.add_beginRequest(function() {
+                        saveScrollPosition();
+                    });
+                    prm.add_endRequest(function() {
+                        restoreScrollPosition();
+                        // Reinitialize touch events and responsive UI after partial postbacks
+                        initResponsiveUI();
+                    });
+                }
 
-        function hideExpiryDatePanel() {
-            var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
-            panel.style.display = 'none';
-            document.getElementById('modalOverlay').style.display = 'none';
-            return false;
-        }
-
-        function showSendToServiceConfirmation(feId) {
-            // Set the hidden field value
-            document.getElementById('<%= hdnSelectedFEIDForService.ClientID %>').value = feId;
-            
-            // Show the panel and overlay
-            document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'flex';
-            document.getElementById('modalOverlay').style.display = 'block';
-            
-            return false;
-        }
-
-        function hideSendToServicePanel() {
-            document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'none';
-            document.getElementById('modalOverlay').style.display = 'none';
-            return false;
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('modalOverlay').onclick = function() {
-            hideExpiryDatePanel();
-            hideSendToServicePanel();
-        };
-
-        // Prevent modal from closing when clicking inside it
-        document.querySelectorAll('.modal-panel').forEach(function(panel) {
-            panel.onclick = function(event) {
-                event.stopPropagation();
-            };
-        });
-
-        // Add this to your existing script section
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check sidebar state on page load
-            const sidebarState = localStorage.getItem('sidebarState');
-            if (sidebarState === 'collapsed') {
-                document.body.classList.add('sidebar-collapsed');
-            } else {
-                document.body.classList.remove('sidebar-collapsed');
-            }
-            
-            // Listen for sidebar state changes
-            window.addEventListener('storage', function(e) {
-                if (e.key === 'sidebarState') {
-                    if (e.newValue === 'collapsed') {
+                function initResponsiveUI() {
+                    // Check if user is on touch device
+                    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                    
+                    // Apply touch-specific adjustments
+                    if (isTouchDevice) {
+                        // Increase touch targets for better mobile experience
+                        document.querySelectorAll('.btn, .tab-button, .form-control').forEach(function(elem) {
+                            elem.classList.add('touch-friendly');
+                        });
+                        
+                        // Add specific handling for tables on touch devices
+                        document.querySelectorAll('.grid-view, .monitoring-grid').forEach(function(table) {
+                            table.classList.add('touch-table');
+                            
+                            // Add horizontal swipe indication for tables if they overflow
+                            if (table.scrollWidth > table.clientWidth) {
+                                const container = table.parentElement;
+                                const indicator = document.createElement('div');
+                                indicator.className = 'swipe-indicator';
+                                indicator.innerHTML = '<i class="swipe-icon">↔</i> Swipe to view more';
+                                container.insertBefore(indicator, table);
+                                
+                                // Hide indicator after user has swiped
+                                table.addEventListener('scroll', function() {
+                                    indicator.style.opacity = '0';
+                                    setTimeout(function() {
+                                        indicator.style.display = 'none';
+                                    }, 300);
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Check sidebar state on page load
+                    const sidebarState = localStorage.getItem('sidebarState');
+                    if (sidebarState === 'collapsed') {
                         document.body.classList.add('sidebar-collapsed');
                     } else {
                         document.body.classList.remove('sidebar-collapsed');
                     }
+                    
+                    // Make button interactions more responsive
+                    document.querySelectorAll('.btn').forEach(function(btn) {
+                        btn.addEventListener('mousedown', function() {
+                            this.classList.add('btn-active');
+                        });
+                        
+                        btn.addEventListener('mouseup mouseleave', function() {
+                            this.classList.remove('btn-active');
+                        });
+                    });
+                    
+                    // Ensure grid views are properly scrollable on mobile
+                    makeTableResponsive();
                 }
-            });
-            
-            // Add a custom event listener for sidebar toggle
-            document.addEventListener('sidebarToggled', function(e) {
-                if (e.detail.collapsed) {
-                    document.body.classList.add('sidebar-collapsed');
-                } else {
-                    document.body.classList.remove('sidebar-collapsed');
+                
+                function makeTableResponsive() {
+                    document.querySelectorAll('.grid-view, .monitoring-grid').forEach(function(table) {
+                        const parent = table.parentElement;
+                        
+                        // If table is wider than container, ensure container allows horizontal scrolling
+                        if (table.scrollWidth > parent.clientWidth) {
+                            parent.style.overflowX = 'auto';
+                            parent.style.WebkitOverflowScrolling = 'touch'; // For smooth scrolling on iOS
+                        }
+                    });
                 }
-            });
-        });
 
-        function showNotification(message, type = 'success', duration = 3000) {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `toast-notification ${type === 'error' ? 'error' : ''}`;
-            notification.innerHTML = message;
-            
-            // Add to DOM
-            document.body.appendChild(notification);
-            
-            // Trigger animation
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
-            
-            // Auto-hide after duration
-            setTimeout(() => {
-                notification.classList.add('hide');
+                // Listen for sidebar state changes
+                window.addEventListener('storage', function(e) {
+                    if (e.key === 'sidebarState') {
+                        if (e.newValue === 'collapsed') {
+                            document.body.classList.add('sidebar-collapsed');
+                        } else {
+                            document.body.classList.remove('sidebar-collapsed');
+                        }
+                        // Adjust table containers after sidebar state changes
+                        makeTableResponsive();
+                    }
+                });
+                
+                // Add a custom event listener for sidebar toggle
+                document.addEventListener('sidebarToggled', function(e) {
+                    if (e.detail.collapsed) {
+                        document.body.classList.add('sidebar-collapsed');
+                    } else {
+                        document.body.classList.remove('sidebar-collapsed');
+                    }
+                    // Adjust table containers after sidebar toggle
+                    makeTableResponsive();
+                });
+                
+                // Handle window resize events
+                let resizeTimer;
+                window.addEventListener('resize', function() {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(function() {
+                        makeTableResponsive();
+                    }, 250);
+                });
+            });
+
+            function showExpiryDatePanel(button) {
+                var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
+                var feId = button.getAttribute('data-feid') || button.getAttribute('CommandArgument');
+                document.getElementById('<%= hdnSelectedFEID.ClientID %>').value = feId;
+                panel.style.display = 'flex';
+                document.getElementById('modalOverlay').style.display = 'block';
+                return false;
+            }
+
+            function hideExpiryDatePanel() {
+                var panel = document.getElementById('<%= pnlExpiryDate.ClientID %>');
+                panel.style.display = 'none';
+                document.getElementById('modalOverlay').style.display = 'none';
+                return false;
+            }
+
+            function showSendToServiceConfirmation(feId) {
+                // Set the hidden field value
+                document.getElementById('<%= hdnSelectedFEIDForService.ClientID %>').value = feId;
+                
+                // Show the panel and overlay
+                document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'flex';
+                document.getElementById('modalOverlay').style.display = 'block';
+                
+                return false;
+            }
+
+            function hideSendToServicePanel() {
+                document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'none';
+                document.getElementById('modalOverlay').style.display = 'none';
+                return false;
+            }
+
+            // Close modal when clicking outside
+            document.getElementById('modalOverlay').onclick = function() {
+                hideExpiryDatePanel();
+                hideSendToServicePanel();
+            };
+
+            // Prevent modal from closing when clicking inside it
+            document.querySelectorAll('.modal-panel').forEach(function(panel) {
+                panel.onclick = function(event) {
+                    event.stopPropagation();
+                };
+            });
+
+            function showNotification(message, type = 'success', duration = 3000) {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `toast-notification ${type === 'error' ? 'error' : ''}`;
+                notification.innerHTML = message;
+                
+                // Add to DOM
+                document.body.appendChild(notification);
+                
+                // Trigger animation
                 setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, duration);
-        }
+                    notification.classList.add('show');
+                }, 10);
+                
+                // Auto-hide after duration
+                setTimeout(() => {
+                    notification.classList.add('hide');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, duration);
+            }
 
-        // Service Selection Panel functions
-        function showServiceSelectionPanel() {
-            document.getElementById('modalOverlay').style.display = 'block';
-            return true; // Allow the postback to occur
-        }
-        
-        function hideServiceSelectionPanel() {
-            document.getElementById('modalOverlay').style.display = 'none';
-            return true; // Allow the postback to occur
-        }
-        
-        // Add select all functionality for the service selection grid
-        function toggleAllCheckboxes(checkbox) {
-            const grid = document.getElementById('<%= gvServiceSelection.ClientID %>');
-            if (!grid) return;
+            // Service Selection Panel functions
+            function showServiceSelectionPanel() {
+                document.getElementById('modalOverlay').style.display = 'block';
+                return true; // Allow the postback to occur
+            }
             
-            const checkboxes = grid.getElementsByTagName('input');
-            for (let i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].type === 'checkbox' && checkboxes[i] !== checkbox) {
-                    checkboxes[i].checked = checkbox.checked;
+            function hideServiceSelectionPanel() {
+                document.getElementById('modalOverlay').style.display = 'none';
+                return true; // Allow the postback to occur
+            }
+            
+            // Add select all functionality for the service selection grid
+            function toggleAllCheckboxes(checkbox) {
+                const grid = document.getElementById('<%= gvServiceSelection.ClientID %>');
+                if (!grid) return;
+                
+                const checkboxes = grid.getElementsByTagName('input');
+                for (let i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].type === 'checkbox' && checkboxes[i] !== checkbox) {
+                        checkboxes[i].checked = checkbox.checked;
+                    }
                 }
             }
-        }
-    </script>
+        </script>
 
 <style>
+    /* Additional responsive styles */
+    .touch-friendly {
+        min-height: 44px; /* Minimum touch target size */
+    }
+    
+    .btn-active {
+        transform: scale(0.97);
+    }
+    
+    .swipe-indicator {
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+        padding: 5px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 4px;
+        margin-bottom: 8px;
+        transition: opacity 0.3s ease;
+    }
+    
+    .swipe-icon {
+        display: inline-block;
+        animation: swipe-anim 1.5s infinite;
+        font-style: normal;
+        margin-right: 5px;
+    }
+    
+    @keyframes swipe-anim {
+        0% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        100% { transform: translateX(-5px); }
+    }
+    
+    /* Toast notifications */
     .toast-notification {
         position: fixed;
         top: 20px;
@@ -1040,13 +1634,13 @@
         color: white;
         border-radius: 4px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
+        z-index: 1050;
         display: flex;
         align-items: center;
         gap: 10px;
         opacity: 0;
         transform: translateY(-20px);
-    
+        transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
     .toast-notification.error {
@@ -1061,6 +1655,18 @@
     .toast-notification.hide {
         opacity: 0;
         transform: translateY(-20px);
+    }
+    
+    /* Better table behavior on small screens */
+    @media (max-width: 767px) {
+        .touch-table td, .touch-table th {
+            padding: 10px 8px; /* Increase padding for touch targets */
+        }
+        
+        .action-buttons .btn-sm {
+            padding: 8px 10px;
+            margin: 2px 0;
+        }
     }
 </style>
     
