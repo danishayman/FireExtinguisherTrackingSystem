@@ -1448,11 +1448,14 @@ namespace FETS.Pages.ViewSection
         {
             if (eventArgument.StartsWith("LoadFireExtinguisherDetails:"))
             {
-                string feIdStr = eventArgument.Substring("LoadFireExtinguisherDetails:".Length);
+                // Extract the FEID from the postback argument
+                string feIdStr = eventArgument.Replace("LoadFireExtinguisherDetails:", "");
                 int feId;
+                
                 if (int.TryParse(feIdStr, out feId))
                 {
                     LoadFireExtinguisherForEdit(feId);
+                    ScriptManager.RegisterStartupScript(this, GetType(), "showEditPanel", "document.getElementById('" + pnlEditFireExtinguisher.ClientID + "').style.display = 'flex';", true);
                 }
             }
         }
@@ -1750,6 +1753,309 @@ namespace FETS.Pages.ViewSection
                 ScriptManager.RegisterStartupScript(this, GetType(), "saveError", 
                     $"showNotification('❌ Error: {ex.Message.Replace("'", "\\'")}', 'error');", true);
             }
+        }
+
+        /// <summary>
+        /// Handles the click event for the Complete Service button.
+        /// Loads and displays the panel showing all fire extinguishers under service.
+        /// </summary>
+        protected void btnCompleteServiceList_Click(object sender, EventArgs e)
+        {
+            LoadCompleteServiceGrid();
+            pnlCompleteService.Visible = true;
+            upCompleteService.Update();
+            
+            // Show the modal overlay
+            ScriptManager.RegisterStartupScript(this, GetType(), "showCompleteServicePanel", 
+                "showCompleteServicePanel();", true);
+        }
+        
+        /// <summary>
+        /// Loads the complete service grid with fire extinguishers that are under service.
+        /// </summary>
+        private void LoadCompleteServiceGrid()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = @"
+                    SELECT 
+                        fe.FEID,
+                        fe.SerialNumber,
+                        p.PlantName,
+                        l.LevelName,
+                        fe.Location,
+                        t.TypeName,
+                        fe.DateExpired,
+                        s.StatusName
+                    FROM FireExtinguishers fe
+                    INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                    INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                    INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                    INNER JOIN Status s ON fe.StatusID = s.StatusID
+                    WHERE s.StatusName = 'Under Service'
+                    ORDER BY fe.SerialNumber";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dt = new DataTable();
+                        adapter.Fill(dt);
+                        gvCompleteService.DataSource = dt;
+                        gvCompleteService.DataBind();
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Handles row data binding for the Complete Service grid.
+        /// </summary>
+        protected void gvCompleteService_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            if (e.Row.RowType == DataControlRowType.DataRow)
+            {
+                // Set minimum date to today for the expiry date input
+                TextBox txtNewExpiryDate = (TextBox)e.Row.FindControl("txtNewExpiryDate");
+                if (txtNewExpiryDate != null)
+                {
+                    // Default the expiry date to one year from today
+                    txtNewExpiryDate.Text = DateTime.Today.AddYears(1).ToString("yyyy-MM-dd");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Handles the click event for confirming service completion.
+        /// Updates the status and expiry dates for all fire extinguishers.
+        /// </summary>
+        protected void btnConfirmCompleteService_Click(object sender, EventArgs e)
+        {
+            if (!Page.IsValid)
+                return;
+                
+            bool anySuccess = false;
+            List<string> errors = new List<string>();
+            
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                
+                foreach (GridViewRow row in gvCompleteService.Rows)
+                {
+                    if (row.RowType == DataControlRowType.DataRow)
+                    {
+                        // Check if this row is selected
+                        CheckBox chkSelectForComplete = (CheckBox)row.FindControl("chkSelectForComplete");
+                        if (chkSelectForComplete == null || !chkSelectForComplete.Checked)
+                        {
+                            // Skip if the checkbox is not checked
+                            continue;
+                        }
+                        
+                        int feId = Convert.ToInt32(gvCompleteService.DataKeys[row.RowIndex].Value);
+                        TextBox txtNewExpiryDate = (TextBox)row.FindControl("txtNewExpiryDate");
+                        
+                        if (txtNewExpiryDate != null && !string.IsNullOrEmpty(txtNewExpiryDate.Text))
+                        {
+                            DateTime newExpiryDate;
+                            if (DateTime.TryParse(txtNewExpiryDate.Text, out newExpiryDate))
+                            {
+                                try
+                                {
+                                    // Begin a transaction for each fire extinguisher update
+                                    using (SqlTransaction transaction = conn.BeginTransaction())
+                                    {
+                                        try
+                                        {
+                                            // Get the fire extinguisher details
+                                            FireExtinguisherDetails extinguisher = null;
+                                            string query = @"
+                                                SELECT 
+                                                    fe.SerialNumber,
+                                                    p.PlantName AS Plant,
+                                                    l.LevelName AS Level,
+                                                    fe.Location,
+                                                    t.TypeName AS Type,
+                                                    fe.Remarks
+                                                FROM FireExtinguishers fe
+                                                INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                                                INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                                                INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                                                WHERE fe.FEID = @FEID";
+                                                
+                                            using (SqlCommand cmd = new SqlCommand(query, conn, transaction))
+                                            {
+                                                cmd.Parameters.AddWithValue("@FEID", feId);
+                                                using (SqlDataReader reader = cmd.ExecuteReader())
+                                                {
+                                                    if (reader.Read())
+                                                    {
+                                                        extinguisher = new FireExtinguisherDetails
+                                                        {
+                                                            SerialNumber = reader["SerialNumber"].ToString(),
+                                                            Plant = reader["Plant"].ToString(),
+                                                            Level = reader["Level"].ToString(),
+                                                            Location = reader["Location"].ToString(),
+                                                            Type = reader["Type"].ToString(),
+                                                            Remarks = reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : ""
+                                                        };
+                                                    }
+                                                }
+                                            }
+
+                                            if (extinguisher == null)
+                                            {
+                                                errors.Add($"Could not find fire extinguisher with ID {feId}");
+                                                transaction.Rollback();
+                                                continue;
+                                            }
+
+                                            // Update the fire extinguisher status and expiry date
+                                            string updateQuery = @"
+                                                UPDATE FireExtinguishers
+                                                SET StatusID = (SELECT StatusID FROM Status WHERE StatusName = 'Active'),
+                                                    DateExpired = @NewExpiryDate
+                                                WHERE FEID = @FEID";
+                                                
+                                            using (SqlCommand cmd = new SqlCommand(updateQuery, conn, transaction))
+                                            {
+                                                cmd.Parameters.AddWithValue("@FEID", feId);
+                                                cmd.Parameters.AddWithValue("@NewExpiryDate", newExpiryDate);
+                                                
+                                                int rowsAffected = cmd.ExecuteNonQuery();
+                                                if (rowsAffected == 0)
+                                                {
+                                                    errors.Add($"Could not update fire extinguisher with ID {feId}");
+                                                    transaction.Rollback();
+                                                    continue;
+                                                }
+                                            }
+
+                                            // Add service reminder for follow-up
+                                            DateTime serviceDate = DateTime.Now;
+                                            DateTime reminderDate = serviceDate.AddDays(7); // Remind in one week
+                                            using (SqlCommand cmd = new SqlCommand(
+                                                "INSERT INTO ServiceReminders (FEID, DateServiced, ReminderDate) VALUES (@FEID, @DateServiced, @ReminderDate)", 
+                                                conn, transaction))
+                                            {
+                                                cmd.Parameters.AddWithValue("@FEID", feId);
+                                                cmd.Parameters.AddWithValue("@DateServiced", serviceDate);
+                                                cmd.Parameters.AddWithValue("@ReminderDate", reminderDate);
+                                                cmd.ExecuteNonQuery();
+                                            }
+
+                                            // Generate and send service completion email
+                                            string emailBody = GenerateServiceCompletionEmail(extinguisher, serviceDate, newExpiryDate);
+                                            
+                                            // Get email recipient
+                                            string recipientEmail = "danishaiman3b@gmail.com"; // Use the same recipient as the individual button
+                                            string subjectLine = $"Fire Extinguisher Service Completed - {extinguisher.SerialNumber}";
+                                            
+                                            try
+                                            {
+                                                // Send the email
+                                                var (success, emailMessage) = EmailService.SendEmail(recipientEmail, subjectLine, emailBody);
+                                                if (!success)
+                                                {
+                                                    // Log the email failure but continue with the transaction
+                                                    System.Diagnostics.Debug.WriteLine($"Failed to send completion email: {emailMessage}");
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                // Log the error but continue with the transaction
+                                                System.Diagnostics.Debug.WriteLine($"Error sending email: {ex.Message}");
+                                            }
+
+                                            // Commit all changes for this fire extinguisher
+                                            transaction.Commit();
+                                            anySuccess = true;
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            // Roll back any changes if there was an error
+                                            transaction.Rollback();
+                                            errors.Add($"Error updating extinguisher {feId}: {ex.Message}");
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    errors.Add($"Transaction error for extinguisher {feId}: {ex.Message}");
+                                }
+                            }
+                            else
+                            {
+                                errors.Add($"No expiry date provided for extinguisher {feId}");
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Hide the panel and refresh the data
+            pnlCompleteService.Visible = false;
+            ScriptManager.RegisterStartupScript(this, GetType(), "hideCompleteServicePanel", 
+                "hideCompleteServicePanel();", true);
+            
+            // Refresh the data
+            LoadMonitoringPanels();
+            LoadFireExtinguishers();
+            upMonitoring.Update();
+            upMainGrid.Update();
+            
+            // Count how many fire extinguishers were updated successfully
+            int updateCount = 0;
+            foreach (GridViewRow row in gvCompleteService.Rows)
+            {
+                if (row.RowType == DataControlRowType.DataRow)
+                {
+                    CheckBox chkSelectForComplete = (CheckBox)row.FindControl("chkSelectForComplete");
+                    if (chkSelectForComplete != null && chkSelectForComplete.Checked)
+                    {
+                        updateCount++;
+                    }
+                }
+            }
+            
+            // Show appropriate message
+            if (anySuccess)
+            {
+                string message = $"Service completed successfully for {updateCount} fire extinguisher(s).";
+                if (errors.Count > 0)
+                {
+                    message += " However, some errors occurred: " + string.Join("; ", errors);
+                }
+                
+                ScriptManager.RegisterStartupScript(this, GetType(), "successMessage", 
+                    $"showNotification('{message.Replace("'", "\\'")}', '{(errors.Count > 0 ? "error" : "success")}');", true);
+            }
+            else if (errors.Count > 0)
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "errorMessage", 
+                    $"showNotification('❌ Errors occurred: {string.Join("; ", errors).Replace("'", "\\'")}', 'error');", true);
+            }
+            else
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "noSelectionMessage", 
+                    $"showNotification('Please select at least one fire extinguisher to complete service for.', 'error');", true);
+            }
+        }
+        
+        /// <summary>
+        /// Handles the click event for canceling service completion.
+        /// </summary>
+        protected void btnCancelCompleteService_Click(object sender, EventArgs e)
+        {
+            pnlCompleteService.Visible = false;
+            upCompleteService.Update();
+            
+            ScriptManager.RegisterStartupScript(this, GetType(), "hideCompleteServicePanel", 
+                "hideCompleteServicePanel();", true);
         }
     }
 }

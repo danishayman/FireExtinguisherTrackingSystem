@@ -337,7 +337,8 @@
                                                     </div>
                                                     
                                                     <div class="button-container" style="margin-bottom: 15px; text-align: right;">
-                                                        <asp:Button ID="btnShowSelection" runat="server" Text="Send Multiple to Service" CssClass="btn btn-warning" OnClick="btnShowSelection_Click" OnClientClick="showServiceSelectionPanel(); return true;" />
+                                                        <asp:Button ID="btnCompleteServiceList" runat="server" Text="Complete Service" CssClass="btn btn-success" OnClick="btnCompleteServiceList_Click" style="margin-right: 10px;" />
+                                                        <asp:Button ID="btnShowSelection" runat="server" Text="Send to Service" CssClass="btn btn-warning" OnClick="btnShowSelection_Click" OnClientClick="showServiceSelectionPanel(); return true;" />
                                                     </div>
                                                     <div class="grid-wrapper" style="width: 100%; overflow-x: auto;">
                                                         <asp:GridView ID="gvFireExtinguishers" runat="server"
@@ -647,6 +648,66 @@
             <asp:AsyncPostBackTrigger ControlID="btnSaveEdit" EventName="Click" />
             <asp:AsyncPostBackTrigger ControlID="ddlPlant" EventName="SelectedIndexChanged" />
         </Triggers>
+    </asp:UpdatePanel>
+
+    <!-- Complete Service Panel -->
+    <asp:UpdatePanel ID="upCompleteService" runat="server" UpdateMode="Conditional">
+        <ContentTemplate>
+            <asp:Panel ID="pnlCompleteService" runat="server" Width="100%" CssClass="modal-panel" Visible="false">
+                <div class="modal-content service-selection-modal">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Complete Service for Fire Extinguishers</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p class="selection-instruction">Enter new expiry dates for the fire extinguishers below:</p>
+                        <div class="grid-container">
+                            <asp:GridView ID="gvCompleteService" runat="server" Width="100%" AutoGenerateColumns="false" DataKeyNames="FEID" 
+                                CssClass="grid-view selection-grid" HeaderStyle-CssClass="grid-header" RowStyle-CssClass="grid-row"
+                                AlternatingRowStyle-CssClass="grid-row-alt" OnRowDataBound="gvCompleteService_RowDataBound">
+                                <Columns>
+                                    <asp:TemplateField HeaderText="Select" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="80px">
+                                        <HeaderTemplate>
+                                            <input type="checkbox" onclick="toggleAllCompleteCheckboxes(this)" id="chkSelectAllComplete" class="selection-checkbox" />
+                                        </HeaderTemplate>
+                                        <ItemTemplate>
+                                            <asp:CheckBox ID="chkSelectForComplete" runat="server" CssClass="selection-checkbox" />
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:BoundField DataField="FEID" HeaderText="ID" Visible="false" />
+                                    <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                    <asp:BoundField DataField="PlantName" HeaderText="Plant" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                    <asp:BoundField DataField="LevelName" HeaderText="Level" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                    <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                    <asp:BoundField DataField="DateExpired" HeaderText="Previous Expiry Date" DataFormatString="{0:d}" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                    <asp:TemplateField HeaderText="New Expiry Date" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="txtNewExpiryDate" runat="server" CssClass="form-control" TextMode="Date"></asp:TextBox>
+                                            <asp:RequiredFieldValidator ID="rfvNewExpiryDate" runat="server" 
+                                                ControlToValidate="txtNewExpiryDate" 
+                                                ErrorMessage="*" 
+                                                Display="Dynamic" 
+                                                ValidationGroup="CompleteService"
+                                                CssClass="validation-error">
+                                            </asp:RequiredFieldValidator>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                </Columns>
+                                <EmptyDataTemplate>
+                                    <div class="empty-data-message">No fire extinguishers currently under service.</div>
+                                </EmptyDataTemplate>
+                            </asp:GridView>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <asp:Button ID="btnConfirmCompleteService" runat="server" Text="Confirm" 
+                            CssClass="btn btn-primary btn-lg" OnClick="btnConfirmCompleteService_Click" 
+                            ValidationGroup="CompleteService" OnClientClick="return validateCompleteServiceSelection();" />
+                        <asp:Button ID="btnCancelCompleteService" runat="server" Text="Cancel" 
+                            CssClass="btn btn-secondary btn-lg" OnClick="btnCancelCompleteService_Click" />
+                    </div>
+                </div>
+            </asp:Panel>
+        </ContentTemplate>
     </asp:UpdatePanel>
 
     <style type="text/css">
@@ -1580,6 +1641,7 @@
             document.getElementById('modalOverlay').onclick = function() {
                 hideExpiryDatePanel();
                 hideSendToServicePanel();
+                hideCompleteServicePanel();
             };
 
             // Prevent modal from closing when clicking inside it
@@ -1623,6 +1685,17 @@
                 return true; // Allow the postback to occur
             }
             
+            // Complete Service Panel functions
+            function showCompleteServicePanel() {
+                document.getElementById('modalOverlay').style.display = 'block';
+                return true; // Allow the postback to occur
+            }
+            
+            function hideCompleteServicePanel() {
+                document.getElementById('modalOverlay').style.display = 'none';
+                return true; // Allow the postback to occur
+            }
+            
             // Add select all functionality for the service selection grid
             function toggleAllCheckboxes(checkbox) {
                 const grid = document.getElementById('<%= gvServiceSelection.ClientID %>');
@@ -1634,6 +1707,43 @@
                         checkboxes[i].checked = checkbox.checked;
                     }
                 }
+            }
+
+            // Complete Service Panel functions
+            function toggleAllCompleteCheckboxes(checkbox) {
+                const grid = document.getElementById('<%= gvCompleteService.ClientID %>');
+                if (!grid) return;
+                
+                const checkboxes = grid.getElementsByTagName('input');
+                for (let i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].type === 'checkbox' && checkboxes[i] !== checkbox) {
+                        checkboxes[i].checked = checkbox.checked;
+                    }
+                }
+            }
+            
+            function validateCompleteServiceSelection() {
+                const grid = document.getElementById('<%= gvCompleteService.ClientID %>');
+                if (!grid) return false;
+                
+                let anyChecked = false;
+                const checkboxes = grid.getElementsByTagName('input');
+                
+                for (let i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].type === 'checkbox' && 
+                        checkboxes[i].id !== 'chkSelectAllComplete' && 
+                        checkboxes[i].checked) {
+                        anyChecked = true;
+                        break;
+                    }
+                }
+                
+                if (!anyChecked) {
+                    showNotification('❌ Please select at least one fire extinguisher to complete service for.', 'error');
+                    return false;
+                }
+                
+                return true;
             }
         </script>
 

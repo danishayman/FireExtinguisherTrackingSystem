@@ -140,6 +140,60 @@ namespace FETS.Pages.ViewSection
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnCancelSendToService;
 
+        /// <summary>
+        /// btnCompleteServiceList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnCompleteServiceList;
+
+        /// <summary>
+        /// upCompleteService control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel upCompleteService;
+
+        /// <summary>
+        /// pnlCompleteService control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlCompleteService;
+
+        /// <summary>
+        /// gvCompleteService control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView gvCompleteService;
+
+        /// <summary>
+        /// btnConfirmCompleteService control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnConfirmCompleteService;
+
+        /// <summary>
+        /// btnCancelCompleteService control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnCancelCompleteService;
+
         protected global::System.Web.UI.ScriptManager ScriptManager1;
         protected global::System.Web.UI.UpdatePanel UpdatePanel1;
         
