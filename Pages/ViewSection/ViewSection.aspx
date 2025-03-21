@@ -2,6 +2,7 @@
     Inherits="FETS.Pages.ViewSection.ViewSection" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="../../Assets/css/styles.css" rel="stylesheet" />
 </asp:Content>
@@ -52,170 +53,176 @@
                                                             <asp:MultiView ID="mvMonitoring" runat="server"
                                                                 ActiveViewIndex="0">
                                                                 <asp:View ID="vwExpired" runat="server">
-                                                                    <asp:GridView ID="gvExpired" runat="server"
-                                                                        AutoGenerateColumns="False"
-                                                                        CssClass="grid-view monitoring-grid"
-                                                                        AllowPaging="True" PageSize="5"
-                                                                        OnPageIndexChanging="gvExpired_PageIndexChanging"
-                                                                        OnRowCommand="gvExpired_RowCommand"
-                                                                        EmptyDataText="No expired fire extinguishers found."
-                                                                        PagerStyle-CssClass="grid-pager"
-                                                                        PagerSettings-Mode="NumericFirstLast"
-                                                                        PagerSettings-FirstPageText="First"
-                                                                        PagerSettings-LastPageText="Last"
-                                                                        PagerSettings-PageButtonCount="5">
-                                                                        <Columns>
-                                                                            <asp:TemplateField HeaderText="No">
-                                                                                <ItemTemplate>
-                                                                                    <%# Container.DataItemIndex + 1
-                                                                                        %>
-                                                                                </ItemTemplate>
-                                                                                <ItemStyle
-                                                                                    HorizontalAlign="Center" />
-                                                                                <HeaderStyle
-                                                                                    HorizontalAlign="Center" />
-                                                                            </asp:TemplateField>
-                                                                            <asp:BoundField DataField="SerialNumber"
-                                                                                HeaderText="Serial Number"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="PlantName"
-                                                                                HeaderText="Plant"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="LevelName"
-                                                                                HeaderText="Level"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="Location"
-                                                                                HeaderText="Location"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="TypeName"
-                                                                                HeaderText="Type"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="DateExpired"
-                                                                                HeaderText="Expiry Date"
-                                                                                DataFormatString="{0:d}"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="DaysExpired"
-                                                                                HeaderText="Days Expired"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                        </Columns>
-                                                                    </asp:GridView>
+                                                                    <div class="grid-wrapper" style="width: 100%; overflow-x: auto;">
+                                                                        <asp:GridView ID="gvExpired" runat="server"
+                                                                            AutoGenerateColumns="False"
+                                                                            CssClass="grid-view monitoring-grid"
+                                                                            AllowPaging="True" PageSize="5"
+                                                                            OnPageIndexChanging="gvExpired_PageIndexChanging"
+                                                                            OnRowCommand="gvExpired_RowCommand"
+                                                                            EmptyDataText="No expired fire extinguishers found."
+                                                                            PagerStyle-CssClass="grid-pager"
+                                                                            PagerSettings-Mode="NumericFirstLast"
+                                                                            PagerSettings-FirstPageText="First"
+                                                                            PagerSettings-LastPageText="Last"
+                                                                            PagerSettings-PageButtonCount="5">
+                                                                            <Columns>
+                                                                                <asp:TemplateField HeaderText="No">
+                                                                                    <ItemTemplate>
+                                                                                        <%# Container.DataItemIndex + 1
+                                                                                            %>
+                                                                                    </ItemTemplate>
+                                                                                    <ItemStyle
+                                                                                        HorizontalAlign="Center" />
+                                                                                    <HeaderStyle
+                                                                                        HorizontalAlign="Center" />
+                                                                                </asp:TemplateField>
+                                                                                <asp:BoundField DataField="SerialNumber"
+                                                                                    HeaderText="Serial Number"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="PlantName"
+                                                                                    HeaderText="Plant"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="LevelName"
+                                                                                    HeaderText="Level"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="Location"
+                                                                                    HeaderText="Location"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="TypeName"
+                                                                                    HeaderText="Type"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="DateExpired"
+                                                                                    HeaderText="Expiry Date"
+                                                                                    DataFormatString="{0:d}"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="DaysExpired"
+                                                                                    HeaderText="Days Expired"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                            </Columns>
+                                                                        </asp:GridView>
+                                                                    </div>
                                                                 </asp:View>
 
                                                                 <asp:View ID="vwExpiringSoon" runat="server">
-                                                                    <asp:GridView ID="gvExpiringSoon" runat="server"
-                                                                        AutoGenerateColumns="False"
-                                                                        CssClass="grid-view monitoring-grid"
-                                                                        AllowPaging="True" PageSize="5"
-                                                                        OnPageIndexChanging="gvExpiringSoon_PageIndexChanging"
-                                                                        OnRowCommand="gvExpiringSoon_RowCommand"
-                                                                        EmptyDataText="No fire extinguishers expiring soon."
-                                                                        PagerStyle-CssClass="grid-pager"
-                                                                        PagerSettings-Mode="NumericFirstLast"
-                                                                        PagerSettings-FirstPageText="First"
-                                                                        PagerSettings-LastPageText="Last"
-                                                                        PagerSettings-PageButtonCount="5">
-                                                                        <Columns>
-                                                                            <asp:TemplateField HeaderText="No">
-                                                                                <ItemTemplate>
-                                                                                    <%# Container.DataItemIndex + 1
-                                                                                        %>
-                                                                                </ItemTemplate>
-                                                                                <ItemStyle
-                                                                                    HorizontalAlign="Center" />
-                                                                                <HeaderStyle
-                                                                                    HorizontalAlign="Center" />
-                                                                            </asp:TemplateField>
-                                                                            <asp:BoundField DataField="SerialNumber"
-                                                                                HeaderText="Serial Number"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="PlantName"
-                                                                                HeaderText="Plant"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="LevelName"
-                                                                                HeaderText="Level"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="Location"
-                                                                                HeaderText="Location"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="TypeName"
-                                                                                HeaderText="Type"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="DateExpired"
-                                                                                HeaderText="Expiry Date"
-                                                                                DataFormatString="{0:d}"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="DaysLeft"
-                                                                                HeaderText="Days Left"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                        </Columns>
-                                                                    </asp:GridView>
+                                                                    <div class="grid-wrapper" style="width: 100%; overflow-x: auto;">
+                                                                        <asp:GridView ID="gvExpiringSoon" runat="server"
+                                                                            AutoGenerateColumns="False"
+                                                                            CssClass="grid-view monitoring-grid"
+                                                                            AllowPaging="True" PageSize="5"
+                                                                            OnPageIndexChanging="gvExpiringSoon_PageIndexChanging"
+                                                                            OnRowCommand="gvExpiringSoon_RowCommand"
+                                                                            EmptyDataText="No fire extinguishers expiring soon."
+                                                                            PagerStyle-CssClass="grid-pager"
+                                                                            PagerSettings-Mode="NumericFirstLast"
+                                                                            PagerSettings-FirstPageText="First"
+                                                                            PagerSettings-LastPageText="Last"
+                                                                            PagerSettings-PageButtonCount="5">
+                                                                            <Columns>
+                                                                                <asp:TemplateField HeaderText="No">
+                                                                                    <ItemTemplate>
+                                                                                        <%# Container.DataItemIndex + 1
+                                                                                            %>
+                                                                                    </ItemTemplate>
+                                                                                    <ItemStyle
+                                                                                        HorizontalAlign="Center" />
+                                                                                    <HeaderStyle
+                                                                                        HorizontalAlign="Center" />
+                                                                                </asp:TemplateField>
+                                                                                <asp:BoundField DataField="SerialNumber"
+                                                                                    HeaderText="Serial Number"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="PlantName"
+                                                                                    HeaderText="Plant"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="LevelName"
+                                                                                    HeaderText="Level"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="Location"
+                                                                                    HeaderText="Location"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="TypeName"
+                                                                                    HeaderText="Type"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="DateExpired"
+                                                                                    HeaderText="Expiry Date"
+                                                                                    DataFormatString="{0:d}"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="DaysLeft"
+                                                                                    HeaderText="Days Left"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                            </Columns>
+                                                                        </asp:GridView>
+                                                                    </div>
                                                                 </asp:View>
 
                                                                 <asp:View ID="vwUnderService" runat="server">
-                                                                    <asp:GridView ID="gvUnderService" runat="server"
-                                                                        AutoGenerateColumns="False"
-                                                                        CssClass="grid-view monitoring-grid"
-                                                                        AllowPaging="True" PageSize="5"
-                                                                        OnPageIndexChanging="gvUnderService_PageIndexChanging"
-                                                                        OnRowCommand="gvUnderService_RowCommand"
-                                                                        EmptyDataText="No fire extinguishers under service."
-                                                                        PagerStyle-CssClass="grid-pager"
-                                                                        PagerSettings-Mode="NumericFirstLast"
-                                                                        PagerSettings-FirstPageText="First"
-                                                                        PagerSettings-LastPageText="Last"
-                                                                        PagerSettings-PageButtonCount="5">
-                                                                        <Columns>
-                                                                            <asp:TemplateField HeaderText="No">
-                                                                                <ItemTemplate>
-                                                                                    <%# Container.DataItemIndex + 1
-                                                                                        %>
-                                                                                </ItemTemplate>
-                                                                                <ItemStyle
-                                                                                    HorizontalAlign="Center" />
-                                                                                <HeaderStyle
-                                                                                    HorizontalAlign="Center" />
-                                                                            </asp:TemplateField>
-                                                                            <asp:BoundField DataField="SerialNumber"
-                                                                                HeaderText="Serial Number"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="PlantName"
-                                                                                HeaderText="Plant"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="LevelName"
-                                                                                HeaderText="Level"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="Location"
-                                                                                HeaderText="Location"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="TypeName"
-                                                                                HeaderText="Type"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                            <asp:BoundField DataField="DateExpired"
-                                                                                HeaderText="Previous Expiry Date"
-                                                                                DataFormatString="{0:d}"
-                                                                                ItemStyle-HorizontalAlign="Center"
-                                                                                HeaderStyle-HorizontalAlign="Center" />
-                                                                        </Columns>
-                                                                    </asp:GridView>
+                                                                    <div class="grid-wrapper" style="width: 100%; overflow-x: auto;">
+                                                                        <asp:GridView ID="gvUnderService" runat="server"
+                                                                            AutoGenerateColumns="False"
+                                                                            CssClass="grid-view monitoring-grid"
+                                                                            AllowPaging="True" PageSize="5"
+                                                                            OnPageIndexChanging="gvUnderService_PageIndexChanging"
+                                                                            OnRowCommand="gvUnderService_RowCommand"
+                                                                            EmptyDataText="No fire extinguishers under service."
+                                                                            PagerStyle-CssClass="grid-pager"
+                                                                            PagerSettings-Mode="NumericFirstLast"
+                                                                            PagerSettings-FirstPageText="First"
+                                                                            PagerSettings-LastPageText="Last"
+                                                                            PagerSettings-PageButtonCount="5">
+                                                                            <Columns>
+                                                                                <asp:TemplateField HeaderText="No">
+                                                                                    <ItemTemplate>
+                                                                                        <%# Container.DataItemIndex + 1
+                                                                                            %>
+                                                                                    </ItemTemplate>
+                                                                                    <ItemStyle
+                                                                                        HorizontalAlign="Center" />
+                                                                                    <HeaderStyle
+                                                                                        HorizontalAlign="Center" />
+                                                                                </asp:TemplateField>
+                                                                                <asp:BoundField DataField="SerialNumber"
+                                                                                    HeaderText="Serial Number"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="PlantName"
+                                                                                    HeaderText="Plant"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="LevelName"
+                                                                                    HeaderText="Level"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="Location"
+                                                                                    HeaderText="Location"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="TypeName"
+                                                                                    HeaderText="Type"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="DateExpired"
+                                                                                    HeaderText="Previous Expiry Date"
+                                                                                    DataFormatString="{0:d}"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                            </Columns>
+                                                                        </asp:GridView>
+                                                                    </div>
                                                                 </asp:View>
                                                             </asp:MultiView>
                                                         </div>
@@ -267,48 +274,6 @@
                                         </asp:UpdatePanel>
 
                                         <!-- STEP 2: Then place the Filter Section below Monitoring Panel -->
-                                        <div class="filter-section">
-                                            <div class="filter-row">
-                                                <div class="filter-group">
-                                                    <asp:Label ID="lblFilterPlant" runat="server" Text="Plant:"
-                                                        AssociatedControlID="ddlFilterPlant"></asp:Label>
-                                                    <asp:DropDownList ID="ddlFilterPlant" runat="server"
-                                                        CssClass="form-control" AutoPostBack="true"
-                                                        OnSelectedIndexChanged="ddlFilterPlant_SelectedIndexChanged">
-                                                    </asp:DropDownList>
-                                                </div>
-                                                <div class="filter-group">
-                                                    <asp:Label ID="lblFilterLevel" runat="server" Text="Level:"
-                                                        AssociatedControlID="ddlFilterLevel"></asp:Label>
-                                                    <asp:DropDownList ID="ddlFilterLevel" runat="server"
-                                                        CssClass="form-control" AutoPostBack="true"
-                                                        OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
-                                                </div>
-                                                <div class="filter-group">
-                                                    <asp:Label ID="lblFilterStatus" runat="server" Text="Status:"
-                                                        AssociatedControlID="ddlFilterStatus"></asp:Label>
-                                                    <asp:DropDownList ID="ddlFilterStatus" runat="server"
-                                                        CssClass="form-control" AutoPostBack="true"
-                                                        OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
-                                                </div>
-                                                <div class="filter-group">
-                                                    <asp:Label ID="lblSearch" runat="server" Text="Search:"
-                                                        AssociatedControlID="txtSearch"></asp:Label>
-                                                    <div class="search-box">
-                                                        <asp:TextBox ID="txtSearch" runat="server"
-                                                            CssClass="form-control"
-                                                            placeholder="Serial Number or Location"></asp:TextBox>
-                                                    </div>
-                                                    <div class="button-group">
-                                                        <asp:Button ID="btnSearch" runat="server" Text="Search"
-                                                            OnClick="ApplyFilters" CssClass="btn btn-primary" />
-                                                        <asp:Button ID="btnClearFilters" runat="server"
-                                                            Text="Clear Filters" OnClick="btnClearFilters_Click"
-                                                            CssClass="btn btn-secondary" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                         <div class="expiry-filters">
                                             <div class="button-group">
                                                 <asp:Label ID="lblExpiryStats" runat="server" CssClass="expiry-stats"></asp:Label>
@@ -322,100 +287,147 @@
                                                 <ContentTemplate>
                                                     <div class="grid-section">
                                                         <h3 class="section-title">Fire Extinguisher List</h3>
+                                                        
+                                                        <!-- Moved Filter Section here - below the heading but above the grid -->
+                                                        <div class="filter-section" style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 5px; border: 1px solid #dee2e6;">
+                                                            <div class="filter-row">
+                                                                <div class="filter-group">
+                                                                    <asp:Label ID="lblFilterPlant" runat="server" Text="Plant:"
+                                                                        AssociatedControlID="ddlFilterPlant"></asp:Label>
+                                                                    <asp:DropDownList ID="ddlFilterPlant" runat="server"
+                                                                        CssClass="form-control" AutoPostBack="true"
+                                                                        OnSelectedIndexChanged="ddlFilterPlant_SelectedIndexChanged">
+                                                                    </asp:DropDownList>
+                                                                </div>
+                                                                <div class="filter-group">
+                                                                    <asp:Label ID="lblFilterLevel" runat="server" Text="Level:"
+                                                                        AssociatedControlID="ddlFilterLevel"></asp:Label>
+                                                                    <asp:DropDownList ID="ddlFilterLevel" runat="server"
+                                                                        CssClass="form-control" AutoPostBack="true"
+                                                                        OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
+                                                                </div>
+                                                                <div class="filter-group">
+                                                                    <asp:Label ID="lblFilterStatus" runat="server" Text="Status:"
+                                                                        AssociatedControlID="ddlFilterStatus"></asp:Label>
+                                                                    <asp:DropDownList ID="ddlFilterStatus" runat="server"
+                                                                        CssClass="form-control" AutoPostBack="true"
+                                                                        OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
+                                                                </div>
+                                                                <div class="filter-group">
+                                                                    <asp:Label ID="lblSearch" runat="server" Text="Search:"
+                                                                        AssociatedControlID="txtSearch"></asp:Label>
+                                                                    <div class="search-box">
+                                                                        <asp:TextBox ID="txtSearch" runat="server"
+                                                                            CssClass="form-control"
+                                                                            placeholder="Serial Number or Location"></asp:TextBox>
+                                                                    </div>
+                                                                    <div class="button-group">
+                                                                        <asp:Button ID="btnSearch" runat="server" Text="Search"
+                                                                            OnClick="ApplyFilters" CssClass="btn btn-primary" />
+                                                                        <asp:Button ID="btnClearFilters" runat="server"
+                                                                            Text="Clear Filters" OnClick="btnClearFilters_Click"
+                                                                            CssClass="btn btn-secondary" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
                                                         <div class="button-container" style="margin-bottom: 15px; text-align: right;">
                                                             <asp:Button ID="btnShowSelection" runat="server" Text="Send Multiple to Service" CssClass="btn btn-warning" OnClick="btnShowSelection_Click" OnClientClick="showServiceSelectionPanel(); return true;" />
                                                         </div>
-                                                        <asp:GridView ID="gvFireExtinguishers" runat="server"
-                                                            AutoGenerateColumns="False" CssClass="grid-view"
-                                                            AllowPaging="True" AllowSorting="True" PageSize="10"
-                                                            OnPageIndexChanging="gvFireExtinguishers_PageIndexChanging"
-                                                            OnSorting="gvFireExtinguishers_Sorting"
-                                                            OnRowDataBound="gvFireExtinguishers_RowDataBound"
-                                                            OnRowCommand="gvFireExtinguishers_RowCommand"
-                                                            EmptyDataText="No fire extinguishers found for the selected criteria."
-                                                            EmptyDataRowStyle-CssClass="empty-data-message"
-                                                            PagerStyle-CssClass="grid-pager"
-                                                            PagerSettings-Mode="NumericFirstLast"
-                                                            PagerSettings-FirstPageText="First"
-                                                            PagerSettings-LastPageText="Last"
-                                                            PagerSettings-PageButtonCount="5">
-                                                            <RowStyle CssClass="grid-row" />
-                                                            <AlternatingRowStyle CssClass="grid-row-alt" />
-                                                            <HeaderStyle CssClass="grid-header" />
-                                                            <PagerStyle CssClass="grid-pager" />
-                                                            <Columns>
-                                                                <asp:BoundField DataField="SerialNumber"
-                                                                    HeaderText="Serial Number"
-                                                                    SortExpression="SerialNumber">
-                                                                    <ItemStyle HorizontalAlign="Center" />
-                                                                    <HeaderStyle HorizontalAlign="Center" />
-                                                                </asp:BoundField>
-                                                                <asp:BoundField DataField="PlantName" HeaderText="Plant"
-                                                                    SortExpression="PlantName">
-                                                                    <ItemStyle HorizontalAlign="Center" />
-                                                                    <HeaderStyle HorizontalAlign="Center" />
-                                                                </asp:BoundField>
-                                                                <asp:BoundField DataField="LevelName" HeaderText="Level"
-                                                                    SortExpression="LevelName">
-                                                                    <ItemStyle HorizontalAlign="Center" />
-                                                                    <HeaderStyle HorizontalAlign="Center" />
-                                                                </asp:BoundField>
-                                                                <asp:BoundField DataField="Location"
-                                                                    HeaderText="Location" SortExpression="Location">
-                                                                    <ItemStyle HorizontalAlign="Center" />
-                                                                    <HeaderStyle HorizontalAlign="Center" />
-                                                                </asp:BoundField>
-                                                                <asp:BoundField DataField="TypeName" HeaderText="Type"
-                                                                    SortExpression="TypeName">
-                                                                    <ItemStyle HorizontalAlign="Center" />
-                                                                    <HeaderStyle HorizontalAlign="Center" />
-                                                                </asp:BoundField>
-                                                                <asp:BoundField DataField="DateExpired"
-                                                                    HeaderText="Expiry Date"
-                                                                    SortExpression="DateExpired"
-                                                                    DataFormatString="{0:d}">
-                                                                    <ItemStyle HorizontalAlign="Center" />
-                                                                    <HeaderStyle HorizontalAlign="Center" />
-                                                                </asp:BoundField>
-                                                                <asp:TemplateField HeaderText="Status"
-                                                                    SortExpression="StatusName">
-                                                                    <ItemTemplate>
-                                                                        <asp:Label ID="lblStatus" runat="server"
-                                                                            CssClass="status-badge"></asp:Label>
-                                                                    </ItemTemplate>
-                                                                    <ItemStyle HorizontalAlign="Center" />
-                                                                    <HeaderStyle HorizontalAlign="Center" />
-                                                                </asp:TemplateField>
-                                                                <asp:BoundField DataField="Remarks" HeaderText="Remarks"
-                                                                    SortExpression="Remarks">
-                                                                    <ItemStyle HorizontalAlign="Center" />
-                                                                    <HeaderStyle HorizontalAlign="Center" />
-                                                                </asp:BoundField>
-                                                                <asp:TemplateField HeaderText="Actions">
-                                                                    <ItemTemplate>
-                                                                        <div class="action-buttons">
-                                                                            <asp:Button ID="btnCompleteService"
-                                                                                runat="server"
-                                                                                CommandName="CompleteService"
-                                                                                CommandArgument='<%# Eval("FEID") %>'
-                                                                                data-feid='<%# Eval("FEID") %>'
-                                                                                CssClass='<%# Eval("StatusName").ToString() == "Under Service" ? "btn btn-sm btn-success" : "btn btn-sm btn-success disabled-service" %>'
-                                                                                Text="Complete Service"
-                                                                                Enabled='<%# Eval("StatusName").ToString() == "Under Service" %>'
-                                                                                OnClientClick="return showExpiryDatePanel(this);" />
-                                                                            <asp:Button ID="btnDelete" runat="server"
-                                                                                CommandName="DeleteRow"
-                                                                                CommandArgument='<%# Eval("FEID") %>'
-                                                                                CssClass="btn btn-sm btn-danger"
-                                                                                Text="Delete"
-                                                                                OnClientClick="return confirm('Are you sure you want to delete this fire extinguisher?');" />
-                                                                        </div>
-                                                                    </ItemTemplate>
-                                                                    <ItemStyle HorizontalAlign="Center" />
-                                                                    <HeaderStyle HorizontalAlign="Center" />
-                                                                </asp:TemplateField>
-                                                            </Columns>
-                                                        </asp:GridView>
+                                                        <div class="grid-wrapper" style="width: 100%; overflow-x: auto;">
+                                                            <asp:GridView ID="gvFireExtinguishers" runat="server"
+                                                                AutoGenerateColumns="False" CssClass="grid-view"
+                                                                AllowPaging="True" AllowSorting="True" PageSize="10"
+                                                                OnPageIndexChanging="gvFireExtinguishers_PageIndexChanging"
+                                                                OnSorting="gvFireExtinguishers_Sorting"
+                                                                OnRowDataBound="gvFireExtinguishers_RowDataBound"
+                                                                OnRowCommand="gvFireExtinguishers_RowCommand"
+                                                                EmptyDataText="No fire extinguishers found for the selected criteria."
+                                                                EmptyDataRowStyle-CssClass="empty-data-message"
+                                                                PagerStyle-CssClass="grid-pager"
+                                                                PagerSettings-Mode="NumericFirstLast"
+                                                                PagerSettings-FirstPageText="First"
+                                                                PagerSettings-LastPageText="Last"
+                                                                PagerSettings-PageButtonCount="5">
+                                                                <RowStyle CssClass="grid-row" />
+                                                                <AlternatingRowStyle CssClass="grid-row-alt" />
+                                                                <HeaderStyle CssClass="grid-header" />
+                                                                <PagerStyle CssClass="grid-pager" />
+                                                                <Columns>
+                                                                    <asp:BoundField DataField="SerialNumber"
+                                                                        HeaderText="Serial Number"
+                                                                        SortExpression="SerialNumber">
+                                                                        <ItemStyle HorizontalAlign="Center" />
+                                                                        <HeaderStyle HorizontalAlign="Center" />
+                                                                    </asp:BoundField>
+                                                                    <asp:BoundField DataField="PlantName" HeaderText="Plant"
+                                                                        SortExpression="PlantName">
+                                                                        <ItemStyle HorizontalAlign="Center" />
+                                                                        <HeaderStyle HorizontalAlign="Center" />
+                                                                    </asp:BoundField>
+                                                                    <asp:BoundField DataField="LevelName" HeaderText="Level"
+                                                                        SortExpression="LevelName">
+                                                                        <ItemStyle HorizontalAlign="Center" />
+                                                                        <HeaderStyle HorizontalAlign="Center" />
+                                                                    </asp:BoundField>
+                                                                    <asp:BoundField DataField="Location"
+                                                                        HeaderText="Location" SortExpression="Location">
+                                                                        <ItemStyle HorizontalAlign="Center" />
+                                                                        <HeaderStyle HorizontalAlign="Center" />
+                                                                    </asp:BoundField>
+                                                                    <asp:BoundField DataField="TypeName" HeaderText="Type"
+                                                                        SortExpression="TypeName">
+                                                                        <ItemStyle HorizontalAlign="Center" />
+                                                                        <HeaderStyle HorizontalAlign="Center" />
+                                                                    </asp:BoundField>
+                                                                    <asp:BoundField DataField="DateExpired"
+                                                                        HeaderText="Expiry Date"
+                                                                        SortExpression="DateExpired"
+                                                                        DataFormatString="{0:d}">
+                                                                        <ItemStyle HorizontalAlign="Center" />
+                                                                        <HeaderStyle HorizontalAlign="Center" />
+                                                                    </asp:BoundField>
+                                                                    <asp:TemplateField HeaderText="Status"
+                                                                        SortExpression="StatusName">
+                                                                        <ItemTemplate>
+                                                                            <asp:Label ID="lblStatus" runat="server"
+                                                                                CssClass="status-badge"></asp:Label>
+                                                                        </ItemTemplate>
+                                                                        <ItemStyle HorizontalAlign="Center" />
+                                                                        <HeaderStyle HorizontalAlign="Center" />
+                                                                    </asp:TemplateField>
+                                                                    <asp:BoundField DataField="Remarks" HeaderText="Remarks"
+                                                                        SortExpression="Remarks">
+                                                                        <ItemStyle HorizontalAlign="Center" />
+                                                                        <HeaderStyle HorizontalAlign="Center" />
+                                                                    </asp:BoundField>
+                                                                    <asp:TemplateField HeaderText="Actions">
+                                                                        <ItemTemplate>
+                                                                            <div class="action-buttons">
+                                                                                <asp:Button ID="btnCompleteService"
+                                                                                    runat="server"
+                                                                                    CommandName="CompleteService"
+                                                                                    CommandArgument='<%# Eval("FEID") %>'
+                                                                                    data-feid='<%# Eval("FEID") %>'
+                                                                                    CssClass='<%# Eval("StatusName").ToString() == "Under Service" ? "btn btn-sm btn-success" : "btn btn-sm btn-success disabled-service" %>'
+                                                                                    Text="Complete Service"
+                                                                                    Enabled='<%# Eval("StatusName").ToString() == "Under Service" %>'
+                                                                                    OnClientClick="return showExpiryDatePanel(this);" />
+                                                                                <asp:Button ID="btnDelete" runat="server"
+                                                                                    CommandName="DeleteRow"
+                                                                                    CommandArgument='<%# Eval("FEID") %>'
+                                                                                    CssClass="btn btn-sm btn-danger"
+                                                                                    Text="Delete"
+                                                                                    OnClientClick="return confirm('Are you sure you want to delete this fire extinguisher?');" />
+                                                                            </div>
+                                                                        </ItemTemplate>
+                                                                        <ItemStyle HorizontalAlign="Center" />
+                                                                        <HeaderStyle HorizontalAlign="Center" />
+                                                                    </asp:TemplateField>
+                                                                </Columns>
+                                                            </asp:GridView>
+                                                        </div>
                                                     </div>
                                                 </ContentTemplate>
                                                 <Triggers>
@@ -521,6 +533,7 @@
             box-sizing: border-box;
             overflow-x: auto;
         }
+<<<<<<< HEAD
         
         /* Reset min-width constraints that cause horizontal scrolling */
         .monitoring-panel,
@@ -536,6 +549,164 @@
         .monitoring-grid,
         .selection-grid,
         .confirmation-grid {
+=======
+
+        /* Make filter-row more responsive */
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 15px;
+        }
+
+        /* On smaller screens, stack filter elements */
+        @media (max-width: 768px) {
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+
+            .button-container {
+                text-align: center !important;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Responsive table styles */
+        .monitoring-grid, 
+        .grid-view {
+            width: 100%;
+            table-layout: auto;
+        }
+
+        /* Remove fixed min-width from content layout */
+        .content-layout {
+            min-width: auto;
+            max-width: 100%;
+        }
+
+        /* Remove fixed widths from monitoring panel */
+        .monitoring-panel {
+            min-width: auto;
+            max-width: 100%;
+        }
+
+        /* Remove fixed widths from tab container */
+        .tab-container {
+            min-width: auto;
+            width: 100%;
+        }
+
+        /* Remove fixed min-width from grid section */
+        .grid-section {
+            min-width: auto;
+            max-width: 100%;
+        }
+
+        /* Ensure grid tables can scroll horizontally on small screens */
+        .grid-container {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        /* Service Selection Modal Styles */
+        .service-selection-modal {
+            max-width: 95%;
+            width: 95%;
+            padding: 20px;
+            border-radius: 8px;
+            max-height: 90vh;
+            min-height: auto;
+            min-width: auto;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .service-selection-modal {
+                width: 95%;
+                padding: 15px;
+                max-height: 80vh;
+            }
+            
+            .modal-title {
+                font-size: 1.4rem;
+            }
+            
+            .selection-grid th, 
+            .selection-grid td {
+                padding: 8px 5px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Modal content responsive styles */
+        .modal-content {
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+        }
+
+        /* Make sure table content doesn't get cut off */
+        .confirmation-grid {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .modal-header {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            color: #333;
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 0 0 25px 0;
+            min-height: 400px;
+        }
+
+        .selection-instruction {
+            margin-bottom: 20px;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .grid-container {
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #fff;
+            min-height: 350px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .selection-grid {
+>>>>>>> 8026ea0327873904ac8253239a7ab6dc05d4a793
             width: 100%;
             table-layout: auto;
         }
@@ -572,6 +743,7 @@
         /* Monitoring Panel */
         .monitoring-section {
             width: 100%;
+<<<<<<< HEAD
             margin-bottom: 20px;
         }
 
@@ -598,11 +770,18 @@
             box-sizing: border-box;
         }
 
+=======
+            table-layout: fixed;
+        }
+
+        /* Make panel header responsive */
+>>>>>>> 8026ea0327873904ac8253239a7ab6dc05d4a793
         .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+<<<<<<< HEAD
             width: 100%;
         }
 
@@ -1090,7 +1269,97 @@
             .button-container {
                 text-align: center;
             }
+=======
+            gap: 15px;
+            width: 100%;
+            min-width: auto;
+            box-sizing: border-box;
         }
+
+        /* Make tab container responsive */
+        .tab-container {
+            padding: 20px;
+            width: 100%;
+            min-width: auto;
+            box-sizing: border-box;
+        }
+
+        /* Ensure the monitoring panel adjusts properly */
+        .monitoring-panel .tab-container > div {
+            width: 100%;
+            min-width: auto;
+        }
+
+        /* Media queries for responsive layout */
+        @media (max-width: 1200px) {
+            body:not(.sidebar-collapsed) .filter-section,
+            body:not(.sidebar-collapsed) .monitoring-section,
+            body:not(.sidebar-collapsed) .grid-section,
+            body:not(.sidebar-collapsed) .monitoring-panel,
+            body:not(.sidebar-collapsed) .content-layout {
+                max-width: calc(100vw - 270px);
+            }
+            
+            body.sidebar-collapsed .filter-section,
+            body.sidebar-collapsed .monitoring-section,
+            body.sidebar-collapsed .grid-section,
+            body.sidebar-collapsed .monitoring-panel,
+            body.sidebar-collapsed .content-layout {
+                max-width: calc(100vw - 90px);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .service-selection-modal {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .tab-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .tab-button {
+                font-size: 0.85rem;
+                padding: 6px 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body:not(.sidebar-collapsed) .filter-section,
+            body:not(.sidebar-collapsed) .monitoring-section,
+            body:not(.sidebar-collapsed) .grid-section,
+            body:not(.sidebar-collapsed) .monitoring-panel,
+            body:not(.sidebar-collapsed) .content-layout,
+            body.sidebar-collapsed .filter-section,
+            body.sidebar-collapsed .monitoring-section,
+            body.sidebar-collapsed .grid-section,
+            body.sidebar-collapsed .monitoring-panel,
+            body.sidebar-collapsed .content-layout {
+                max-width: 100%;
+                overflow-x: auto;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+                text-align: center;
+            }
+            
+            .status-badge {
+                min-width: 60px;
+                font-size: 0.8rem;
+                padding: 4px 6px;
+            }
+            
+            .btn-sm {
+                min-width: 60px;
+                font-size: 0.8rem;
+                padding: 3px 6px;
+            }
+>>>>>>> 8026ea0327873904ac8253239a7ab6dc05d4a793
+        }
+
+        /* Remove duplicate media queries and styles */
     </style>
 
         <script type="text/javascript">
