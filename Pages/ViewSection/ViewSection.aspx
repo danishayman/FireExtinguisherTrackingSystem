@@ -712,7 +712,7 @@
             body.sidebar-collapsed .content-layout {
                 max-width: calc(100vw - 90px);
             }
-        }
+        
 
             .filter-section {
                 background-color: #fff;

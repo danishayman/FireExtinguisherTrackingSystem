@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using System.Web;
 
 namespace FETS.ExpiryNotifications
 {
@@ -348,53 +349,36 @@ namespace FETS.ExpiryNotifications
                 message.To.Add(new MailboxAddress("", "irfandanishnoorazlin@gmail.com")); // Replace with actual recipient
                 message.Subject = subject;
 
-                // Build email body
-                string body = $@"
-                <html>
-                <head>
-                    <style>
-                        body {{ font-family: Arial, sans-serif; }}
-                        table {{ border-collapse: collapse; width: 100%; }}
-                        th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-                        th {{ background-color: #f2f2f2; }}
-                        .urgent {{ color: red; font-weight: bold; }}
-                        .warning {{ color: orange; font-weight: bold; }}
-                    </style>
-                </head>
-                <body>
-                    <h2>Fire Extinguisher Expiry Notification</h2>
-                    <p>The following fire extinguishers will expire soon and require attention:</p>
-                    <table>
-                        <tr>
-                            <th>Serial Number</th>
-                            <th>Plant</th>
-                            <th>Level</th>
-                            <th>Location</th>
-                            <th>Type</th>
-                            <th>Expiry Date</th>
-                            <th>Days Until Expiry</th>
-                        </tr>";
-
-                foreach (var fe in fireExtinguishers)
+                // Convert to FireExtinguisherExpiryInfo objects for the template
+                List<FireExtinguisherExpiryInfo> expiryInfoList = fireExtinguishers.Select(fe => new FireExtinguisherExpiryInfo
                 {
-                    string rowClass = fe.DaysUntilExpiry <= 7 ? "urgent" : (fe.DaysUntilExpiry <= 30 ? "warning" : "");
-                    body += $@"
-                        <tr class='{rowClass}'>
-                            <td>{fe.SerialNumber}</td>
-                            <td>{fe.PlantName}</td>
-                            <td>{fe.LevelName}</td>
-                            <td>{fe.Location}</td>
-                            <td>{fe.TypeName}</td>
-                            <td>{fe.DateExpired:yyyy-MM-dd}</td>
-                            <td>{fe.DaysUntilExpiry}</td>
-                        </tr>";
-                }
+                    SerialNumber = fe.SerialNumber,
+                    Plant = fe.PlantName,
+                    Level = fe.LevelName,
+                    Location = fe.Location,
+                    ExpiryDate = fe.DateExpired,
+                    Remarks = fe.StatusName
+                }).ToList();
 
-                body += @"
-                    </table>
-                    <p>Please take appropriate action to ensure these fire extinguishers are serviced before they expire.</p>
-                </body>
-                </html>";
+                // Use the template manager to generate the email body
+                string body;
+                if (expiryInfoList.Count == 1)
+                {
+                    var fe = expiryInfoList[0];
+                    body = GenerateExpiryEmailTemplate(
+                        fe.SerialNumber,
+                        fe.Plant,
+                        fe.Level,
+                        fe.Location,
+                        fe.ExpiryDate,
+                        fe.Remarks,
+                        subject
+                    );
+                }
+                else
+                {
+                    body = GenerateMultipleExpiryEmailTemplate(expiryInfoList);
+                }
 
                 var bodyBuilder = new BodyBuilder { HtmlBody = body };
                 message.Body = bodyBuilder.ToMessageBody();
@@ -419,6 +403,195 @@ namespace FETS.ExpiryNotifications
                 throw;
             }
         }
+
+        /// <summary>
+        /// Gets the expiry notification email template with placeholders replaced with actual data
+        /// </summary>
+        private static string GenerateExpiryEmailTemplate(
+            string serialNumber,
+            string plant,
+            string level,
+            string location,
+            DateTime expiryDate,
+            string remarks = null,
+            string notificationType = "Expiry Notification")
+        {
+            // Path to the template file
+            string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates", "ExpiryEmailTemplate.html");
+            
+            // Read the template
+            string template = File.ReadAllText(templatePath);
+            
+            // Calculate days until expiry
+            TimeSpan timeUntilExpiry = expiryDate - DateTime.Now;
+            int daysUntilExpiry = (int)timeUntilExpiry.TotalDays;
+            
+            // Determine severity class and expiry status text
+            string severityClass = "info";
+            string expiryStatus = "will expire soon";
+            
+            if (daysUntilExpiry <= 0)
+            {
+                severityClass = "critical";
+                expiryStatus = "has expired";
+                daysUntilExpiry = 0; // Don't show negative days
+            }
+            else if (daysUntilExpiry <= 30)
+            {
+                severityClass = "warning";
+                expiryStatus = "will expire within 30 days";
+            }
+            else
+            {
+                expiryStatus = $"will expire in {daysUntilExpiry} days";
+            }
+            
+            // Generate remarks row if remarks exist
+            string remarksRow = string.IsNullOrEmpty(remarks) 
+                ? string.Empty 
+                : $@"<tr>
+                        <th>Remarks</th>
+                        <td>{remarks}</td>
+                    </tr>";
+            
+            // Replace placeholders with actual data
+            template = template.Replace("{SerialNumber}", serialNumber)
+                               .Replace("{Plant}", plant)
+                               .Replace("{Level}", level)
+                               .Replace("{Location}", location)
+                               .Replace("{ExpiryDate}", expiryDate.ToString("MMMM dd, yyyy"))
+                               .Replace("{DaysUntilExpiry}", daysUntilExpiry.ToString())
+                               .Replace("{SeverityClass}", severityClass)
+                               .Replace("{ExpiryStatus}", expiryStatus)
+                               .Replace("{RemarksRow}", remarksRow)
+                               .Replace("{NotificationType}", notificationType)
+                               .Replace("{SystemUrl}", "https://yourcompany.com/FETS")
+                               .Replace("{CurrentYear}", DateTime.Now.Year.ToString())
+                               .Replace("{CompanyName}", "INARI AMERTRON BHD.");
+            
+            return template;
+        }
+
+        /// <summary>
+        /// Gets the expiry notification email template for multiple fire extinguishers
+        /// </summary>
+        private static string GenerateMultipleExpiryEmailTemplate(List<FireExtinguisherExpiryInfo> extinguishers)
+        {
+            // Path to the template file
+            string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates", "ExpiryEmailTemplate.html");
+            
+            // Read the template
+            string template = File.ReadAllText(templatePath);
+            
+            // Determine the most critical expiry (for notification type)
+            int minDaysUntilExpiry = int.MaxValue;
+            foreach (var extinguisher in extinguishers)
+            {
+                TimeSpan timeUntilExpiry = extinguisher.ExpiryDate - DateTime.Now;
+                int daysUntilExpiry = (int)timeUntilExpiry.TotalDays;
+                if (daysUntilExpiry < minDaysUntilExpiry)
+                {
+                    minDaysUntilExpiry = daysUntilExpiry;
+                }
+            }
+            
+            string notificationType = "Multiple Extinguishers Expiry Alert";
+            if (minDaysUntilExpiry <= 0)
+            {
+                notificationType = "CRITICAL: Expired Extinguishers";
+            }
+            else if (minDaysUntilExpiry <= 30)
+            {
+                notificationType = "URGENT: Extinguishers Expiring Soon";
+            }
+            
+            // Create the table rows for multiple extinguishers
+            System.Text.StringBuilder tableContent = new System.Text.StringBuilder();
+            tableContent.Append(@"
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Serial Number</th>
+                            <th>Plant</th>
+                            <th>Level</th>
+                            <th>Location</th>
+                            <th>Expiry Date</th>
+                            <th>Days Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>");
+            
+            foreach (var extinguisher in extinguishers)
+            {
+                TimeSpan timeUntilExpiry = extinguisher.ExpiryDate - DateTime.Now;
+                int daysUntilExpiry = (int)timeUntilExpiry.TotalDays;
+                if (daysUntilExpiry < 0) daysUntilExpiry = 0; // Don't show negative days
+                
+                string rowClass = "info";
+                if (daysUntilExpiry <= 0)
+                {
+                    rowClass = "critical";
+                }
+                else if (daysUntilExpiry <= 30)
+                {
+                    rowClass = "warning";
+                }
+                
+                tableContent.Append($@"
+                        <tr class='{rowClass}'>
+                            <td>{extinguisher.SerialNumber}</td>
+                            <td>{extinguisher.Plant}</td>
+                            <td>{extinguisher.Level}</td>
+                            <td>{extinguisher.Location}</td>
+                            <td>{extinguisher.ExpiryDate.ToString("MMM dd, yyyy")}</td>
+                            <td>{daysUntilExpiry}</td>
+                        </tr>");
+            }
+            
+            tableContent.Append(@"
+                    </tbody>
+                </table>");
+            
+            // Remove the countdown for multiple extinguishers
+            string modifiedTemplate = template
+                .Replace(@"<div class=""countdown"">
+                <span class=""countdown-number"">{DaysUntilExpiry}</span>
+                <span>days until expiry</span>
+            </div>", "")
+                .Replace(@"<h2>Fire Extinguisher Details:</h2>
+            
+            <table>
+                <tr>
+                    <th>Serial Number</th>
+                    <td>{SerialNumber}</td>
+                </tr>
+                <tr>
+                    <th>Plant</th>
+                    <td>{Plant}</td>
+                </tr>
+                <tr>
+                    <th>Level</th>
+                    <td>{Level}</td>
+                </tr>
+                <tr>
+                    <th>Location</th>
+                    <td>{Location}</td>
+                </tr>
+                <tr>
+                    <th>Expiry Date</th>
+                    <td class=""{SeverityClass}"">{ExpiryDate}</td>
+                </tr>
+                {RemarksRow}
+            </table>", $"<h2>Fire Extinguishers Expiry Details:</h2>\n{tableContent}")
+                .Replace("<p>This is an <strong>important notification</strong> regarding a fire extinguisher that {ExpiryStatus}. Please take immediate action to ensure continued fire safety compliance.</p>", 
+                         $"<p>This is an <strong>important notification</strong> regarding {extinguishers.Count} fire extinguishers that require attention. Please take immediate action to ensure continued fire safety compliance.</p>")
+                .Replace("{NotificationType}", notificationType)
+                .Replace("{SystemUrl}", "https://yourcompany.com/FETS")
+                .Replace("{CurrentYear}", DateTime.Now.Year.ToString())
+                .Replace("{CompanyName}", "INARI AMERTRON BHD.");
+            
+            return modifiedTemplate;
+        }
     }
 
     public class FireExtinguisher
@@ -432,5 +605,18 @@ namespace FETS.ExpiryNotifications
         public DateTime DateExpired { get; set; }
         public string StatusName { get; set; }
         public int DaysUntilExpiry { get; set; }
+    }
+
+    /// <summary>
+    /// Data class to hold fire extinguisher information for expiry emails
+    /// </summary>
+    public class FireExtinguisherExpiryInfo
+    {
+        public string SerialNumber { get; set; }
+        public string Plant { get; set; }
+        public string Level { get; set; }
+        public string Location { get; set; }
+        public DateTime ExpiryDate { get; set; }
+        public string Remarks { get; set; }
     }
 }
