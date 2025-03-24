@@ -1680,7 +1680,7 @@
                 }
                 
                 if (!anyChecked) {
-                    showNotification('❌ Please select at least one fire extinguisher to complete service for.', 'error');
+                    showNotification('Please select at least one fire extinguisher to complete service for.', 'error');
                     return false;
                 }
                 
