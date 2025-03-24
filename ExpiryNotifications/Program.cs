@@ -54,7 +54,7 @@ namespace FETS.ExpiryNotifications
                     Console.WriteLine("Attempting to use hardcoded connection string as fallback...");
                     
                     // Fallback connection string - should match the one in App.config
-                    connectionString = "Data Source=localhost;Initial Catalog=FETS;User ID=irfandanish;Password=1234;Connection Timeout=30";
+                    connectionString = "Data Source=localhost;Initial Catalog=FETS;User ID=danishaiman;Password=12345;Connection Timeout=30";
                     
                     // Log that we're using the fallback
                     Console.WriteLine("Using fallback connection string. Please verify App.config is properly configured.");
@@ -365,7 +365,7 @@ namespace FETS.ExpiryNotifications
 
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("Fire Extinguisher Tracking System", smtpSection.From));
-                message.To.Add(new MailboxAddress("", "irfandanishnoorazlin@gmail.com")); // Replace with actual recipient
+                message.To.Add(new MailboxAddress("", "danishaiman3b@gmail.com")); // Replace with actual recipient
                 message.Subject = subject;
 
                 // Convert to FireExtinguisherExpiryInfo objects for the template
@@ -851,7 +851,7 @@ namespace FETS.ExpiryNotifications
                 
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("Fire Extinguisher Tracking System", smtpSection.From));
-                message.To.Add(new MailboxAddress("", "irfandanishnoorazlin@gmail.com")); // Replace with actual recipient
+                message.To.Add(new MailboxAddress("", "danishaiman3b@gmail.com")); // Replace with actual recipient
                 message.Subject = "Fire Extinguisher Service Follow-up Reminder";
                 
                 string body;

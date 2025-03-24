@@ -880,4 +880,51 @@ label {
 
 .stat-value.expiring-soon {
     color: #e67e22; /* Keep only the text color */
+}
+
+/* Service Selection Grid Styles */
+.selection-grid {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+    display: block;
+}
+
+.selection-grid thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #007bff;
+}
+
+.selection-grid th {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-weight: 500;
+    border: 1px solid #0056b3;
+}
+
+.service-selection-modal {
+    width: 80%;
+    max-width: 1000px;
+    margin: 0 auto;
+    max-height: 80vh;
+    overflow: hidden;
+}
+
+.service-selection-modal .modal-body {
+    padding: 15px;
+    max-height: calc(80vh - 150px);
+    overflow: hidden;
+}
+
+/* Fix for modal panel to center properly */
+.modal-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 } 

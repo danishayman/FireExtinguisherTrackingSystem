@@ -13,7 +13,7 @@ using FETS;
 
 namespace FETS.Pages.ViewSection
 {
-    public partial class ViewSection : System.Web.UI.Page
+    public partial class ViewSection : System.Web.UI.Page, IPostBackEventHandler
     {
         // Class to store fire extinguisher details for emails and notifications
         public class FireExtinguisherDetails
@@ -267,215 +267,11 @@ namespace FETS.Pages.ViewSection
         protected void btnClearFilters_Click(object sender, EventArgs e)
         {
             ddlFilterPlant.SelectedIndex = 0;
-            ddlFilterLevel.Items.Clear();
-            ddlFilterLevel.Items.Add(new ListItem("-- All Levels --", ""));
+            LoadDropDownLists();
+            ddlFilterLevel.SelectedIndex = 0;
             ddlFilterStatus.SelectedIndex = 0;
-            txtSearch.Text = "";
-            LoadFireExtinguishers();
-        }
-
-        /// <summary>
-        /// Event handler for saving a new expiry date after service completion.
-        /// Updates the fire extinguisher's status and expiry date.
-        /// </summary>
-        protected void btnSaveExpiryDate_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (!Page.IsValid)
-                    return;
-
-                string feIdString = hdnSelectedFEID.Value;
-                if (string.IsNullOrEmpty(feIdString))
-                {
-                    throw new Exception("No fire extinguisher selected for service completion.");
-                }
-
-                int feId;
-                if (!int.TryParse(feIdString, out feId))
-                {
-                    throw new Exception($"Invalid fire extinguisher ID format: {feIdString}");
-                }
-
-                if (string.IsNullOrEmpty(txtNewExpiryDate.Text))
-                {
-                    throw new Exception("Please enter a new expiry date.");
-                }
-
-                DateTime newExpiryDate;
-                if (!DateTime.TryParse(txtNewExpiryDate.Text, out newExpiryDate))
-                {
-                    throw new Exception("Invalid expiry date format. Please enter a valid date.");
-                }
-
-                string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-
-                    // Begin transaction to ensure all updates are atomic
-                    using (SqlTransaction transaction = conn.BeginTransaction())
-                    {
-                        try
-                        {
-                    // Get the 'Active' status ID
-                    int activeStatusId;
-                            using (SqlCommand cmd = new SqlCommand("SELECT StatusID FROM Status WHERE StatusName = 'Active'", conn, transaction))
-                    {
-                        object result = cmd.ExecuteScalar();
-                        if (result == null)
-                        {
-                            throw new Exception("Could not find 'Active' status in the database. Please check Status table configuration.");
-                        }
-                        activeStatusId = (int)result;
-                    }
-
-                            // Current date for service completion
-                            DateTime serviceDate = DateTime.Now;
-                            
-                            // Calculate reminder date (1 week after service completion)
-                            DateTime reminderDate = serviceDate.AddDays(7);
-
-                            // Update fire extinguisher with new expiry date and service date
-                    using (SqlCommand cmd = new SqlCommand(
-                                "UPDATE FireExtinguishers SET StatusID = @StatusID, DateExpired = @NewExpiryDate, DateServiced = @DateServiced WHERE FEID = @FEID", conn, transaction))
-                    {
-                        cmd.Parameters.AddWithValue("@StatusID", activeStatusId);
-                        cmd.Parameters.AddWithValue("@NewExpiryDate", newExpiryDate);
-                                cmd.Parameters.AddWithValue("@DateServiced", serviceDate);
-                        cmd.Parameters.AddWithValue("@FEID", feId);
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        
-                        if (rowsAffected == 0)
-                        {
-                            throw new Exception($"Fire extinguisher with ID {feId} not found.");
-                                }
-                            }
-                            
-                            // Create reminder entry
-                            using (SqlCommand cmd = new SqlCommand(
-                                "INSERT INTO ServiceReminders (FEID, DateServiced, ReminderDate) VALUES (@FEID, @DateServiced, @ReminderDate)", 
-                                conn, transaction))
-                            {
-                                cmd.Parameters.AddWithValue("@FEID", feId);
-                                cmd.Parameters.AddWithValue("@DateServiced", serviceDate);
-                                cmd.Parameters.AddWithValue("@ReminderDate", reminderDate);
-                                cmd.ExecuteNonQuery();
-                            }
-
-                            // Get extinguisher details for notification
-                            FireExtinguisherDetails extinguisher;
-                            using (SqlCommand cmd = new SqlCommand(
-                                @"SELECT fe.SerialNumber, p.PlantName, l.LevelName, fe.Location 
-                                FROM FireExtinguishers fe
-                                INNER JOIN Plants p ON fe.PlantID = p.PlantID
-                                INNER JOIN Levels l ON fe.LevelID = l.LevelID
-                                WHERE fe.FEID = @FEID", conn, transaction))
-                            {
-                                cmd.Parameters.AddWithValue("@FEID", feId);
-                                using (SqlDataReader reader = cmd.ExecuteReader())
-                                {
-                                    if (reader.Read())
-                                    {
-                                        extinguisher = new FireExtinguisherDetails
-                                        {
-                                            SerialNumber = reader["SerialNumber"].ToString(),
-                                            Plant = reader["PlantName"].ToString(),
-                                            Level = reader["LevelName"].ToString(),
-                                            Location = reader["Location"].ToString()
-                                        };
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Could not retrieve fire extinguisher details.");
-                                    }
-                                }
-                            }
-
-                            // Send service completion email
-                            string emailBody = GenerateServiceCompletionEmail(extinguisher, serviceDate, newExpiryDate);
-                            string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Replace with actual recipient
-                            var (emailSent, emailMessage) = EmailService.SendEmail(
-                                recipientEmail, 
-                                $"Fire Extinguisher Service Completed - {extinguisher.SerialNumber}", 
-                                emailBody
-                            );
-
-                            if (!emailSent)
-                            {
-                                // Log the email failure but continue with the transaction
-                                System.Diagnostics.Debug.WriteLine($"Failed to send completion email: {emailMessage}");
-                            }
-
-                            // Commit all changes
-                            transaction.Commit();
-                        }
-                        catch (Exception ex)
-                        {
-                            // Roll back any changes if there was an error
-                            transaction.Rollback();
-                            throw new Exception($"Error during transaction: {ex.Message}");
-                        }
-                    }
-                }
-
-                // Clear the hidden field and textbox
-                hdnSelectedFEID.Value = string.Empty;
-                txtNewExpiryDate.Text = string.Empty;
-
-                // Refresh the data
-                LoadMonitoringPanels();
-                LoadFireExtinguishers();
-                upMonitoring.Update();
-                upMainGrid.Update();
-
-                // Hide the expiry date panel after successful update
-                ScriptManager.RegisterStartupScript(this, GetType(), "hideExpiryPanel", 
-                    "hideExpiryDatePanel();", true);
-
-                // Show success message
-                ScriptManager.RegisterStartupScript(this, GetType(), "success", 
-                    "alert('Service completed successfully. Fire extinguisher status updated to Active. A reminder has been scheduled for vendor follow-up.');", true);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error in btnSaveExpiryDate_Click: {ex.Message}");
-                ScriptManager.RegisterStartupScript(this, GetType(), "error", 
-                    $"alert('Error: {ex.Message.Replace("'", "\\'")}');", true);
-            }
-        }
-        
-        private string GenerateServiceCompletionEmail(FireExtinguisherDetails extinguisher, DateTime serviceDate, DateTime newExpiryDate)
-        {
-            return $@"
-                <html>
-                <head>
-                    <style>
-                        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                        h2 {{ color: #2c3e50; }}
-                        .details {{ background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0; }}
-                        .footer {{ font-size: 12px; color: #777; margin-top: 30px; }}
-                    </style>
-                </head>
-                <body>
-                    <div class='container'>
-                        <h2>Fire Extinguisher Service Completion Notification</h2>
-                        <p>The following fire extinguisher has completed service and is now active:</p>
-                        
-                        <div class='details'>
-                            <p><strong>Serial Number:</strong> {extinguisher.SerialNumber}</p>
-                            <p><strong>Location:</strong> {extinguisher.Plant}, {extinguisher.Level}, {extinguisher.Location}</p>
-                            <p><strong>Service Completed:</strong> {serviceDate.ToString("MMM dd, yyyy")}</p>
-                            <p><strong>New Expiry Date:</strong> {newExpiryDate.ToString("MMM dd, yyyy")}</p>
-                        </div>
-                        
-                        <p>A reminder will be sent in one week to follow up with the vendor regarding service quality.</p>
-                        
-                        <p class='footer'>This is an automated message from the Fire Extinguisher Tracking System.</p>
-                    </div>
-                </body>
-                </html>";
+            txtSearch.Text = string.Empty;
+            ApplyFilters(sender, e);
         }
 
         /// <summary>
@@ -519,7 +315,7 @@ namespace FETS.Pages.ViewSection
                                 string type = reader["TypeName"].ToString();
 
                                 // Send email using the template
-                                string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Replace with the recipient's email
+                                string recipientEmail = "danishaiman3b@gmail.com"; // Replace with the recipient's email
                                 string subject = "Fire Extinguisher Sent for Service";
                                 string body = EmailTemplateManager.GetServiceEmailTemplate(
                                     serialNumber,
@@ -618,8 +414,30 @@ namespace FETS.Pages.ViewSection
         /// </summary>
         protected void gvExpired_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
-            gvExpired.PageIndex = e.NewPageIndex;
-            LoadTabData();
+            try
+            {
+                gvExpired.PageIndex = e.NewPageIndex;
+                
+                // Set the active tab to ensure correct data is loaded
+                activeTab = "expired";
+                mvMonitoring.SetActiveView(vwExpired);
+                
+                // Update all monitoring data
+                LoadTabData();
+                
+                // Ensure the UpdatePanel is refreshed
+                upMonitoring.Update();
+                
+                // Add debug information
+                System.Diagnostics.Debug.WriteLine($"Changed Expired grid to page {e.NewPageIndex}");
+            }
+            catch (Exception ex)
+            {
+                // Log error and show user notification
+                System.Diagnostics.Debug.WriteLine($"Error in gvExpired_PageIndexChanging: {ex.Message}");
+                ScriptManager.RegisterStartupScript(this, GetType(), "paginationError", 
+                    $"showNotification('❌ Error changing page: {ex.Message.Replace("'", "\\'")}', 'error');", true);
+            }
         }
 
         /// <summary>
@@ -643,8 +461,30 @@ namespace FETS.Pages.ViewSection
         /// </summary>
         protected void gvExpiringSoon_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
-            gvExpiringSoon.PageIndex = e.NewPageIndex;
-            LoadTabData();
+            try
+            {
+                gvExpiringSoon.PageIndex = e.NewPageIndex;
+                
+                // Set the active tab to ensure correct data is loaded
+                activeTab = "expiringSoon";
+                mvMonitoring.SetActiveView(vwExpiringSoon);
+                
+                // Update all monitoring data
+                LoadTabData();
+                
+                // Ensure the UpdatePanel is refreshed
+                upMonitoring.Update();
+                
+                // Add debug information
+                System.Diagnostics.Debug.WriteLine($"Changed ExpiringSoon grid to page {e.NewPageIndex}");
+            }
+            catch (Exception ex)
+            {
+                // Log error and show user notification
+                System.Diagnostics.Debug.WriteLine($"Error in gvExpiringSoon_PageIndexChanging: {ex.Message}");
+                ScriptManager.RegisterStartupScript(this, GetType(), "paginationError", 
+                    $"showNotification('❌ Error changing page: {ex.Message.Replace("'", "\\'")}', 'error');", true);
+            }
         }
 
         /// <summary>
@@ -668,8 +508,30 @@ namespace FETS.Pages.ViewSection
         /// </summary>
         protected void gvUnderService_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
-            gvUnderService.PageIndex = e.NewPageIndex;
-            LoadTabData();
+            try
+            {
+                gvUnderService.PageIndex = e.NewPageIndex;
+                
+                // Set the active tab to ensure correct data is loaded
+                activeTab = "underService";
+                mvMonitoring.SetActiveView(vwUnderService);
+                
+                // Update all monitoring data
+                LoadTabData();
+                
+                // Ensure the UpdatePanel is refreshed
+                upMonitoring.Update();
+                
+                // Add debug information
+                System.Diagnostics.Debug.WriteLine($"Changed UnderService grid to page {e.NewPageIndex}");
+            }
+            catch (Exception ex)
+            {
+                // Log error and show user notification
+                System.Diagnostics.Debug.WriteLine($"Error in gvUnderService_PageIndexChanging: {ex.Message}");
+                ScriptManager.RegisterStartupScript(this, GetType(), "paginationError", 
+                    $"showNotification('❌ Error changing page: {ex.Message.Replace("'", "\\'")}', 'error');", true);
+            }
         }
 
         /// <summary>
@@ -678,13 +540,7 @@ namespace FETS.Pages.ViewSection
         /// </summary>
         protected void gvUnderService_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            if (e.CommandName == "CompleteService")
-            {
-                int feId = Convert.ToInt32(e.CommandArgument);
-                hdnSelectedFEID.Value = feId.ToString();
-                txtNewExpiryDate.Text = string.Empty;
-                ScriptManager.RegisterStartupScript(this, GetType(), "showPanel", "showExpiryDatePanel();", true);
-            }
+            // The CompleteService command has been replaced by the bulk completion functionality
         }
 
         /// <summary>
@@ -825,110 +681,149 @@ namespace FETS.Pages.ViewSection
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand())
+                try
                 {
-                    cmd.Connection = conn;
-                    cmd.CommandText = @"
-                        WITH MonitoringData AS (
-                            SELECT 
-                                fe.FEID,
-                                fe.SerialNumber,
-                                p.PlantName,
-                                l.LevelName,
-                                fe.Location,
-                                t.TypeName,
-                                fe.DateExpired,
-                                s.StatusName,
-                                DATEDIFF(day, fe.DateExpired, GETDATE()) as DaysExpired,
-                                DATEDIFF(day, GETDATE(), fe.DateExpired) as DaysLeft,
-                                CASE 
-                                    WHEN fe.DateExpired < GETDATE() AND s.StatusName != 'Under Service' THEN 'Expired'
-                                    WHEN fe.DateExpired >= GETDATE() AND fe.DateExpired <= DATEADD(day, 60, GETDATE()) AND s.StatusName != 'Under Service' THEN 'ExpiringSoon'
-                                    WHEN s.StatusName = 'Under Service' THEN 'UnderService'
-                                END as Category
-                            FROM FireExtinguishers fe
-                            INNER JOIN Status s ON fe.StatusID = s.StatusID
-                            INNER JOIN Plants p ON fe.PlantID = p.PlantID
-                            INNER JOIN Levels l ON fe.LevelID = l.LevelID
-                            INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
-                        )
+                    conn.Open();
+                    
+                    // First, get counts for all categories regardless of which tab is active
+                    string countQuery = @"
                         SELECT 
-                            md.*,
-                            (SELECT COUNT(*) FROM MonitoringData WHERE Category = 'Expired') as ExpiredCount,
-                            (SELECT COUNT(*) FROM MonitoringData WHERE Category = 'ExpiringSoon') as ExpiringSoonCount,
-                            (SELECT COUNT(*) FROM MonitoringData WHERE Category = 'UnderService') as UnderServiceCount
-                        FROM MonitoringData md
-                        WHERE md.Category = @Category
-                        ORDER BY md.DateExpired ASC";
-
-                    cmd.Parameters.AddWithValue("@Category", activeTab == "expired" ? "Expired" : 
-                                                          activeTab == "expiringSoon" ? "ExpiringSoon" : "UnderService");
-
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                            SUM(CASE WHEN fe.DateExpired < GETDATE() AND s.StatusName != 'Under Service' THEN 1 ELSE 0 END) as ExpiredCount,
+                            SUM(CASE WHEN fe.DateExpired >= GETDATE() AND fe.DateExpired <= DATEADD(day, 60, GETDATE()) AND s.StatusName != 'Under Service' THEN 1 ELSE 0 END) as ExpiringSoonCount,
+                            SUM(CASE WHEN s.StatusName = 'Under Service' THEN 1 ELSE 0 END) as UnderServiceCount
+                        FROM FireExtinguishers fe
+                        INNER JOIN Status s ON fe.StatusID = s.StatusID";
+                        
+                    using (SqlCommand countCmd = new SqlCommand(countQuery, conn))
                     {
-                        DataTable dt = new DataTable();
-                        adapter.Fill(dt);
-
-                        if (dt.Rows.Count > 0)
+                        using (SqlDataReader countReader = countCmd.ExecuteReader())
                         {
-                            // Get the counts from the first row (they'll be the same in all rows)
-                            ExpiredCount = Convert.ToInt32(dt.Rows[0]["ExpiredCount"]);
-                            ExpiringSoonCount = Convert.ToInt32(dt.Rows[0]["ExpiringSoonCount"]);
-                            UnderServiceCount = Convert.ToInt32(dt.Rows[0]["UnderServiceCount"]);
-
-                            // Remove the count columns before binding to grid
-                            dt.Columns.Remove("ExpiredCount");
-                            dt.Columns.Remove("ExpiringSoonCount");
-                            dt.Columns.Remove("UnderServiceCount");
-                        }
-                        else
-                        {
-                            // If no rows, get counts with a separate query
-                            cmd.CommandText = @"
-                                SELECT 
-                                    SUM(CASE WHEN DateExpired < GETDATE() AND StatusName != 'Under Service' THEN 1 ELSE 0 END) as ExpiredCount,
-                                    SUM(CASE WHEN DateExpired >= GETDATE() AND DateExpired <= DATEADD(day, 60, GETDATE()) AND StatusName != 'Under Service' THEN 1 ELSE 0 END) as ExpiringSoonCount,
-                                    SUM(CASE WHEN StatusName = 'Under Service' THEN 1 ELSE 0 END) as UnderServiceCount
-                                FROM FireExtinguishers fe
-                                INNER JOIN Status s ON fe.StatusID = s.StatusID";
-
-                            using (SqlDataReader reader = cmd.ExecuteReader())
+                            if (countReader.Read())
                             {
-                                if (reader.Read())
-                                {
-                                    ExpiredCount = reader.IsDBNull(0) ? 0 : reader.GetInt32(0);
-                                    ExpiringSoonCount = reader.IsDBNull(1) ? 0 : reader.GetInt32(1);
-                                    UnderServiceCount = reader.IsDBNull(2) ? 0 : reader.GetInt32(2);
-                                }
+                                // Set the count properties for the badge displays
+                                ExpiredCount = countReader.IsDBNull(0) ? 0 : countReader.GetInt32(0);
+                                ExpiringSoonCount = countReader.IsDBNull(1) ? 0 : countReader.GetInt32(1);
+                                UnderServiceCount = countReader.IsDBNull(2) ? 0 : countReader.GetInt32(2);
+                            }
+                            else
+                            {
+                                // Default to 0 if no data found
+                                ExpiredCount = 0;
+                                ExpiringSoonCount = 0;
+                                UnderServiceCount = 0;
                             }
                         }
-
-                        // Bind data to appropriate grid
-                        switch (activeTab)
+                    }
+                    
+                    // Now get the specific data for the active tab
+                    string dataQuery = "";
+                    
+                    switch (activeTab)
+                    {
+                        case "expired":
+                            dataQuery = @"
+                                SELECT 
+                                    fe.FEID,
+                                    fe.SerialNumber,
+                                    p.PlantName,
+                                    l.LevelName,
+                                    fe.Location,
+                                    t.TypeName,
+                                    fe.DateExpired,
+                                    s.StatusName,
+                                    DATEDIFF(day, fe.DateExpired, GETDATE()) as DaysExpired
+                                FROM FireExtinguishers fe
+                                INNER JOIN Status s ON fe.StatusID = s.StatusID
+                                INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                                INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                                INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                                WHERE fe.DateExpired < GETDATE() AND s.StatusName != 'Under Service'
+                                ORDER BY fe.DateExpired ASC";
+                            break;
+                            
+                        case "expiringSoon":
+                            dataQuery = @"
+                                SELECT 
+                                    fe.FEID,
+                                    fe.SerialNumber,
+                                    p.PlantName,
+                                    l.LevelName,
+                                    fe.Location,
+                                    t.TypeName,
+                                    fe.DateExpired,
+                                    s.StatusName,
+                                    DATEDIFF(day, GETDATE(), fe.DateExpired) as DaysLeft
+                                FROM FireExtinguishers fe
+                                INNER JOIN Status s ON fe.StatusID = s.StatusID
+                                INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                                INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                                INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                                WHERE fe.DateExpired >= GETDATE() AND fe.DateExpired <= DATEADD(day, 60, GETDATE()) AND s.StatusName != 'Under Service'
+                                ORDER BY fe.DateExpired ASC";
+                            break;
+                            
+                        case "underService":
+                            dataQuery = @"
+                                SELECT 
+                                    fe.FEID,
+                                    fe.SerialNumber,
+                                    p.PlantName,
+                                    l.LevelName,
+                                    fe.Location,
+                                    t.TypeName,
+                                    fe.DateExpired,
+                                    s.StatusName
+                                FROM FireExtinguishers fe
+                                INNER JOIN Status s ON fe.StatusID = s.StatusID
+                                INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                                INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                                INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                                WHERE s.StatusName = 'Under Service'
+                                ORDER BY fe.DateExpired ASC";
+                            break;
+                    }
+                    
+                    // Execute the query and bind data to the appropriate grid
+                    using (SqlCommand dataCmd = new SqlCommand(dataQuery, conn))
+                    {
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(dataCmd))
                         {
-                            case "expired":
-                                gvExpired.DataSource = dt;
-                                gvExpired.DataBind();
-                                break;
-                            case "expiringSoon":
-                                gvExpiringSoon.DataSource = dt;
-                                gvExpiringSoon.DataBind();
-                                break;
-                            case "underService":
-                                gvUnderService.DataSource = dt;
-                                gvUnderService.DataBind();
-                                break;
+                            DataTable dt = new DataTable();
+                            adapter.Fill(dt);
+                            
+                            switch (activeTab)
+                            {
+                                case "expired":
+                                    gvExpired.DataSource = dt;
+                                    gvExpired.DataBind();
+                                    break;
+                                case "expiringSoon":
+                                    gvExpiringSoon.DataSource = dt;
+                                    gvExpiringSoon.DataBind();
+                                    break;
+                                case "underService":
+                                    gvUnderService.DataSource = dt;
+                                    gvUnderService.DataBind();
+                                    break;
+                            }
                         }
                     }
+                    
+                    // Update UI with count badges
+                    btnExpiredTab.DataBind();
+                    btnExpiringSoonTab.DataBind();
+                    btnUnderServiceTab.DataBind();
+                    upMonitoring.Update();
+                }
+                catch (Exception ex)
+                {
+                    // Log the error
+                    System.Diagnostics.Debug.WriteLine($"Error in LoadTabData: {ex.Message}");
+                    // Show error notification to user
+                    ScriptManager.RegisterStartupScript(this, GetType(), "loadDataError", 
+                        $"showNotification('❌ Error loading monitoring data: {ex.Message.Replace("'", "\\'")}', 'error');", true);
                 }
             }
-
-            // Update UI
-            btnExpiredTab.DataBind();
-            btnExpiringSoonTab.DataBind();
-            btnUnderServiceTab.DataBind();
-            upMonitoring.Update();
         }
 
         /// <summary>
@@ -982,11 +877,16 @@ namespace FETS.Pages.ViewSection
 
         /// <summary>
         /// Event handler for the main grid's row commands.
-        /// Handles actions like deleting fire extinguishers or sending them for service.
+        /// Handles actions like editing, deleting fire extinguishers or sending them for service.
         /// </summary>
         protected void gvFireExtinguishers_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            if (e.CommandName == "SendForService")
+            if (e.CommandName == "EditRow")
+            {
+                int feId = Convert.ToInt32(e.CommandArgument);
+                LoadFireExtinguisherForEdit(feId);
+            }
+            else if (e.CommandName == "SendForService")
             {
                 int feId = Convert.ToInt32(e.CommandArgument);
                 hdnSelectedFEIDForService.Value = feId.ToString();
@@ -1127,7 +1027,7 @@ namespace FETS.Pages.ViewSection
         {
             LinkButton btn = (LinkButton)sender;
             string extinguisherId = btn.CommandArgument;
-            string recipientEmail = "irfandanishnoorazlin@gmail.com"; // Change dynamically if needed
+            string recipientEmail = "danishaiman3b@gmail.com"; // Change dynamically if needed
 
             // Get fire extinguisher details
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -1209,7 +1109,14 @@ namespace FETS.Pages.ViewSection
                     INNER JOIN Plants p ON fe.PlantID = p.PlantID
                     INNER JOIN Levels l ON fe.LevelID = l.LevelID
                     INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
-                    WHERE fe.StatusID != (SELECT StatusID FROM Status WHERE StatusName = 'Under Service')";
+                    INNER JOIN Status s ON fe.StatusID = s.StatusID
+                    WHERE s.StatusName != 'Under Service'
+                    AND (
+                        fe.DateExpired < GETDATE() -- Expired
+                        OR 
+                        (fe.DateExpired >= GETDATE() AND fe.DateExpired <= DATEADD(day, 60, GETDATE())) -- Expiring Soon (within 60 days)
+                    )
+                    ORDER BY fe.DateExpired ASC";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
@@ -1302,7 +1209,7 @@ namespace FETS.Pages.ViewSection
                 }
                 
                 // Send email with the professional template
-                string recipientEmail = "irfandanishnoorazlin@gmail.com";
+                string recipientEmail = "danishaiman3b@gmail.com";
                 string subject = $"{extinguisherDetails.Count} Fire Extinguishers Sent for Service";
                 string body = EmailTemplateManager.GetMultipleServiceEmailTemplate(extinguisherDetails);
 
@@ -1329,6 +1236,626 @@ namespace FETS.Pages.ViewSection
         {
             pnlServiceSelection.Visible = false;
             upServiceSelection.Update();
+        }
+
+        /// <summary>
+        /// IPostBackEventHandler implementation to handle custom events
+        /// </summary>
+        public void RaisePostBackEvent(string eventArgument)
+        {
+            if (eventArgument.StartsWith("LoadFireExtinguisherDetails:"))
+            {
+                // Extract the FEID from the postback argument
+                string feIdStr = eventArgument.Replace("LoadFireExtinguisherDetails:", "");
+                int feId;
+                
+                if (int.TryParse(feIdStr, out feId))
+                {
+                    LoadFireExtinguisherForEdit(feId);
+                    ScriptManager.RegisterStartupScript(this, GetType(), "showEditPanel", "document.getElementById('" + pnlEditFireExtinguisher.ClientID + "').style.display = 'flex';", true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event handler for Plant dropdown change during edit
+        /// </summary>
+        protected void ddlPlant_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(ddlPlant.SelectedValue))
+            {
+                // Clear levels dropdown if no plant is selected
+                ddlLevel.Items.Clear();
+                ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+                return;
+            }
+
+            // Load levels based on selected plant
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT LevelID, LevelName FROM Levels WHERE PlantID = @PlantID ORDER BY LevelName", conn))
+                {
+                    cmd.Parameters.AddWithValue("@PlantID", ddlPlant.SelectedValue);
+                    ddlLevel.Items.Clear();
+                    ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlLevel.Items.Add(new ListItem(
+                                reader["LevelName"].ToString(),
+                                reader["LevelID"].ToString()
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Load fire extinguisher details for editing
+        /// </summary>
+        private void LoadFireExtinguisherForEdit(int feId)
+        {
+            // Load dropdown options
+            LoadDropdownsForEdit();
+
+            // Load fire extinguisher details
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = @"
+                    SELECT 
+                        fe.SerialNumber, 
+                        fe.PlantID, 
+                        fe.LevelID, 
+                        fe.Location, 
+                        fe.TypeID, 
+                        fe.StatusID, 
+                        fe.DateExpired, 
+                        fe.Remarks
+                    FROM FireExtinguishers fe
+                    WHERE fe.FEID = @FEID";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@FEID", feId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            hdnEditFEID.Value = feId.ToString();
+                            txtSerialNumber.Text = reader["SerialNumber"].ToString();
+                            
+                            // Set the plant dropdown
+                            string plantId = reader["PlantID"].ToString();
+                            ddlPlant.SelectedValue = plantId;
+                            
+                            // Get levels for selected plant then set level dropdown
+                            LoadLevelsForPlant(plantId);
+                            ddlLevel.SelectedValue = reader["LevelID"].ToString();
+                            
+                            txtLocation.Text = reader["Location"].ToString();
+                            ddlType.SelectedValue = reader["TypeID"].ToString();
+                            ddlStatus.SelectedValue = reader["StatusID"].ToString();
+                            
+                            // Format date for the date input
+                            DateTime expiryDate = Convert.ToDateTime(reader["DateExpired"]);
+                            txtExpiryDate.Text = expiryDate.ToString("yyyy-MM-dd");
+                            
+                            txtRemarks.Text = reader["Remarks"] as string ?? string.Empty;
+                        }
+                    }
+                }
+            }
+
+            // Update the panel
+            upEditFireExtinguisher.Update();
+            
+            // Show the panel with JavaScript
+            ScriptManager.RegisterStartupScript(this, GetType(), "showEditPanel", 
+                "document.getElementById('" + pnlEditFireExtinguisher.ClientID + "').style.display = 'flex';" +
+                "document.getElementById('modalOverlay').style.display = 'block';", true);
+        }
+
+        /// <summary>
+        /// Load dropdown lists for the edit form
+        /// </summary>
+        private void LoadDropdownsForEdit()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                // Load Plants
+                using (SqlCommand cmd = new SqlCommand("SELECT PlantID, PlantName FROM Plants ORDER BY PlantName", conn))
+                {
+                    ddlPlant.Items.Clear();
+                    ddlPlant.Items.Add(new ListItem("-- Select Plant --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlPlant.Items.Add(new ListItem(
+                                reader["PlantName"].ToString(),
+                                reader["PlantID"].ToString()
+                            ));
+                        }
+                    }
+                }
+
+                // Load Fire Extinguisher Types
+                using (SqlCommand cmd = new SqlCommand("SELECT TypeID, TypeName FROM FireExtinguisherTypes ORDER BY TypeName", conn))
+                {
+                    ddlType.Items.Clear();
+                    ddlType.Items.Add(new ListItem("-- Select Type --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlType.Items.Add(new ListItem(
+                                reader["TypeName"].ToString(),
+                                reader["TypeID"].ToString()
+                            ));
+                        }
+                    }
+                }
+
+                // Load Status
+                using (SqlCommand cmd = new SqlCommand("SELECT StatusID, StatusName FROM Status ORDER BY StatusName", conn))
+                {
+                    ddlStatus.Items.Clear();
+                    ddlStatus.Items.Add(new ListItem("-- Select Status --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlStatus.Items.Add(new ListItem(
+                                reader["StatusName"].ToString(),
+                                reader["StatusID"].ToString()
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Load levels for a specific plant
+        /// </summary>
+        private void LoadLevelsForPlant(string plantId)
+        {
+            if (string.IsNullOrEmpty(plantId))
+            {
+                ddlLevel.Items.Clear();
+                ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+                return;
+            }
+
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT LevelID, LevelName FROM Levels WHERE PlantID = @PlantID ORDER BY LevelName", conn))
+                {
+                    cmd.Parameters.AddWithValue("@PlantID", plantId);
+                    ddlLevel.Items.Clear();
+                    ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlLevel.Items.Add(new ListItem(
+                                reader["LevelName"].ToString(),
+                                reader["LevelID"].ToString()
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Save edited fire extinguisher details
+        /// </summary>
+        protected void btnSaveEdit_Click(object sender, EventArgs e)
+        {
+            if (!Page.IsValid)
+                return;
+
+            try
+            {
+                int feId;
+                if (!int.TryParse(hdnEditFEID.Value, out feId))
+                {
+                    throw new Exception("Invalid fire extinguisher ID.");
+                }
+
+                string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string query = @"
+                        UPDATE FireExtinguishers 
+                        SET 
+                            SerialNumber = @SerialNumber,
+                            PlantID = @PlantID,
+                            LevelID = @LevelID,
+                            Location = @Location,
+                            TypeID = @TypeID,
+                            StatusID = @StatusID,
+                            DateExpired = @DateExpired,
+                            Remarks = @Remarks
+                        WHERE FEID = @FEID";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@FEID", feId);
+                        cmd.Parameters.AddWithValue("@SerialNumber", txtSerialNumber.Text.Trim());
+                        cmd.Parameters.AddWithValue("@PlantID", ddlPlant.SelectedValue);
+                        cmd.Parameters.AddWithValue("@LevelID", ddlLevel.SelectedValue);
+                        cmd.Parameters.AddWithValue("@Location", txtLocation.Text.Trim());
+                        cmd.Parameters.AddWithValue("@TypeID", ddlType.SelectedValue);
+                        cmd.Parameters.AddWithValue("@StatusID", ddlStatus.SelectedValue);
+                        
+                        DateTime expiryDate;
+                        if (DateTime.TryParse(txtExpiryDate.Text, out expiryDate))
+                        {
+                            cmd.Parameters.AddWithValue("@DateExpired", expiryDate);
+                        }
+                        else
+                        {
+                            throw new Exception("Invalid expiry date format.");
+                        }
+                        
+                        if (string.IsNullOrEmpty(txtRemarks.Text))
+                        {
+                            cmd.Parameters.AddWithValue("@Remarks", DBNull.Value);
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@Remarks", txtRemarks.Text.Trim());
+                        }
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        if (rowsAffected == 0)
+                        {
+                            throw new Exception("Fire extinguisher not found or could not be updated.");
+                        }
+                    }
+                }
+
+                // Refresh the data
+                LoadMonitoringPanels();
+                LoadFireExtinguishers();
+                
+                // Hide the edit panel
+                ScriptManager.RegisterStartupScript(this, GetType(), "hideEditPanel", 
+                    "hideEditPanel();", true);
+                
+                // Show success notification
+                ScriptManager.RegisterStartupScript(this, GetType(), "saveSuccess", 
+                    "showNotification('✅ Fire extinguisher updated successfully!');", true);
+            }
+            catch (Exception ex)
+            {
+                // Show error notification
+                ScriptManager.RegisterStartupScript(this, GetType(), "saveError", 
+                    $"showNotification('❌ Error: {ex.Message.Replace("'", "\\'")}', 'error');", true);
+            }
+        }
+
+        /// <summary>
+        /// Handles the click event for the Complete Service button.
+        /// Loads and displays the panel showing all fire extinguishers under service.
+        /// </summary>
+        protected void btnCompleteServiceList_Click(object sender, EventArgs e)
+        {
+            LoadCompleteServiceGrid();
+            pnlCompleteService.Visible = true;
+            upCompleteService.Update();
+            
+            // Show the modal overlay
+            ScriptManager.RegisterStartupScript(this, GetType(), "showCompleteServicePanel", 
+                "showCompleteServicePanel();", true);
+        }
+        
+        /// <summary>
+        /// Loads the complete service grid with fire extinguishers that are under service.
+        /// </summary>
+        private void LoadCompleteServiceGrid()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = @"
+                    SELECT 
+                        fe.FEID,
+                        fe.SerialNumber,
+                        p.PlantName,
+                        l.LevelName,
+                        fe.Location,
+                        t.TypeName,
+                        fe.DateExpired,
+                        s.StatusName
+                    FROM FireExtinguishers fe
+                    INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                    INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                    INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                    INNER JOIN Status s ON fe.StatusID = s.StatusID
+                    WHERE s.StatusName = 'Under Service'
+                    ORDER BY fe.SerialNumber";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dt = new DataTable();
+                        adapter.Fill(dt);
+                        gvCompleteService.DataSource = dt;
+                        gvCompleteService.DataBind();
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Handles row data binding for the Complete Service grid.
+        /// </summary>
+        protected void gvCompleteService_RowDataBound(object sender, GridViewRowEventArgs e)
+        {
+            if (e.Row.RowType == DataControlRowType.DataRow)
+            {
+                // Set minimum date to today for the expiry date input
+                TextBox txtNewExpiryDate = (TextBox)e.Row.FindControl("txtNewExpiryDate");
+                if (txtNewExpiryDate != null)
+                {
+                    // Default the expiry date to one year from today
+                    txtNewExpiryDate.Text = DateTime.Today.AddYears(1).ToString("yyyy-MM-dd");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Handles the click event for confirming service completion.
+        /// Updates the status and expiry dates for all fire extinguishers.
+        /// </summary>
+        protected void btnConfirmCompleteService_Click(object sender, EventArgs e)
+        {
+            if (!Page.IsValid)
+                return;
+                
+            bool anySuccess = false;
+            List<string> errors = new List<string>();
+            List<FireExtinguisherServiceInfo> completedExtinguishers = new List<FireExtinguisherServiceInfo>();
+            DateTime serviceDate = DateTime.Now;
+            DateTime newExpiryDate = DateTime.Now.AddYears(1); // Default value
+            
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                
+                // Begin a single transaction for all updates
+                using (SqlTransaction transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        foreach (GridViewRow row in gvCompleteService.Rows)
+                        {
+                            if (row.RowType == DataControlRowType.DataRow)
+                            {
+                                // Check if this row is selected
+                                CheckBox chkSelectForComplete = (CheckBox)row.FindControl("chkSelectForComplete");
+                                if (chkSelectForComplete == null || !chkSelectForComplete.Checked)
+                                {
+                                    // Skip if the checkbox is not checked
+                                    continue;
+                                }
+                                
+                                int feId = Convert.ToInt32(gvCompleteService.DataKeys[row.RowIndex].Value);
+                                TextBox txtNewExpiryDate = (TextBox)row.FindControl("txtNewExpiryDate");
+                                
+                                if (txtNewExpiryDate != null && !string.IsNullOrEmpty(txtNewExpiryDate.Text))
+                                {
+                                    if (DateTime.TryParse(txtNewExpiryDate.Text, out newExpiryDate))
+                                    {
+                                        // Get the fire extinguisher details
+                                        string query = @"
+                                            SELECT 
+                                                fe.SerialNumber,
+                                                p.PlantName AS Plant,
+                                                l.LevelName AS Level,
+                                                fe.Location,
+                                                t.TypeName AS Type,
+                                                fe.Remarks
+                                            FROM FireExtinguishers fe
+                                            INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                                            INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                                            INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                                            WHERE fe.FEID = @FEID";
+                                            
+                                        using (SqlCommand cmd = new SqlCommand(query, conn, transaction))
+                                        {
+                                            cmd.Parameters.AddWithValue("@FEID", feId);
+                                            using (SqlDataReader reader = cmd.ExecuteReader())
+                                            {
+                                                if (reader.Read())
+                                                {
+                                                    // Add to the list of completed extinguishers
+                                                    completedExtinguishers.Add(new FireExtinguisherServiceInfo
+                                                    {
+                                                        SerialNumber = reader["SerialNumber"].ToString(),
+                                                        Plant = reader["Plant"].ToString(),
+                                                        Level = reader["Level"].ToString(),
+                                                        Location = reader["Location"].ToString(),
+                                                        Type = reader["Type"].ToString(),
+                                                        Remarks = reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null
+                                                    });
+                                                }
+                                            }
+                                        }
+
+                                        // Update the fire extinguisher status and expiry date
+                                        string updateQuery = @"
+                                            UPDATE FireExtinguishers
+                                            SET StatusID = (SELECT StatusID FROM Status WHERE StatusName = 'Active'),
+                                                DateExpired = @NewExpiryDate
+                                            WHERE FEID = @FEID";
+                                            
+                                        using (SqlCommand cmd = new SqlCommand(updateQuery, conn, transaction))
+                                        {
+                                            cmd.Parameters.AddWithValue("@FEID", feId);
+                                            cmd.Parameters.AddWithValue("@NewExpiryDate", newExpiryDate);
+                                            cmd.ExecuteNonQuery();
+                                        }
+
+                                        // Add service reminder for follow-up
+                                        DateTime reminderDate = serviceDate.AddDays(7); // Remind in one week
+                                        using (SqlCommand cmd = new SqlCommand(
+                                            "INSERT INTO ServiceReminders (FEID, DateServiced, ReminderDate) VALUES (@FEID, @DateServiced, @ReminderDate)", 
+                                            conn, transaction))
+                                        {
+                                            cmd.Parameters.AddWithValue("@FEID", feId);
+                                            cmd.Parameters.AddWithValue("@DateServiced", serviceDate);
+                                            cmd.Parameters.AddWithValue("@ReminderDate", reminderDate);
+                                            cmd.ExecuteNonQuery();
+                                        }
+                                        
+                                        anySuccess = true;
+                                    }
+                                    else
+                                    {
+                                        errors.Add($"Invalid expiry date format for extinguisher ID {feId}");
+                                    }
+                                }
+                                else
+                                {
+                                    errors.Add($"No expiry date provided for extinguisher ID {feId}");
+                                }
+                            }
+                        }
+                        
+                        // If we have any completed extinguishers, send the email
+                        if (completedExtinguishers.Count > 0)
+                        {
+                            // Get email recipient
+                            string recipientEmail = "danishaiman3b@gmail.com";
+                            string subject = completedExtinguishers.Count == 1 
+                                ? $"Fire Extinguisher Service Completed - {completedExtinguishers[0].SerialNumber}"
+                                : $"{completedExtinguishers.Count} Fire Extinguishers Service Completed";
+                            
+                            string emailBody;
+                            if (completedExtinguishers.Count == 1)
+                            {
+                                // Single extinguisher email
+                                var fe = completedExtinguishers[0];
+                                emailBody = EmailTemplateManager.GetServiceCompletionEmailTemplate(
+                                    fe.SerialNumber,
+                                    fe.Plant,
+                                    fe.Level,
+                                    fe.Location,
+                                    fe.Type,
+                                    serviceDate,
+                                    newExpiryDate,
+                                    fe.Remarks
+                                );
+                            }
+                            else
+                            {
+                                // Multiple extinguishers email
+                                emailBody = EmailTemplateManager.GetMultipleServiceCompletionEmailTemplate(
+                                    completedExtinguishers,
+                                    serviceDate,
+                                    newExpiryDate
+                                );
+                            }
+                            
+                            try
+                            {
+                                // Send the email
+                                var (success, emailMessage) = EmailService.SendEmail(recipientEmail, subject, emailBody);
+                                if (!success)
+                                {
+                                    // Log the email failure but continue with the transaction
+                                    System.Diagnostics.Debug.WriteLine($"Failed to send completion email: {emailMessage}");
+                                    errors.Add($"Email could not be sent: {emailMessage}");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                // Log the error but continue with the transaction
+                                System.Diagnostics.Debug.WriteLine($"Error sending email: {ex.Message}");
+                                errors.Add($"Email error: {ex.Message}");
+                            }
+                        }
+                        
+                        // Commit all changes if successful
+                        transaction.Commit();
+                        
+                    }
+                    catch (Exception ex)
+                    {
+                        // Roll back any changes if there was an error
+                        transaction.Rollback();
+                        errors.Add($"Transaction error: {ex.Message}");
+                    }
+                }
+            }
+            
+            // Hide the panel and refresh the data
+            pnlCompleteService.Visible = false;
+            ScriptManager.RegisterStartupScript(this, GetType(), "hideCompleteServicePanel", 
+                "hideCompleteServicePanel();", true);
+            
+            // Refresh the data
+            LoadMonitoringPanels();
+            LoadFireExtinguishers();
+            upMonitoring.Update();
+            upMainGrid.Update();
+            
+            // Show appropriate message
+            if (anySuccess)
+            {
+                string message = $"Service completed successfully for {completedExtinguishers.Count} fire extinguisher(s).";
+                if (errors.Count > 0)
+                {
+                    message += " However, some errors occurred: " + string.Join("; ", errors);
+                }
+                
+                ScriptManager.RegisterStartupScript(this, GetType(), "successMessage", 
+                    $"showNotification('{message.Replace("'", "\\'")}', '{(errors.Count > 0 ? "warning" : "success")}');", true);
+            }
+            else if (errors.Count > 0)
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "errorMessage", 
+                    $"showNotification('❌ Errors occurred: {string.Join("; ", errors).Replace("'", "\\'")}', 'error');", true);
+            }
+            else
+            {
+                ScriptManager.RegisterStartupScript(this, GetType(), "noSelectionMessage", 
+                    $"showNotification('Please select at least one fire extinguisher to complete service for.', 'error');", true);
+            }
+        }
+        
+        /// <summary>
+        /// Handles the click event for canceling service completion.
+        /// </summary>
+        protected void btnCancelCompleteService_Click(object sender, EventArgs e)
+        {
+            pnlCompleteService.Visible = false;
+            upCompleteService.Update();
+            
+            ScriptManager.RegisterStartupScript(this, GetType(), "hideCompleteServicePanel", 
+                "hideCompleteServicePanel();", true);
         }
     }
 }
