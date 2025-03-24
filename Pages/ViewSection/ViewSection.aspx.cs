@@ -139,6 +139,11 @@ namespace FETS.Pages.ViewSection
                     }
                 }
             }
+            
+            // Disable Level dropdown until a Plant is selected
+            ddlFilterLevel.Items.Clear();
+            ddlFilterLevel.Items.Add(new ListItem("-- All Levels --", ""));
+            ddlFilterLevel.Enabled = false;
         }
 
         /// <summary>
@@ -151,6 +156,7 @@ namespace FETS.Pages.ViewSection
             {
                 ddlFilterLevel.Items.Clear();
                 ddlFilterLevel.Items.Add(new ListItem("-- All Levels --", ""));
+                ddlFilterLevel.Enabled = false;
                 return;
             }
 
@@ -177,6 +183,9 @@ namespace FETS.Pages.ViewSection
                     }
                 }
             }
+            
+            // Enable the level dropdown since a plant is selected
+            ddlFilterLevel.Enabled = true;
         }
 
         /// <summary>
@@ -272,6 +281,7 @@ namespace FETS.Pages.ViewSection
             // Initialize Level dropdown with default "All Levels" option
             ddlFilterLevel.Items.Clear();
             ddlFilterLevel.Items.Add(new ListItem("-- All Levels --", ""));
+            ddlFilterLevel.Enabled = false;
             
             // Now we can safely set the selected index
             ddlFilterLevel.SelectedIndex = 0;
