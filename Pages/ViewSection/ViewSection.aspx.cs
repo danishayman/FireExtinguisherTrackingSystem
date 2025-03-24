@@ -139,11 +139,6 @@ namespace FETS.Pages.ViewSection
                     }
                 }
             }
-            
-            // Disable Level dropdown until a Plant is selected
-            ddlFilterLevel.Items.Clear();
-            ddlFilterLevel.Items.Add(new ListItem("-- All Levels --", ""));
-            ddlFilterLevel.Enabled = false;
         }
 
         /// <summary>
@@ -156,7 +151,7 @@ namespace FETS.Pages.ViewSection
             {
                 ddlFilterLevel.Items.Clear();
                 ddlFilterLevel.Items.Add(new ListItem("-- All Levels --", ""));
-                ddlFilterLevel.Enabled = false;
+                ddlFilterLevel.Enabled = false; // Disable level dropdown
                 return;
             }
 
@@ -183,9 +178,8 @@ namespace FETS.Pages.ViewSection
                     }
                 }
             }
-            
-            // Enable the level dropdown since a plant is selected
-            ddlFilterLevel.Enabled = true;
+
+            ddlFilterLevel.Enabled = true; // Enable level dropdown
         }
 
         /// <summary>
@@ -281,7 +275,7 @@ namespace FETS.Pages.ViewSection
             // Initialize Level dropdown with default "All Levels" option
             ddlFilterLevel.Items.Clear();
             ddlFilterLevel.Items.Add(new ListItem("-- All Levels --", ""));
-            ddlFilterLevel.Enabled = false;
+            ddlFilterLevel.Enabled = false; // Disable level dropdown
             
             // Now we can safely set the selected index
             ddlFilterLevel.SelectedIndex = 0;
@@ -913,10 +907,7 @@ namespace FETS.Pages.ViewSection
             {
                 int feId = Convert.ToInt32(e.CommandArgument);
                 DeleteFireExtinguisher(feId);
-                LoadMonitoringPanels();
-                LoadFireExtinguishers();
-                upMonitoring.Update();
-                upMainGrid.Update();
+                // No need to update panels or reload data here as we will redirect
             }
         }
 
@@ -937,8 +928,9 @@ namespace FETS.Pages.ViewSection
                 }
             }
 
-            LoadFireExtinguishers();
-            LoadMonitoringPanels();
+            // Redirect to the same page to avoid form resubmission on refresh
+            Response.Redirect(Request.Url.PathAndQuery, false);
+            Context.ApplicationInstance.CompleteRequest();
         }
 
         /// <summary>
