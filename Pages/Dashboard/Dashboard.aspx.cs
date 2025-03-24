@@ -93,10 +93,23 @@ namespace FETS.Pages
                             else if (type == "CO2") co2Count = count;
                         }
 
-                        hdnChartData.Value = $"{abcCount}, {co2Count}";
+                        hdnChartData.Value = $"{abcCount},{co2Count}";
                     }
                 }
             }
         }
+        
+        // Helper method to calculate percentages for progress bars
+        protected string GetPercentage(object value, object total)
+        {
+            if (value == null || total == null) return "0";
+            
+            int val = Convert.ToInt32(value);
+            int tot = Convert.ToInt32(total);
+            
+            if (tot == 0) return "0";
+            
+            return Math.Min(100, (val * 100) / tot).ToString();
+        }
     }
-} 
+}
