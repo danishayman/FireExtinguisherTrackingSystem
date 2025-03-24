@@ -139,6 +139,11 @@ namespace FETS.Pages.ViewSection
                     }
                 }
             }
+            
+            // Disable Level dropdown until a Plant is selected
+            ddlFilterLevel.Items.Clear();
+            ddlFilterLevel.Items.Add(new ListItem("-- All Levels --", ""));
+            ddlFilterLevel.Enabled = false;
         }
 
         /// <summary>
@@ -151,7 +156,7 @@ namespace FETS.Pages.ViewSection
             {
                 ddlFilterLevel.Items.Clear();
                 ddlFilterLevel.Items.Add(new ListItem("-- All Levels --", ""));
-                ddlFilterLevel.Enabled = false; // Disable level dropdown
+                ddlFilterLevel.Enabled = false;
                 return;
             }
 
@@ -178,8 +183,9 @@ namespace FETS.Pages.ViewSection
                     }
                 }
             }
-
-            ddlFilterLevel.Enabled = true; // Enable level dropdown
+            
+            // Enable the level dropdown since a plant is selected
+            ddlFilterLevel.Enabled = true;
         }
 
         /// <summary>
@@ -275,7 +281,7 @@ namespace FETS.Pages.ViewSection
             // Initialize Level dropdown with default "All Levels" option
             ddlFilterLevel.Items.Clear();
             ddlFilterLevel.Items.Add(new ListItem("-- All Levels --", ""));
-            ddlFilterLevel.Enabled = false; // Disable level dropdown
+            ddlFilterLevel.Enabled = false;
             
             // Now we can safely set the selected index
             ddlFilterLevel.SelectedIndex = 0;
@@ -907,7 +913,10 @@ namespace FETS.Pages.ViewSection
             {
                 int feId = Convert.ToInt32(e.CommandArgument);
                 DeleteFireExtinguisher(feId);
-                // No need to update panels or reload data here as we will redirect
+                LoadMonitoringPanels();
+                LoadFireExtinguishers();
+                upMonitoring.Update();
+                upMainGrid.Update();
             }
         }
 
@@ -928,9 +937,8 @@ namespace FETS.Pages.ViewSection
                 }
             }
 
-            // Redirect to the same page to avoid form resubmission on refresh
-            Response.Redirect(Request.Url.PathAndQuery, false);
-            Context.ApplicationInstance.CompleteRequest();
+            LoadFireExtinguishers();
+            LoadMonitoringPanels();
         }
 
         /// <summary>
@@ -1540,17 +1548,12 @@ namespace FETS.Pages.ViewSection
                     }
                 }
 
-                // Refresh the data
-                LoadMonitoringPanels();
-                LoadFireExtinguishers();
+                // Set success message in session
+                Session["NotificationMessage"] = "✅ Fire extinguisher updated successfully!";
                 
-                // Hide the edit panel
-                ScriptManager.RegisterStartupScript(this, GetType(), "hideEditPanel", 
-                    "hideEditPanel();", true);
-                
-                // Show success notification
-                ScriptManager.RegisterStartupScript(this, GetType(), "saveSuccess", 
-                    "showNotification('✅ Fire extinguisher updated successfully!');", true);
+                // Redirect to the same page to avoid resubmission warning
+                Response.Redirect(Request.Url.PathAndQuery, false);
+                Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
             {
