@@ -268,6 +268,12 @@ namespace FETS.Pages.ViewSection
         {
             ddlFilterPlant.SelectedIndex = 0;
             LoadDropDownLists();
+            
+            // Initialize Level dropdown with default "All Levels" option
+            ddlFilterLevel.Items.Clear();
+            ddlFilterLevel.Items.Add(new ListItem("-- All Levels --", ""));
+            
+            // Now we can safely set the selected index
             ddlFilterLevel.SelectedIndex = 0;
             ddlFilterStatus.SelectedIndex = 0;
             txtSearch.Text = string.Empty;
