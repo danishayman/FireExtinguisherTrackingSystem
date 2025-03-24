@@ -143,13 +143,14 @@
         /* Grid styling */
         .user-management {
             margin-top: 30px;
+            overflow-x: auto;
         }
 
         .grid-view {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
             margin-top: 20px;
+            min-width: 800px;
         }
 
         .grid-header th {
@@ -159,6 +160,7 @@
             padding: 12px;
             text-align: center;
             border: 1px solid #dee2e6;
+            white-space: nowrap;
         }
 
         .grid-row td, .grid-row-alt td {
@@ -166,6 +168,7 @@
             border: 1px solid #dee2e6;
             text-align: center;
             vertical-align: middle;
+            white-space: nowrap;
         }
 
         .grid-row-alt {
@@ -181,11 +184,12 @@
             display: flex;
             gap: 20px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .form-col {
             flex: 1;
-            min-width: 0;
+            min-width: 250px;
         }
 
         /* Responsive styles */
@@ -194,6 +198,7 @@
                 min-width: auto;
                 width: 100%;
                 padding: 20px;
+                overflow-x: hidden;
             }
 
             .form-row {
@@ -203,9 +208,33 @@
 
             .form-col {
                 width: 100%;
+                min-width: 100%;
+            }
+
+            .btn-section {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .btn-section .btn {
+                width: 100%;
+                margin-bottom: 10px;
             }
         }
-        
+
+        /* Action buttons container */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons .btn {
+            margin: 2px;
+            white-space: nowrap;
+        }
+
         /* Status styles */
         .status-active {
             color: #28a745;
@@ -515,26 +544,23 @@
                         </asp:TemplateField>
                         <asp:TemplateField HeaderText="Actions">
                             <ItemTemplate>
-                                <div style="display: flex; justify-content: center; gap: 5px;">
+                                <div class="action-buttons">
                                     <asp:LinkButton ID="btnEdit" runat="server" 
                                         CommandName="EditRecipient" 
                                         CommandArgument='<%# Eval("RecipientID") %>'
-                                        CssClass="btn btn-primary"
-                                        style="font-size: 0.8rem; padding: 3px 8px;">
+                                        CssClass="btn btn-primary">
                                         Edit
                                     </asp:LinkButton>
                                     <asp:LinkButton ID="btnToggle" runat="server" 
                                         CommandName="ToggleStatus" 
                                         CommandArgument='<%# Eval("RecipientID") %>'
-                                        CssClass='<%# Convert.ToBoolean(Eval("IsActive")) ? "btn btn-warning" : "btn btn-success" %>'
-                                        style="font-size: 0.8rem; padding: 3px 8px;">
+                                        CssClass='<%# Convert.ToBoolean(Eval("IsActive")) ? "btn btn-warning" : "btn btn-success" %>'>
                                         <%# Convert.ToBoolean(Eval("IsActive")) ? "Deactivate" : "Activate" %>
                                     </asp:LinkButton>
                                     <asp:LinkButton ID="btnDelete" runat="server" 
                                         CommandName="DeleteRecipient" 
                                         CommandArgument='<%# Eval("RecipientID") %>'
                                         CssClass="btn btn-danger"
-                                        style="font-size: 0.8rem; padding: 3px 8px;"
                                         OnClientClick="return confirm('Are you sure you want to delete this recipient?');">
                                         Delete
                                     </asp:LinkButton>
