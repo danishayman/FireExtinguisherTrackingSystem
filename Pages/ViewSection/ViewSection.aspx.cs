@@ -321,7 +321,6 @@ namespace FETS.Pages.ViewSection
                                 string type = reader["TypeName"].ToString();
 
                                 // Send email using the template
-                                string recipientEmail = "danishaiman3b@gmail.com"; // Replace with the recipient's email
                                 string subject = "Fire Extinguisher Sent for Service";
                                 string body = EmailTemplateManager.GetServiceEmailTemplate(
                                     serialNumber,
@@ -331,7 +330,7 @@ namespace FETS.Pages.ViewSection
                                     type
                                 );
 
-                                var (success, message) = EmailService.SendEmail(recipientEmail, subject, body);
+                                var (success, message) = EmailService.SendEmail("", subject, body, "Service");
 
                                 if (success)
                                 {
@@ -960,7 +959,7 @@ namespace FETS.Pages.ViewSection
 
             public class EmailService
         {
-            public static (bool Success, string Message) SendEmail(string recipient, string subject, string body)
+            public static (bool Success, string Message) SendEmail(string recipient, string subject, string body, string notificationType = "Service")
             {
                 try
                 {
@@ -982,7 +981,31 @@ namespace FETS.Pages.ViewSection
 
                     var message = new MimeMessage();
                     message.From.Add(new MailboxAddress("Sender Name", smtpHost.From));
-                    message.To.Add(new MailboxAddress("", recipient));
+                    
+                    // If a specific recipient is provided, use it
+                    if (!string.IsNullOrEmpty(recipient))
+                    {
+                        message.To.Add(new MailboxAddress("", recipient));
+                    }
+                    else
+                    {
+                        // Otherwise get recipients from the database
+                        List<EmailRecipient> recipients = GetEmailRecipientsFromDB(notificationType, "All");
+                        
+                        if (recipients.Count == 0)
+                        {
+                            // Fallback to default recipient if none found
+                            message.To.Add(new MailboxAddress("", "danishaiman3b@gmail.com"));
+                        }
+                        else
+                        {
+                            foreach (var emailRecipient in recipients)
+                            {
+                                message.To.Add(new MailboxAddress(emailRecipient.RecipientName, emailRecipient.EmailAddress));
+                            }
+                        }
+                    }
+                    
                     message.Subject = subject;
 
                     var bodyBuilder = new BodyBuilder { HtmlBody = body };
@@ -1028,18 +1051,113 @@ namespace FETS.Pages.ViewSection
                     return (false, $"Email Error: {ex.Message}");
                 }
             }
+            
+            private static List<EmailRecipient> GetEmailRecipientsFromDB(string notificationType, string fallbackType = null)
+            {
+                List<EmailRecipient> recipients = new List<EmailRecipient>();
+                string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+                
+                try
+                {
+                    using (SqlConnection conn = new SqlConnection(connectionString))
+                    {
+                        conn.Open();
+                        
+                        // First check if the EmailRecipients table exists
+                        bool tableExists = false;
+                        string checkTableQuery = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'EmailRecipients'";
+                        using (SqlCommand checkCmd = new SqlCommand(checkTableQuery, conn))
+                        {
+                            int tableCount = (int)checkCmd.ExecuteScalar();
+                            tableExists = (tableCount > 0);
+                        }
+                        
+                        if (!tableExists)
+                        {
+                            return recipients; // Return empty list to use fallback
+                        }
+                        
+                        // Query to get recipients for this notification type or "All" type
+                        string query = @"
+                            SELECT EmailAddress, RecipientName, NotificationType 
+                            FROM EmailRecipients 
+                            WHERE IsActive = 1 AND (NotificationType = @NotificationType OR NotificationType = 'All'";
+                        
+                        // Add fallback type if specified
+                        if (!string.IsNullOrEmpty(fallbackType) && fallbackType != notificationType)
+                        {
+                            query += " OR NotificationType = @FallbackType";
+                        }
+                        
+                        query += ") ORDER BY RecipientName";
+                        
+                        using (SqlCommand cmd = new SqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@NotificationType", notificationType);
+                            if (!string.IsNullOrEmpty(fallbackType) && fallbackType != notificationType)
+                            {
+                                cmd.Parameters.AddWithValue("@FallbackType", fallbackType);
+                            }
+                            
+                            using (SqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    recipients.Add(new EmailRecipient
+                                    {
+                                        EmailAddress = reader["EmailAddress"].ToString(),
+                                        RecipientName = reader["RecipientName"].ToString(),
+                                        NotificationType = reader["NotificationType"].ToString()
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error retrieving email recipients: {ex.Message}");
+                    // Return empty list to use fallback
+                }
+                
+                return recipients;
+            }
         }
-         protected void btnSendToService_Click(object sender, EventArgs e)
+        
+        // Email recipient class
+        public class EmailRecipient
+        {
+            public string EmailAddress { get; set; }
+            public string RecipientName { get; set; }
+            public string NotificationType { get; set; }
+        }
+
+        protected void btnSendToService_Click(object sender, EventArgs e)
         {
             LinkButton btn = (LinkButton)sender;
             string extinguisherId = btn.CommandArgument;
-            string recipientEmail = "danishaiman3b@gmail.com"; // Change dynamically if needed
 
-            // Get fire extinguisher details
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
+
+                // First update the status to "Under Service"
+                int underServiceStatusId;
+                using (SqlCommand cmd = new SqlCommand("SELECT StatusID FROM Status WHERE StatusName = 'Under Service'", conn))
+                {
+                    underServiceStatusId = (int)cmd.ExecuteScalar();
+                }
+
+                using (SqlCommand cmd = new SqlCommand(
+                    "UPDATE FireExtinguishers SET StatusID = @StatusID WHERE FEID = @FEID", conn))
+                {
+                    cmd.Parameters.AddWithValue("@StatusID", underServiceStatusId);
+                    cmd.Parameters.AddWithValue("@FEID", extinguisherId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Then get the updated fire extinguisher details
                 string query = @"   
                     SELECT 
                         fe.SerialNumber,
@@ -1047,11 +1165,13 @@ namespace FETS.Pages.ViewSection
                         l.LevelName,
                         fe.Location,
                         t.TypeName,
-                        fe.Remarks
+                        fe.Remarks,
+                        s.StatusName
                     FROM FireExtinguishers fe
                     INNER JOIN Plants p ON fe.PlantID = p.PlantID
                     INNER JOIN Levels l ON fe.LevelID = l.LevelID
                     INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                    INNER JOIN Status s ON fe.StatusID = s.StatusID
                     WHERE fe.FEID = @FEID";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
@@ -1067,8 +1187,9 @@ namespace FETS.Pages.ViewSection
                             string location = reader["Location"].ToString();
                             string type = reader["TypeName"].ToString();
                             string remarks = reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null;
+                            string status = reader["StatusName"].ToString();
 
-                            // Use the template manager to get the formatted email body
+                            // Now send the email with the updated details
                             string subject = $"Fire Extinguisher {serialNumber} Sent for Service";
                             string body = EmailTemplateManager.GetServiceEmailTemplate(
                                 serialNumber,
@@ -1079,7 +1200,7 @@ namespace FETS.Pages.ViewSection
                                 remarks
                             );
 
-                            var (success, message) = EmailService.SendEmail(recipientEmail, subject, body);
+                            var (success, message) = EmailService.SendEmail("", subject, body, "Service");
 
                             if (success)
                             {
@@ -1095,6 +1216,12 @@ namespace FETS.Pages.ViewSection
                     }
                 }
             }
+
+            // Refresh the page data
+            LoadMonitoringPanels();
+            LoadFireExtinguishers();
+            upMonitoring.Update();
+            upMainGrid.Update();
         }
 
         private void LoadServiceSelectionGrid()
@@ -1215,11 +1342,10 @@ namespace FETS.Pages.ViewSection
                 }
                 
                 // Send email with the professional template
-                string recipientEmail = "danishaiman3b@gmail.com";
                 string subject = $"{extinguisherDetails.Count} Fire Extinguishers Sent for Service";
                 string body = EmailTemplateManager.GetMultipleServiceEmailTemplate(extinguisherDetails);
 
-                var (success, message) = EmailService.SendEmail(recipientEmail, subject, body);
+                var (success, message) = EmailService.SendEmail("", subject, body, "Service");
 
                 if (success)
                 {
@@ -1748,8 +1874,6 @@ namespace FETS.Pages.ViewSection
                         // If we have any completed extinguishers, send the email
                         if (completedExtinguishers.Count > 0)
                         {
-                            // Get email recipient
-                            string recipientEmail = "danishaiman3b@gmail.com";
                             string subject = completedExtinguishers.Count == 1 
                                 ? $"Fire Extinguisher Service Completed - {completedExtinguishers[0].SerialNumber}"
                                 : $"{completedExtinguishers.Count} Fire Extinguishers Service Completed";
@@ -1783,7 +1907,7 @@ namespace FETS.Pages.ViewSection
                             try
                             {
                                 // Send the email
-                                var (success, emailMessage) = EmailService.SendEmail(recipientEmail, subject, emailBody);
+                                var (success, emailMessage) = EmailService.SendEmail("", subject, emailBody, "Service");
                                 if (!success)
                                 {
                                     // Log the email failure but continue with the transaction

@@ -266,7 +266,7 @@ namespace FETS.ExpiryNotifications
                     INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
                     INNER JOIN Status s ON fe.StatusID = s.StatusID
                     WHERE 
-                        (s.StatusName = 'Active' OR s.StatusName = 'Under Service' OR s.StatusName = 'Expiring Soon') AND
+                        (s.StatusName = 'Active' OR s.StatusName = 'Expiring Soon') AND
                         fe.DateExpired >= GETDATE() AND
                         fe.DateExpired <= DATEADD(day, 60, GETDATE())
                     ORDER BY DaysUntilExpiry ASC";
@@ -365,7 +365,23 @@ namespace FETS.ExpiryNotifications
 
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("Fire Extinguisher Tracking System", smtpSection.From));
-                message.To.Add(new MailboxAddress("", "danishaiman3b@gmail.com")); // Replace with actual recipient
+                
+                // Get recipients from the database instead of hardcoding
+                List<EmailRecipient> recipients = GetEmailRecipients(connectionString, "Expiry", "All");
+                
+                if (recipients.Count == 0)
+                {
+                    Console.WriteLine("No active recipients found for email notifications. Using fallback recipient.");
+                    message.To.Add(new MailboxAddress("", "danishaiman3b@gmail.com")); // Fallback recipient
+                }
+                else
+                {
+                    foreach (var recipient in recipients)
+                    {
+                        message.To.Add(new MailboxAddress(recipient.RecipientName, recipient.EmailAddress));
+                    }
+                }
+                
                 message.Subject = subject;
 
                 // Convert to FireExtinguisherExpiryInfo objects for the template
@@ -843,6 +859,7 @@ namespace FETS.ExpiryNotifications
             
             try
             {
+                var connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
                 var smtpSection = ConfigurationManager.GetSection("system.net/mailSettings/smtp") as System.Net.Configuration.SmtpSection;
                 if (smtpSection == null)
                 {
@@ -851,7 +868,23 @@ namespace FETS.ExpiryNotifications
                 
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("Fire Extinguisher Tracking System", smtpSection.From));
-                message.To.Add(new MailboxAddress("", "danishaiman3b@gmail.com")); // Replace with actual recipient
+                
+                // Get recipients from the database instead of hardcoding
+                List<EmailRecipient> recipients = GetEmailRecipients(connectionString, "Service", "All");
+                
+                if (recipients.Count == 0)
+                {
+                    Console.WriteLine("No active recipients found for service reminders. Using fallback recipient.");
+                    message.To.Add(new MailboxAddress("", "danishaiman3b@gmail.com")); // Fallback recipient
+                }
+                else
+                {
+                    foreach (var recipient in recipients)
+                    {
+                        message.To.Add(new MailboxAddress(recipient.RecipientName, recipient.EmailAddress));
+                    }
+                }
+                
                 message.Subject = "Fire Extinguisher Service Follow-up Reminder";
                 
                 string body;
@@ -1083,6 +1116,80 @@ namespace FETS.ExpiryNotifications
                 </body>
                 </html>";
         }
+
+        /// <summary>
+        /// Gets active email recipients for the specified notification type from the database
+        /// </summary>
+        private static List<EmailRecipient> GetEmailRecipients(string connectionString, string notificationType, string fallbackType = null)
+        {
+            List<EmailRecipient> recipients = new List<EmailRecipient>();
+            
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    
+                    // First check if the EmailRecipients table exists
+                    bool tableExists = false;
+                    string checkTableQuery = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'EmailRecipients'";
+                    using (SqlCommand checkCmd = new SqlCommand(checkTableQuery, conn))
+                    {
+                        int tableCount = (int)checkCmd.ExecuteScalar();
+                        tableExists = (tableCount > 0);
+                    }
+                    
+                    if (!tableExists)
+                    {
+                        Console.WriteLine("EmailRecipients table does not exist. Using fallback recipient.");
+                        return recipients; // Return empty list to use fallback
+                    }
+                    
+                    // Query to get recipients for this notification type or "All" type
+                    string query = @"
+                        SELECT EmailAddress, RecipientName, NotificationType 
+                        FROM EmailRecipients 
+                        WHERE IsActive = 1 AND (NotificationType = @NotificationType OR NotificationType = 'All'";
+                    
+                    // Add fallback type if specified
+                    if (!string.IsNullOrEmpty(fallbackType) && fallbackType != notificationType)
+                    {
+                        query += " OR NotificationType = @FallbackType";
+                    }
+                    
+                    query += ") ORDER BY RecipientName";
+                    
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@NotificationType", notificationType);
+                        if (!string.IsNullOrEmpty(fallbackType) && fallbackType != notificationType)
+                        {
+                            cmd.Parameters.AddWithValue("@FallbackType", fallbackType);
+                        }
+                        
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                recipients.Add(new EmailRecipient
+                                {
+                                    EmailAddress = reader["EmailAddress"].ToString(),
+                                    RecipientName = reader["RecipientName"].ToString(),
+                                    NotificationType = reader["NotificationType"].ToString()
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error retrieving email recipients: {ex.Message}");
+                // Return empty list to use fallback
+            }
+            
+            return recipients;
+        }
     }
 
     public class FireExtinguisher
@@ -1124,5 +1231,15 @@ namespace FETS.ExpiryNotifications
         public DateTime ServiceDate { get; set; }
         public DateTime ExpiryDate { get; set; }
         public int ReminderID { get; set; }
+    }
+
+    /// <summary>
+    /// Data class to hold email recipient information
+    /// </summary>
+    public class EmailRecipient
+    {
+        public string EmailAddress { get; set; }
+        public string RecipientName { get; set; }
+        public string NotificationType { get; set; }
     }
 }

@@ -205,6 +205,72 @@
                 width: 100%;
             }
         }
+        
+        /* Status styles */
+        .status-active {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .status-inactive {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        
+        /* Button styles */
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 1rem;
+            min-width: 120px;
+            height: auto;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-right: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+            border: none;
+            padding: 4px 8px;
+            font-size: 0.875rem;
+            min-width: 80px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            font-size: 0.875rem;
+            min-width: 80px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
     </style>
 </asp:Content>
 
@@ -352,6 +418,127 @@
                                     Visible='<%# Eval("Username").ToString() != "admin" %>'>
                                     Delete
                                 </asp:LinkButton>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+                </asp:GridView>
+            </div>
+        </asp:Panel>
+
+        <!-- Email Recipients Management Section (Only visible to administrators) -->
+        <asp:Panel ID="pnlEmailRecipients" runat="server" CssClass="profile-section" Visible="false">
+            <h4 class="section-title">Email Recipients Management</h4>
+            
+            <!-- Add New Email Recipient Form -->
+            <asp:HiddenField ID="hdnRecipientID" runat="server" />
+            
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <asp:Label runat="server" AssociatedControlID="txtEmailAddress">Email Address:</asp:Label>
+                        <asp:TextBox ID="txtEmailAddress" runat="server" CssClass="form-control"></asp:TextBox>
+                        <asp:RequiredFieldValidator ID="rfvEmailAddress" runat="server"
+                            ControlToValidate="txtEmailAddress"
+                            ErrorMessage="Email address is required"
+                            CssClass="validation-error"
+                            Display="Dynamic"
+                            ValidationGroup="AddRecipient">
+                        </asp:RequiredFieldValidator>
+                        <asp:RegularExpressionValidator ID="revEmailAddress" runat="server"
+                            ControlToValidate="txtEmailAddress"
+                            ErrorMessage="Please enter a valid email address"
+                            CssClass="validation-error"
+                            Display="Dynamic"
+                            ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"
+                            ValidationGroup="AddRecipient">
+                        </asp:RegularExpressionValidator>
+                    </div>
+                </div>
+                <div class="form-col">
+                    <div class="form-group">
+                        <asp:Label runat="server" AssociatedControlID="txtRecipientName">Recipient Name:</asp:Label>
+                        <asp:TextBox ID="txtRecipientName" runat="server" CssClass="form-control"></asp:TextBox>
+                        <asp:RequiredFieldValidator ID="rfvRecipientName" runat="server"
+                            ControlToValidate="txtRecipientName"
+                            ErrorMessage="Recipient name is required"
+                            CssClass="validation-error"
+                            Display="Dynamic"
+                            ValidationGroup="AddRecipient">
+                        </asp:RequiredFieldValidator>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <div class="form-group">
+                        <asp:Label runat="server" AssociatedControlID="ddlNotificationType">Notification Type:</asp:Label>
+                        <asp:DropDownList ID="ddlNotificationType" runat="server" CssClass="form-control">
+                            <asp:ListItem Text="All Notifications" Value="All" />
+                            <asp:ListItem Text="Expiry Notifications Only" Value="Expiry" />
+                            <asp:ListItem Text="Service Reminders Only" Value="Service" />
+                        </asp:DropDownList>
+                    </div>
+                </div>
+                <div class="form-col">
+                    <!-- Empty column for alignment -->
+                </div>
+            </div>
+
+            <div class="btn-section">
+                <asp:Button ID="btnCancelEdit" runat="server" Text="Cancel" OnClick="btnCancelEdit_Click" CssClass="btn btn-secondary" Visible="false" />
+                <asp:Button ID="btnUpdateRecipient" runat="server" Text="Update Recipient" OnClick="btnUpdateRecipient_Click" CssClass="btn btn-primary" ValidationGroup="AddRecipient" Visible="false" />
+                <asp:Button ID="btnAddRecipient" runat="server" Text="Add Recipient" OnClick="btnAddRecipient_Click" CssClass="btn btn-primary" ValidationGroup="AddRecipient" />
+            </div>
+
+            <!-- Email Recipients Grid -->
+            <div class="user-management">
+                <h4 class="section-title">Existing Email Recipients</h4>
+                <asp:GridView ID="gvEmailRecipients" runat="server" 
+                    AutoGenerateColumns="False" 
+                    CssClass="grid-view"
+                    OnRowCommand="gvEmailRecipients_RowCommand"
+                    HeaderStyle-CssClass="grid-header"
+                    RowStyle-CssClass="grid-row"
+                    AlternatingRowStyle-CssClass="grid-row-alt">
+                    <Columns>
+                        <asp:BoundField DataField="EmailAddress" HeaderText="Email Address" />
+                        <asp:BoundField DataField="RecipientName" HeaderText="Recipient Name" />
+                        <asp:BoundField DataField="NotificationType" HeaderText="Notification Type" />
+                        <asp:TemplateField HeaderText="Status">
+                            <ItemTemplate>
+                                <asp:Label ID="lblStatus" runat="server" 
+                                    Text='<%# Convert.ToBoolean(Eval("IsActive")) ? "Active" : "Inactive" %>'
+                                    CssClass='<%# Convert.ToBoolean(Eval("IsActive")) ? "status-active" : "status-inactive" %>'>
+                                </asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="Actions">
+                            <ItemTemplate>
+                                <div style="display: flex; justify-content: center; gap: 5px;">
+                                    <asp:LinkButton ID="btnEdit" runat="server" 
+                                        CommandName="EditRecipient" 
+                                        CommandArgument='<%# Eval("RecipientID") %>'
+                                        CssClass="btn btn-primary"
+                                        style="font-size: 0.8rem; padding: 3px 8px;">
+                                        Edit
+                                    </asp:LinkButton>
+                                    <asp:LinkButton ID="btnToggle" runat="server" 
+                                        CommandName="ToggleStatus" 
+                                        CommandArgument='<%# Eval("RecipientID") %>'
+                                        CssClass='<%# Convert.ToBoolean(Eval("IsActive")) ? "btn btn-warning" : "btn btn-success" %>'
+                                        style="font-size: 0.8rem; padding: 3px 8px;">
+                                        <%# Convert.ToBoolean(Eval("IsActive")) ? "Deactivate" : "Activate" %>
+                                    </asp:LinkButton>
+                                    <asp:LinkButton ID="btnDelete" runat="server" 
+                                        CommandName="DeleteRecipient" 
+                                        CommandArgument='<%# Eval("RecipientID") %>'
+                                        CssClass="btn btn-danger"
+                                        style="font-size: 0.8rem; padding: 3px 8px;"
+                                        OnClientClick="return confirm('Are you sure you want to delete this recipient?');">
+                                        Delete
+                                    </asp:LinkButton>
+                                </div>
                             </ItemTemplate>
                         </asp:TemplateField>
                     </Columns>
