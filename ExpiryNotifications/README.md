@@ -15,19 +15,22 @@ This console application sends automated email notifications for fire extinguish
 ## Configuration
 
 Configuration is stored in the `App.config` file:
+Lines that are needed to be change will be tagged
 
 ```xml
 <configuration>
   <appSettings>
-    <add key="EmailRecipient" value="danishaiman3b@gmail.com" />
+    <add key="EmailRecipient" value="danishaiman3b@gmail.com" />  -->default recipient email
   </appSettings>
   <connectionStrings>
-    <add name="FETSConnection" connectionString="Data Source=localhost;Initial Catalog=FETS;User ID=danishaiman;Password=12345;Connection Timeout=30" providerName="System.Data.SqlClient" />
+    <add name="FETSConnection" connectionString="Data Source=localhost;Initial Catalog=FETS;User ID=danishaiman;Password=12345;Connection   Timeout=30" providerName="System.Data.SqlClient" />         --> alter based on DB credentials
   </connectionStrings>
   <system.net>
     <mailSettings>
       <smtp from="sender@example.com">
         <network host="smtp.gmail.com" port="587" userName="youremail@gmail.com" password="your-app-password" enableSsl="true" />
+        ^fill in with credentials for the account responsible for pushing email
+        --app passwords can be retrieved buy enabling 2FA and activating them on the account
       </smtp>
     </mailSettings>
   </system.net>
@@ -36,13 +39,13 @@ Configuration is stored in the `App.config` file:
 
 ## Usage
 
-### Running Manually
+### Running Manually[IN cmd or manually]
 
 ```
 ExpiryNotifications.exe
 ```
 
-### Testing Mode
+### Testing Mode[TEST]
 
 Run with test data instead of accessing the database:
 
@@ -60,6 +63,7 @@ ExpiryNotifications.exe --test --scenario critical
 
 ## Scheduling as a Task
 
+This is for setting up for the ExpiryChecker to check the expiry daily.
 ### Windows Task Scheduler Setup
 
 1. Open Task Scheduler
@@ -94,6 +98,7 @@ CREATE TABLE ServiceReminders (
 ```
 
 If this table is not found, the application will fall back to using the `DateServiced` column in the `FireExtinguishers` table.
+-THIS TABLE IS NOT NEEDED FOR IT TO RUN
 
 ## Service Follow-up Process
 
