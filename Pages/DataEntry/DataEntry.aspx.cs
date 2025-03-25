@@ -10,9 +10,9 @@ namespace FETS.Pages.DataEntry
 {
     public partial class DataEntry : System.Web.UI.Page
     {
-
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Redirect unauthenticated users to login page
             if (!User.Identity.IsAuthenticated)
             {
                 Response.Redirect("~/Default.aspx");
@@ -22,18 +22,21 @@ namespace FETS.Pages.DataEntry
             if (!IsPostBack)
             {
                 LoadDropDownLists();
-                ddlLevel.Enabled = false;
+                ddlLevel.Enabled = false; // Level dropdown is initially disabled until a plant is selected
 
-                // Check for success message in session
+                // Display any success messages from previous operations
                 if (Session["SuccessMessage"] != null)
                 {
                     lblMessage.Text = Session["SuccessMessage"].ToString();
                     lblMessage.CssClass = "message success";
-                    Session["SuccessMessage"] = null; // Clear the message
+                    Session["SuccessMessage"] = null;
                 }
             }
         }
 
+        /// <summary>
+        /// Loads Plants and Fire Extinguisher Types into their respective dropdowns
+        /// </summary>
         private void LoadDropDownLists()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -41,7 +44,7 @@ namespace FETS.Pages.DataEntry
             {
                 conn.Open();
 
-                // Load Plants
+                // Load Plants dropdown
                 using (SqlCommand cmd = new SqlCommand("SELECT PlantID, PlantName FROM Plants ORDER BY PlantName", conn))
                 {
                     ddlPlant.Items.Clear();
@@ -58,7 +61,7 @@ namespace FETS.Pages.DataEntry
                     }
                 }
 
-                // Load Fire Extinguisher Types
+                // Load Fire Extinguisher Types dropdown
                 using (SqlCommand cmd = new SqlCommand("SELECT TypeID, TypeName FROM FireExtinguisherTypes ORDER BY TypeName", conn))
                 {
                     ddlType.Items.Clear();
@@ -77,6 +80,12 @@ namespace FETS.Pages.DataEntry
             }
         }
 
+        /// <summary>
+        /// Determines the status ID based on the extinguisher's expiry date
+        /// </summary>
+        /// <param name="expiryDate">The extinguisher's expiry date</param>
+        /// <param name="conn">An open SQL connection</param>
+        /// <returns>Status ID from the database</returns>
         private int GetStatusIdBasedOnExpiryDate(DateTime expiryDate, SqlConnection conn)
         {
             try
@@ -85,12 +94,12 @@ namespace FETS.Pages.DataEntry
                 DateTime today = DateTime.Now.Date;
                 TimeSpan timeUntilExpiry = expiryDate.Date - today;
 
-                // Determine status based on expiry date
+                // Determine status based on time until expiry
                 if (expiryDate.Date < today)
                 {
                     statusName = "Expired";
                 }
-                else if (timeUntilExpiry.TotalDays <= 60) // Less than or equal to 2 months
+                else if (timeUntilExpiry.TotalDays <= 60) // Within 2 months of expiry
                 {
                     statusName = "Expiring Soon";
                 }
@@ -115,7 +124,7 @@ namespace FETS.Pages.DataEntry
                         return statusId;
                     }
 
-                    // If status not found, log available statuses
+                    // Log available statuses for debugging
                     using (SqlCommand debugCmd = new SqlCommand(
                         "SELECT StatusID, StatusName FROM Status WITH (NOLOCK)", conn))
                     {
@@ -139,6 +148,9 @@ namespace FETS.Pages.DataEntry
             }
         }
 
+        /// <summary>
+        /// Populates the Level dropdown when a plant is selected
+        /// </summary>
         protected void ddlPlant_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(ddlPlant.SelectedValue))
@@ -148,7 +160,7 @@ namespace FETS.Pages.DataEntry
                 ddlLevel.Enabled = false;
                 return;
             }
-            // Plant is selected, enable the Level dropdown
+            
             ddlLevel.Enabled = true;
 
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -156,7 +168,7 @@ namespace FETS.Pages.DataEntry
             {
                 conn.Open();
 
-                // Load Levels for selected Plant
+                // Load levels for selected plant
                 using (SqlCommand cmd = new SqlCommand("SELECT LevelID, LevelName FROM Levels WHERE PlantID = @PlantID ORDER BY LevelName", conn))
                 {
                     cmd.Parameters.AddWithValue("@PlantID", ddlPlant.SelectedValue);
@@ -176,15 +188,17 @@ namespace FETS.Pages.DataEntry
             }
         }
 
+        /// <summary>
+        /// Handles the initial submission and shows the confirmation dialog
+        /// </summary>
         protected void btnSubmit_Click(object sender, EventArgs e)
         {
-            // Validate form
             if(!Page.IsValid)
             {
                 return;
             }
 
-            //Validate dropdown selections
+            // Validate dropdown selections
             int plantId, levelId, typeId;
             if (!int.TryParse(ddlPlant.SelectedValue, out plantId) ||
                 !int.TryParse(ddlLevel.SelectedValue, out levelId) ||
@@ -195,7 +209,7 @@ namespace FETS.Pages.DataEntry
                 return;
             }
 
-            //Check if serial number already exists
+            // Check if serial number is unique
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -214,6 +228,7 @@ namespace FETS.Pages.DataEntry
                 }
             }
 
+            // Populate confirmation dialog fields
             lblConfirmSerialNumber.Text = txtSerialNumber.Text.Trim();
             lblConfirmPlant.Text = ddlPlant.SelectedItem.Text;
             lblConfirmLevel.Text = ddlLevel.SelectedItem.Text;
@@ -234,7 +249,9 @@ namespace FETS.Pages.DataEntry
             ScriptManager.RegisterStartupScript(this, this.GetType(), "Pop", "showConfirmationPopup();", true);
         }
 
-        // Confirm Button
+        /// <summary>
+        /// Saves the new fire extinguisher to the database after confirmation
+        /// </summary>
         protected void btnConfirm_Click(object sender, EventArgs e)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -247,7 +264,7 @@ namespace FETS.Pages.DataEntry
                     DateTime expiryDate = DateTime.Parse(txtExpiryDate.Text);
                     int statusId = GetStatusIdBasedOnExpiryDate(expiryDate, conn);
 
-                    // Validate dropdown selections
+                    // Final validation of dropdown selections
                     int plantId, levelId, typeId;
                     if (!int.TryParse(ddlPlant.SelectedValue, out plantId) ||
                         !int.TryParse(ddlLevel.SelectedValue, out levelId) ||
@@ -258,7 +275,7 @@ namespace FETS.Pages.DataEntry
                         return;
                     }
 
-                    // Insert new fire extinguisher
+                    // Insert new fire extinguisher record
                     string insertQuery = "INSERT INTO FireExtinguishers (SerialNumber, PlantID, LevelID, Location, TypeID, DateExpired, Remarks, StatusID) VALUES (@SerialNumber, @PlantID, @LevelID, @Location, @TypeID, @DateExpired, @Remarks, @StatusID)";
                     using (SqlCommand cmd = new SqlCommand(insertQuery, conn))
                     {
@@ -272,11 +289,8 @@ namespace FETS.Pages.DataEntry
                         cmd.Parameters.AddWithValue("@StatusID", statusId);
                         cmd.ExecuteNonQuery();
 
-
-                        // Store message in session before redirect
+                        // Store success message and redirect to prevent form resubmission
                         Session["SuccessMessage"] = "Fire extinguisher added successfully.";
-
-                        // Redirect to prevent form resubmission on refresh
                         Response.Redirect(Request.Url.PathAndQuery, false);
                     }
                 }
@@ -297,6 +311,10 @@ namespace FETS.Pages.DataEntry
                 }
             }
         }
+
+        /// <summary>
+        /// Resets all form fields to their default values
+        /// </summary>
         private void ClearForm()
         {
             txtSerialNumber.Text = "";
@@ -309,18 +327,18 @@ namespace FETS.Pages.DataEntry
             ddlType.SelectedIndex = 0;
         }
 
+        /// <summary>
+        /// Validates that the expiry date is not in the past
+        /// </summary>
         protected void cvExpiryDate_ServerValidate(object source, ServerValidateEventArgs args)
         {
             DateTime enteredDate;
-            if (DateTime.TryParse(args.Value, out enteredDate)){
-                //Compare with today's date (without time component)
+            if (DateTime.TryParse(args.Value, out enteredDate)) {
                 args.IsValid = enteredDate.Date >= DateTime.Now.Date;
             }
-
-            else{
-                //If date format is invalid, let the other validator handle it
+            else {
                 args.IsValid = false;
             }
         }
     }
-} 
+}
