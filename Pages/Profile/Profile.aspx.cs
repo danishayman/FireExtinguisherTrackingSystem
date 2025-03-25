@@ -12,6 +12,7 @@ namespace FETS.Pages.Profile
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Redirect unauthenticated users to the login page
             if (!User.Identity.IsAuthenticated)
             {
                 Response.Redirect("~/Default.aspx");
@@ -28,7 +29,10 @@ namespace FETS.Pages.Profile
                 }
             }
         }
-//test saja
+
+        /// <summary>
+        /// Checks if the current user has administrator privileges and shows/hides admin panels accordingly
+        /// </summary>
         private void CheckAdminAccess()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -45,6 +49,9 @@ namespace FETS.Pages.Profile
             }
         }
 
+        /// <summary>
+        /// Loads all users from the database and binds them to the users grid view
+        /// </summary>
         private void LoadUsers()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -64,6 +71,9 @@ namespace FETS.Pages.Profile
             }
         }
 
+        /// <summary>
+        /// Handles the add user button click event to create a new user in the system
+        /// </summary>
         protected void btnAddUser_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid)
@@ -106,6 +116,9 @@ namespace FETS.Pages.Profile
             LoadUsers();
         }
 
+        /// <summary>
+        /// Handles row commands in the users grid view
+        /// </summary>
         protected void gvUsers_RowCommand(object sender, System.Web.UI.WebControls.GridViewCommandEventArgs e)
         {
             if (e.CommandName == "DeleteUser")
@@ -115,6 +128,9 @@ namespace FETS.Pages.Profile
             }
         }
 
+        /// <summary>
+        /// Deletes a user from the database by user ID
+        /// </summary>
         private void DeleteUser(int userId)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -132,6 +148,9 @@ namespace FETS.Pages.Profile
             LoadUsers();
         }
 
+        /// <summary>
+        /// Clears the new user form fields
+        /// </summary>
         private void ClearNewUserForm()
         {
             txtNewUsername.Text = string.Empty;
@@ -139,7 +158,9 @@ namespace FETS.Pages.Profile
             ddlRole.SelectedIndex = 0;
         }
         
-        // Email Recipients Methods
+        /// <summary>
+        /// Loads all email recipients from the database and creates the table if it doesn't exist
+        /// </summary>
         private void LoadEmailRecipients()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -189,6 +210,9 @@ namespace FETS.Pages.Profile
             }
         }
         
+        /// <summary>
+        /// Adds a new email recipient to the database
+        /// </summary>
         protected void btnAddRecipient_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid)
@@ -231,6 +255,9 @@ namespace FETS.Pages.Profile
             LoadEmailRecipients();
         }
         
+        /// <summary>
+        /// Clears the recipient form fields
+        /// </summary>
         private void ClearRecipientForm()
         {
             txtEmailAddress.Text = string.Empty;
@@ -238,6 +265,9 @@ namespace FETS.Pages.Profile
             ddlNotificationType.SelectedIndex = 0;
         }
         
+        /// <summary>
+        /// Handles row commands in the email recipients grid view
+        /// </summary>
         protected void gvEmailRecipients_RowCommand(object sender, System.Web.UI.WebControls.GridViewCommandEventArgs e)
         {
             if (e.CommandName == "DeleteRecipient")
@@ -257,6 +287,9 @@ namespace FETS.Pages.Profile
             }
         }
         
+        /// <summary>
+        /// Deletes an email recipient from the database
+        /// </summary>
         private void DeleteRecipient(int recipientId)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -274,6 +307,9 @@ namespace FETS.Pages.Profile
             LoadEmailRecipients();
         }
         
+        /// <summary>
+        /// Loads a recipient's data for editing
+        /// </summary>
         private void LoadRecipientForEdit(int recipientId)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -301,6 +337,9 @@ namespace FETS.Pages.Profile
             }
         }
         
+        /// <summary>
+        /// Updates an existing email recipient
+        /// </summary>
         protected void btnUpdateRecipient_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid)
@@ -349,6 +388,9 @@ namespace FETS.Pages.Profile
             LoadEmailRecipients();
         }
         
+        /// <summary>
+        /// Cancels the current recipient edit operation
+        /// </summary>
         protected void btnCancelEdit_Click(object sender, EventArgs e)
         {
             ClearRecipientForm();
@@ -357,15 +399,17 @@ namespace FETS.Pages.Profile
             btnCancelEdit.Visible = false;
         }
         
+        /// <summary>
+        /// Toggles the active status of an email recipient (enabled/disabled)
+        /// </summary>
         private void ToggleRecipientStatus(int recipientId)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                // Get current status and toggle it
-                string toggleQuery = "UPDATE EmailRecipients SET IsActive = CASE WHEN IsActive = 1 THEN 0 ELSE 1 END WHERE RecipientID = @RecipientID";
-                using (SqlCommand cmd = new SqlCommand(toggleQuery, conn))
+                using (SqlCommand cmd = new SqlCommand(
+                    "UPDATE EmailRecipients SET IsActive = CASE WHEN IsActive = 1 THEN 0 ELSE 1 END WHERE RecipientID = @RecipientID", conn))
                 {
                     cmd.Parameters.AddWithValue("@RecipientID", recipientId);
                     cmd.ExecuteNonQuery();
@@ -376,6 +420,9 @@ namespace FETS.Pages.Profile
             LoadEmailRecipients();
         }
 
+        /// <summary>
+        /// Handles password change for the currently logged in user
+        /// </summary>
         protected void btnChangePassword_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid)
@@ -419,6 +466,9 @@ namespace FETS.Pages.Profile
             ClearPasswordForm();
         }
 
+        /// <summary>
+        /// Displays a message to the user with appropriate styling
+        /// </summary>
         private void ShowMessage(string message, bool isSuccess)
         {
             lblMessage.Text = message;
@@ -426,6 +476,9 @@ namespace FETS.Pages.Profile
             lblMessage.Visible = true;
         }
 
+        /// <summary>
+        /// Clears the password change form fields
+        /// </summary>
         private void ClearPasswordForm()
         {
             txtCurrentPassword.Text = string.Empty;
@@ -433,4 +486,4 @@ namespace FETS.Pages.Profile
             txtConfirmPassword.Text = string.Empty;
         }
     }
-} 
+}
