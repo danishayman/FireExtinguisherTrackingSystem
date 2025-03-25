@@ -44,30 +44,22 @@ The Fire Extinguisher Tracking System (FETS) is a comprehensive web-based soluti
 ## 🚀 Installation & Setup
 
 ### 1. Database Setup
-```batch
-# Run the database setup script
-setup_service_reminders.bat
-```
+(Mainly this method is for users running for localhost)
+Open the specified SQL studio, run the query in DATABASE folder.
+DB_UPDATES file is optional.
 
 ### 2. Environment Configuration
-Create a `.env` file with the following configurations:
-```env
-# Database Configuration
-DB_SERVER=your_server
-DB_NAME=FETS
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
+ALL env config can be setup in the App.Config and Web.config
+replace all the email credentials and connection string with proper info.
 
-# Email Configuration
-SMTP_HOST=your_smtp_host
-SMTP_PORT=587
-SMTP_USERNAME=your_email
-SMTP_PASSWORD=your_password
-SMTP_ENABLE_SSL=true
-```
+THINGS THAT NEED REPLACING:-
+FETS connection string
+mailSettings
+--app passwords from--> Enable 2FA, search app passwords, create, paste in config file
+
 
 ### 3. Application Setup
-1. Clone the repository
+1. Clone the repository(Github)
 2. Open `FireExtinguisherTrackingSystem.sln` in Visual Studio
 3. Restore NuGet packages
 4. Build the solution
@@ -89,72 +81,73 @@ ExpiryNotifications.exe --test --scenario service
 ## 📁 Project Structure
 ```
 📦 FireExtinguisherTrackingSystem
-
-├─ App_Code
-│  └─ EmailTemplateManager.cs
-├─ Assets
-│  └─ css
-│     └─ styles.css
-├─ DB_Updates.sql
-Default.aspx
-├─ Default.aspx.cs
-├─ Default.aspx.designer.cs
-EmailTemplates
-│  ├─ ExpiryEmailTemplate.html
-│  └─ ServiceEmailTemplate.html
-├─ ExpiryNotifications
-│  ├─ App.config
-EmailTemplates
-│  │  ├─ ExpiryEmailTemplate.html
-│  │  └─ ServiceReminderTemplate.html
-│  ├─ ExpiryNotifications.csproj
-│  ├─ Program.c
-│  ├─ README.md
-│  ├─ RunTests.bat
-SetupScheduledTask.bat
-│  ├─ TESTING.md
-│  └─ packages.config
-├─ FETS.csproj
-FETS.csproj.user
-FireExtinguisherTrackingSystem.sln
-Pages
-│  ├─ Dashboard
-│  │  ├─ Dashboard.aspx
-Dashboard.aspx.cs
-│  │  └─ Dashboard.aspx.designer.cs
-│  ├─ DataEntry
-│  │  ├─ DataEntry.aspx
-DataEntry.aspx.cs
-│  │  └─ DataEntry.aspx.designer.cs
-│  ├─ MapLayout
-│  │  ├─ MapLayout.aspx
-MapLayout.aspx.cs
-MapLayout.aspx.designer.cs
-ViewMap.aspx
-ViewMap.aspx.cs
-│  │  └─ ViewMap.aspx.designer.cs
-│  ├─ Profile
-│  │  ├─ Profile.aspx
-Profile.aspx.cs
-│  │  └─ Profile.aspx.designer.cs
-│  └─ ViewSection
-│     ├─ ViewSection.aspx
-│     ├─ ViewSection.aspx.cs
-│     └─ ViewSection.aspx.designer.│ 
-├─ README.md
-├─ ServiceReminderImplementation.md
-├─ Site.Master
-├─ Site.Master.cs
-├─ Site.Master.designer.cs
-├─ Uploads
-│  └─ misc
-│     ├─ front-gate.jpg
-│     ├─ logo.jpeg
-│     └─ warning.png
-├─ Web.config
-├─ packages.config
-├─ packages
-└─ setup_service_reminders.bat
+├─ App_Code
+│  └─ EmailTemplateManager.cs
+├─ Assets
+│  └─ css
+│     └─ styles.css
+├─ DATABASE
+│  ├─ DB_Schema.sql
+│  └─ DB_Updates.sql
+├─ Default.aspx
+├─ Default.aspx.cs
+├─ Default.aspx.designer.cs
+├─ ExpiryNotifications
+│  ├─ App.config
+│  ├─ EmailTemplates
+│  │  ├─ ExpiryEmailTemplate.html
+│  │  ├─ ServiceEmailTemplate.html
+│  │  └─ ServiceReminderTemplate.html
+│  ├─ ExpiryNotifications.csproj
+│  ├─ Program.cs
+│  ├─ README.md
+│  ├─ RunTests.bat
+│  ├─ SetupScheduledTask.bat
+│  └─ packages.config
+├─ FETS.Common
+│  └─ Properties
+├─ FETS.csproj
+├─ FETS.csproj.user
+├─ FireExtinguisherTrackingSystem.sln
+├─ Pages
+│  ├─ Dashboard
+│  │  ├─ Dashboard.aspx
+│  │  ├─ Dashboard.aspx.cs
+│  │  └─ Dashboard.aspx.designer.cs
+│  ├─ DataEntry
+│  │  ├─ DataEntry.aspx
+│  │  ├─ DataEntry.aspx.cs
+│  │  └─ DataEntry.aspx.designer.cs
+│  ├─ MapLayout
+│  │  ├─ MapLayout.aspx
+│  │  ├─ MapLayout.aspx.cs
+│  │  ├─ MapLayout.aspx.designer.cs
+│  │  ├─ ViewMap.aspx
+│  │  ├─ ViewMap.aspx.cs
+│  │  └─ ViewMap.aspx.designer.cs
+│  ├─ Profile
+│  │  ├─ Profile.aspx
+│  │  ├─ Profile.aspx.cs
+│  │  └─ Profile.aspx.designer.cs
+│  └─ ViewSection
+│     ├─ ViewSection.aspx
+│     ├─ ViewSection.aspx.cs
+│     └─ ViewSection.aspx.designer.cs
+├─ README.md
+├─ Scripts
+│  └─ jquery-3.7.1.min.js
+├─ ServiceReminderImplementation.md
+├─ Site.Master
+├─ Site.Master.cs
+├─ Site.Master.designer.cs
+├─ Uploads
+│  └─ misc
+│     ├─ front-gate.jpg
+│     ├─ logo.jpeg
+│     └─ warning.png
+├─ Web.config
+├─ packages.config
+└─ setup_service_reminders.bat
 ```
 
 
