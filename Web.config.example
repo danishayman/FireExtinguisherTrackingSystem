@@ -2,7 +2,7 @@
 <configuration>
   <connectionStrings>
     <add name="FETSConnection"
-      connectionString="Data Source=localhost;Initial Catalog=FETS;User ID=irfandanish;Password=1234;Connection Timeout=30"
+      connectionString="Data Source=localhost;Initial Catalog=FETS;User ID=;Password=;Connection Timeout=30"
       providerName="System.Data.SqlClient" />
   </connectionStrings>
   <system.web>
