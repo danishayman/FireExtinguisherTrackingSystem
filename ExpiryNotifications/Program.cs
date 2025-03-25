@@ -21,7 +21,7 @@ namespace FETS.ExpiryNotifications
             Console.WriteLine("===========================================");
             Console.WriteLine($"Starting check at {DateTime.Now}");
 
-            // Parse command line arguments for test mode
+            // enter test mode
             bool testMode = args.Contains("--test");
             string testScenario = null;
             
@@ -29,7 +29,6 @@ namespace FETS.ExpiryNotifications
             {
                 Console.WriteLine("RUNNING IN TEST MODE");
                 
-                // Check for specific test scenario
                 int scenarioIndex = Array.IndexOf(args, "--scenario");
                 if (scenarioIndex >= 0 && scenarioIndex < args.Length - 1)
                 {
@@ -44,7 +43,7 @@ namespace FETS.ExpiryNotifications
 
             try
             {
-                // Get connection string with better error handling
+                
                 string connectionString;
                 try {
                     connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -54,13 +53,12 @@ namespace FETS.ExpiryNotifications
                     Console.WriteLine("Attempting to use hardcoded connection string as fallback...");
                     
                     // Fallback connection string - should match the one in App.config
+                    //log will show that fallback connection is used
                     connectionString = "Data Source=localhost;Initial Catalog=FETS;User ID=danishaiman;Password=12345;Connection Timeout=30";
-                    
-                    // Log that we're using the fallback
                     Console.WriteLine("Using fallback connection string. Please verify App.config is properly configured.");
                 }
 
-                // For service test scenario, only test service reminders
+                // TEST
                 if (testMode && testScenario?.ToLower() == "service") 
                 {
                     Console.WriteLine("Testing service reminder feature...");
@@ -88,10 +86,10 @@ namespace FETS.ExpiryNotifications
                 
                 Console.WriteLine($"Found {expiringExtinguishers.Count} fire extinguishers nearing expiry");
 
-                // Send notifications based on expiry timeline
+                
                 if (testMode)
                 {
-                    // In test mode, override day of week checks to ensure emails are sent
+                    
                     await SendTestExpiryNotifications(expiringExtinguishers, testScenario);
                 }
                 else
@@ -118,13 +116,11 @@ namespace FETS.ExpiryNotifications
         {
             List<FireExtinguisher> testExtinguishers = new List<FireExtinguisher>();
             
-            // Create test data based on scenario
             switch (scenario?.ToLower())
             {
                 case "service":
-                    // This scenario is handled directly in SendServiceReminders
+                    
                     Console.WriteLine("Service reminder scenario selected - will test service reminder functionality");
-                    // Return empty list as we don't need expiry test data for this scenario
                     return new List<FireExtinguisher>();
                 
                 case "two-months":
@@ -185,8 +181,7 @@ namespace FETS.ExpiryNotifications
                     break;
                     
                 default:
-                    // Default: create a mix of all scenarios
-                    // Two months range
+                    // Default: ALL
                     for (int i = 45; i <= 60; i += 15)
                     {
                         testExtinguishers.Add(new FireExtinguisher
@@ -202,8 +197,7 @@ namespace FETS.ExpiryNotifications
                             DaysUntilExpiry = i
                         });
                     }
-                    
-                    // One month range
+                
                     for (int i = 15; i <= 30; i += 15)
                     {
                         testExtinguishers.Add(new FireExtinguisher
@@ -220,7 +214,6 @@ namespace FETS.ExpiryNotifications
                         });
                     }
                     
-                    // Critical range (less than a week)
                     for (int i = 1; i <= 7; i += 2)
                     {
                         testExtinguishers.Add(new FireExtinguisher
@@ -305,11 +298,11 @@ namespace FETS.ExpiryNotifications
                 return;
             }
 
-            // Group fire extinguishers by notification frequency
+            
             var twoMonthsNotifications = expiringExtinguishers.Where(fe => fe.DaysUntilExpiry > 30 && fe.DaysUntilExpiry <= 60).ToList();
             var oneMonthNotifications = expiringExtinguishers.Where(fe => fe.DaysUntilExpiry > 0 && fe.DaysUntilExpiry <= 30).ToList();
 
-            // In test mode, we'll send emails regardless of the day of week
+            // In test mode, NO day check
             if ((twoMonthsNotifications.Any() && (scenario == null || scenario.ToLower() == "two-months" || scenario.ToLower() == "all")))
             {
                 Console.WriteLine("Testing two-month notification scenario...");
@@ -333,7 +326,7 @@ namespace FETS.ExpiryNotifications
                 return;
             }
 
-            // Group fire extinguishers by notification frequency
+            
             var twoMonthsNotifications = expiringExtinguishers.Where(fe => fe.DaysUntilExpiry > 30 && fe.DaysUntilExpiry <= 60).ToList();
             var oneMonthNotifications = expiringExtinguishers.Where(fe => fe.DaysUntilExpiry > 0 && fe.DaysUntilExpiry <= 30).ToList();
 
@@ -366,7 +359,7 @@ namespace FETS.ExpiryNotifications
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("Fire Extinguisher Tracking System", smtpSection.From));
                 
-                // Get recipients from the database instead of hardcoding
+                // Get recipients from the db
                 List<EmailRecipient> recipients = GetEmailRecipients(connectionString, "Expiry", "All");
                 
                 if (recipients.Count == 0)
@@ -384,7 +377,6 @@ namespace FETS.ExpiryNotifications
                 
                 message.Subject = subject;
 
-                // Convert to FireExtinguisherExpiryInfo objects for the template
                 List<FireExtinguisherExpiryInfo> expiryInfoList = fireExtinguishers.Select(fe => new FireExtinguisherExpiryInfo
                 {
                     SerialNumber = fe.SerialNumber,
@@ -395,7 +387,6 @@ namespace FETS.ExpiryNotifications
                     Remarks = fe.StatusName
                 }).ToList();
 
-                // Use the template manager to generate the email body
                 string body;
                 if (expiryInfoList.Count == 1)
                 {
@@ -439,9 +430,7 @@ namespace FETS.ExpiryNotifications
             }
         }
 
-        /// <summary>
-        /// Gets the expiry notification email template with placeholders replaced with actual data
-        /// </summary>
+        //FETCH EMAIL TEMPLATE
         private static string GenerateExpiryEmailTemplate(
             string serialNumber,
             string plant,
@@ -451,17 +440,17 @@ namespace FETS.ExpiryNotifications
             string remarks = null,
             string notificationType = "Expiry Notification")
         {
-            // Path to the template file
+            
             string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates", "ExpiryEmailTemplate.html");
             
-            // Read the template
+            
             string template = File.ReadAllText(templatePath);
             
-            // Calculate days until expiry
+            
             TimeSpan timeUntilExpiry = expiryDate - DateTime.Now;
             int daysUntilExpiry = (int)timeUntilExpiry.TotalDays;
             
-            // Determine severity class and expiry status text
+            
             string severityClass = "info";
             string expiryStatus = "will expire soon";
             
@@ -469,7 +458,7 @@ namespace FETS.ExpiryNotifications
             {
                 severityClass = "critical";
                 expiryStatus = "has expired";
-                daysUntilExpiry = 0; // Don't show negative days
+                daysUntilExpiry = 0; 
             }
             else if (daysUntilExpiry <= 30)
             {
@@ -481,7 +470,7 @@ namespace FETS.ExpiryNotifications
                 expiryStatus = $"will expire in {daysUntilExpiry} days";
             }
             
-            // Generate remarks row if remarks exist
+            
             string remarksRow = string.IsNullOrEmpty(remarks) 
                 ? string.Empty 
                 : $@"<tr>
@@ -489,7 +478,7 @@ namespace FETS.ExpiryNotifications
                         <td>{remarks}</td>
                     </tr>";
             
-            // Replace placeholders with actual data
+            
             template = template.Replace("{SerialNumber}", serialNumber)
                                .Replace("{Plant}", plant)
                                .Replace("{Level}", level)
@@ -507,18 +496,14 @@ namespace FETS.ExpiryNotifications
             return template;
         }
 
-        /// <summary>
-        /// Gets the expiry notification email template for multiple fire extinguishers
-        /// </summary>
         private static string GenerateMultipleExpiryEmailTemplate(List<FireExtinguisherExpiryInfo> extinguishers)
         {
-            // Path to the template file
+            
             string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates", "ExpiryEmailTemplate.html");
             
-            // Read the template
+            
             string template = File.ReadAllText(templatePath);
             
-            // Determine the most critical expiry (for notification type)
             int minDaysUntilExpiry = int.MaxValue;
             foreach (var extinguisher in extinguishers)
             {
@@ -540,7 +525,6 @@ namespace FETS.ExpiryNotifications
                 notificationType = "URGENT: Extinguishers Expiring Soon";
             }
             
-            // Create the table rows for multiple extinguishers
             System.Text.StringBuilder tableContent = new System.Text.StringBuilder();
             tableContent.Append(@"
                 <table>
@@ -587,7 +571,6 @@ namespace FETS.ExpiryNotifications
                     </tbody>
                 </table>");
             
-            // Remove the countdown for multiple extinguishers
             string modifiedTemplate = template
                 .Replace(@"<div class=""countdown"">
                 <span class=""countdown-number"">{DaysUntilExpiry}</span>
@@ -628,16 +611,11 @@ namespace FETS.ExpiryNotifications
             return modifiedTemplate;
         }
 
-        /// <summary>
-        /// Sends reminder emails for fire extinguishers that were serviced 7 days ago
-        /// </summary>
         private static async Task SendServiceReminders(string connectionString, bool testMode)
         {
             try
             {
-                // In a real production scenario, we would check the ServiceReminders table
-                // But for simplicity and to avoid dependency on the table existing,
-                // we'll directly check for extinguishers with DateServiced being 7 days ago
+
                 List<ServiceReminderInfo> serviceReminders = GetPendingServiceReminders(connectionString, testMode);
                 
                 if (serviceReminders.Count == 0)
@@ -648,10 +626,8 @@ namespace FETS.ExpiryNotifications
                 
                 Console.WriteLine($"Found {serviceReminders.Count} fire extinguisher(s) that need service follow-up reminders");
                 
-                // Send email for each reminder or a single email with all reminders
                 await SendServiceReminderEmail(serviceReminders);
                 
-                // Update the reminder status to sent in the database
                 UpdateReminderStatus(connectionString, serviceReminders);
                 
                 Console.WriteLine("Service reminder emails have been sent");
@@ -663,9 +639,7 @@ namespace FETS.ExpiryNotifications
             }
         }
         
-        /// <summary>
-        /// Gets a list of fire extinguishers that need service follow-up reminders
-        /// </summary>
+        // Gets a list of fire extinguishers that need service follow-up reminders
         private static List<ServiceReminderInfo> GetPendingServiceReminders(string connectionString, bool testMode)
         {
             List<ServiceReminderInfo> reminders = new List<ServiceReminderInfo>();
@@ -701,14 +675,12 @@ namespace FETS.ExpiryNotifications
                 return reminders;
             }
             
-            // For production, check the database
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
                 
                 try
                 {
-                    // Try to use the ServiceReminders table first
                     foreach (var reminder in reminders.Where(r => r.ReminderID > 0))
                     {
                         string updateQuery = "UPDATE ServiceReminders SET ReminderSent = 1 WHERE ReminderID = @ReminderID";
@@ -722,11 +694,10 @@ namespace FETS.ExpiryNotifications
                 }
                 catch (SqlException)
                 {
-                    // If ServiceReminders table doesn't exist or error, log the message
+
                     Console.WriteLine("Note: Could not update ServiceReminders table status. This is expected if using the fallback method.");
                 }
                 
-                // First try to use the ServiceReminders table
                 try
                 {
                     string query = @"
@@ -816,12 +787,8 @@ namespace FETS.ExpiryNotifications
             return reminders;
         }
         
-        /// <summary>
-        /// Updates the reminder status in the database to mark as sent
-        /// </summary>
         private static void UpdateReminderStatus(string connectionString, List<ServiceReminderInfo> reminders)
         {
-            // Skip if there are no reminders
             if (reminders.Count == 0) return;
             
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -830,7 +797,6 @@ namespace FETS.ExpiryNotifications
                 
                 try
                 {
-                    // Try to update the ServiceReminders table first
                     foreach (var reminder in reminders.Where(r => r.ReminderID > 0))
                     {
                         string updateQuery = "UPDATE ServiceReminders SET ReminderSent = 1 WHERE ReminderID = @ReminderID";
@@ -844,15 +810,12 @@ namespace FETS.ExpiryNotifications
                 }
                 catch (SqlException)
                 {
-                    // If ServiceReminders table doesn't exist or error, log the message
                     Console.WriteLine("Note: Could not update ServiceReminders table status. This is expected if using the fallback method.");
                 }
             }
         }
         
-        /// <summary>
-        /// Sends a reminder email for fire extinguishers that were serviced 7 days ago
-        /// </summary>
+        // Sends a reminder email for fire extinguishers that were serviced 7 days ago
         private static async Task SendServiceReminderEmail(List<ServiceReminderInfo> reminders)
         {
             if (reminders.Count == 0) return;
@@ -869,7 +832,6 @@ namespace FETS.ExpiryNotifications
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("Fire Extinguisher Tracking System", smtpSection.From));
                 
-                // Get recipients from the database instead of hardcoding
                 List<EmailRecipient> recipients = GetEmailRecipients(connectionString, "Service", "All");
                 
                 if (recipients.Count == 0)
@@ -890,12 +852,10 @@ namespace FETS.ExpiryNotifications
                 string body;
                 if (reminders.Count == 1)
                 {
-                    // Single extinguisher reminder
                     body = GenerateServiceReminderEmail(reminders[0]);
                 }
                 else
                 {
-                    // Multiple extinguisher reminder
                     body = GenerateMultipleServiceReminderEmail(reminders);
                 }
                 
@@ -923,27 +883,21 @@ namespace FETS.ExpiryNotifications
             }
         }
         
-        /// <summary>
-        /// Generates an HTML email body for a single extinguisher service reminder
-        /// </summary>
+        // Generates an HTML email body for a single extinguisher service reminder
         private static string GenerateServiceReminderEmail(ServiceReminderInfo reminder)
         {
             try
             {
-                // Path to the template file
                 string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates", "ServiceReminderTemplate.html");
                 
-                // Check if template exists
                 if (!File.Exists(templatePath))
                 {
                     Console.WriteLine($"Warning: Service reminder template not found at {templatePath}");
                     return CreateFallbackServiceReminderEmail(reminder);
                 }
                 
-                // Read the template
                 string template = File.ReadAllText(templatePath);
                 
-                // Replace placeholders with actual data
                 template = template.Replace("{{SerialNumber}}", reminder.SerialNumber);
                 template = template.Replace("{{Plant}}", reminder.Plant);
                 template = template.Replace("{{Level}}", reminder.Level);
@@ -952,7 +906,6 @@ namespace FETS.ExpiryNotifications
                 template = template.Replace("{{ExpiryDate}}", reminder.ExpiryDate.ToString("MMM dd, yyyy"));
                 template = template.Replace("{{GenerationDate}}", DateTime.Now.ToString("MMM dd, yyyy HH:mm"));
                 
-                // Hide the table for single extinguisher
                 template = template.Replace("data-display=\"{{TableStyle}}\"", "style=\"display: none;\"");
                 template = template.Replace("{{TableRows}}", ""); // Empty as we're not showing the table
                 
@@ -965,9 +918,9 @@ namespace FETS.ExpiryNotifications
             }
         }
         
-        /// <summary>
-        /// Creates a simple HTML email when the template file is not available
-        /// </summary>
+        
+        // FALLBACK TEMPLATE IF TEMPLATE IS NOT AVAILABLE/ACCESSIBLE
+        
         private static string CreateFallbackServiceReminderEmail(ServiceReminderInfo reminder)
         {
             return $@"
@@ -1000,33 +953,24 @@ namespace FETS.ExpiryNotifications
                 </html>";
         }
         
-        /// <summary>
-        /// Generates an HTML email body for multiple extinguisher service reminders
-        /// </summary>
         private static string GenerateMultipleServiceReminderEmail(List<ServiceReminderInfo> reminders)
         {
             try 
             {
-                // Path to the template file
                 string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates", "ServiceReminderTemplate.html");
                 
-                // Check if template exists
                 if (!File.Exists(templatePath))
                 {
                     Console.WriteLine($"Warning: Service reminder template not found at {templatePath}");
                     return CreateFallbackMultipleServiceReminderEmail(reminders);
                 }
                 
-                // Read the template
                 string template = File.ReadAllText(templatePath);
                 
-                // Hide the single extinguisher display
                 template = template.Replace("<div class=\"extinguisher-details\">", "<div class=\"extinguisher-details\" style=\"display: none;\">");
                 
-                // Show the table
                 template = template.Replace("data-display=\"{{TableStyle}}\"", "style=\"\"");
                 
-                // Generate table rows
                 string tableRows = "";
                 foreach (var reminder in reminders)
                 {
@@ -1042,7 +986,6 @@ namespace FETS.ExpiryNotifications
                 template = template.Replace("{{TableRows}}", tableRows);
                 template = template.Replace("{{GenerationDate}}", DateTime.Now.ToString("MMM dd, yyyy HH:mm"));
                 
-                // Replace single extinguisher placeholders with empty strings
                 template = template.Replace("{{SerialNumber}}", "");
                 template = template.Replace("{{Plant}}", "");
                 template = template.Replace("{{Level}}", "");
@@ -1059,12 +1002,9 @@ namespace FETS.ExpiryNotifications
             }
         }
         
-        /// <summary>
-        /// Creates a simple HTML email for multiple reminders when the template file is not available
-        /// </summary>
+        //NO TEMPLATE++MULTIPLE
         private static string CreateFallbackMultipleServiceReminderEmail(List<ServiceReminderInfo> reminders)
         {
-            // Generate table rows
             string tableRows = "";
             foreach (var reminder in reminders)
             {
@@ -1117,9 +1057,6 @@ namespace FETS.ExpiryNotifications
                 </html>";
         }
 
-        /// <summary>
-        /// Gets active email recipients for the specified notification type from the database
-        /// </summary>
         private static List<EmailRecipient> GetEmailRecipients(string connectionString, string notificationType, string fallbackType = null)
         {
             List<EmailRecipient> recipients = new List<EmailRecipient>();
@@ -1130,7 +1067,6 @@ namespace FETS.ExpiryNotifications
                 {
                     conn.Open();
                     
-                    // First check if the EmailRecipients table exists
                     bool tableExists = false;
                     string checkTableQuery = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'EmailRecipients'";
                     using (SqlCommand checkCmd = new SqlCommand(checkTableQuery, conn))
@@ -1142,16 +1078,14 @@ namespace FETS.ExpiryNotifications
                     if (!tableExists)
                     {
                         Console.WriteLine("EmailRecipients table does not exist. Using fallback recipient.");
-                        return recipients; // Return empty list to use fallback
+                        return recipients; 
                     }
                     
-                    // Query to get recipients for this notification type or "All" type
                     string query = @"
                         SELECT EmailAddress, RecipientName, NotificationType 
                         FROM EmailRecipients 
                         WHERE IsActive = 1 AND (NotificationType = @NotificationType OR NotificationType = 'All'";
                     
-                    // Add fallback type if specified
                     if (!string.IsNullOrEmpty(fallbackType) && fallbackType != notificationType)
                     {
                         query += " OR NotificationType = @FallbackType";
@@ -1185,7 +1119,6 @@ namespace FETS.ExpiryNotifications
             catch (Exception ex)
             {
                 Console.WriteLine($"Error retrieving email recipients: {ex.Message}");
-                // Return empty list to use fallback
             }
             
             return recipients;
@@ -1205,9 +1138,6 @@ namespace FETS.ExpiryNotifications
         public int DaysUntilExpiry { get; set; }
     }
 
-    /// <summary>
-    /// Data class to hold fire extinguisher information for expiry emails
-    /// </summary>
     public class FireExtinguisherExpiryInfo
     {
         public string SerialNumber { get; set; }
@@ -1218,9 +1148,6 @@ namespace FETS.ExpiryNotifications
         public string Remarks { get; set; }
     }
 
-    /// <summary>
-    /// Data class to hold service reminder information
-    /// </summary>
     public class ServiceReminderInfo
     {
         public int FEID { get; set; }
@@ -1233,9 +1160,6 @@ namespace FETS.ExpiryNotifications
         public int ReminderID { get; set; }
     }
 
-    /// <summary>
-    /// Data class to hold email recipient information
-    /// </summary>
     public class EmailRecipient
     {
         public string EmailAddress { get; set; }
