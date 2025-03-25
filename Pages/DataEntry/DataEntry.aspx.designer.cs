@@ -1,12 +1,19 @@
 namespace FETS.Pages.DataEntry
 {
+    /// <summary>
+    /// Represents the data entry page for fire extinguisher information
+    /// </summary>
     public partial class DataEntry
     {
+        // Form controls
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
+        
+        // Header controls
         protected global::System.Web.UI.WebControls.Label lblUsername;
         protected global::System.Web.UI.WebControls.LinkButton btnBack;
         protected global::System.Web.UI.WebControls.LinkButton btnLogout;
         
+        // Input fields and validators
         protected global::System.Web.UI.WebControls.Label lblSerialNumber;
         protected global::System.Web.UI.WebControls.TextBox txtSerialNumber;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvSerialNumber;
@@ -34,9 +41,11 @@ namespace FETS.Pages.DataEntry
         protected global::System.Web.UI.WebControls.Label lblRemarks;
         protected global::System.Web.UI.WebControls.TextBox txtRemarks;
         
+        // Action controls
         protected global::System.Web.UI.WebControls.Button btnSubmit;
         protected global::System.Web.UI.WebControls.Label lblMessage;
 
+        // Confirmation panel and its controls
         protected global::System.Web.UI.WebControls.Panel pnlConfirmation;
         protected global::System.Web.UI.WebControls.Label lblConfirmSerialNumber;
         protected global::System.Web.UI.WebControls.Label lblConfirmPlant;
@@ -48,4 +57,4 @@ namespace FETS.Pages.DataEntry
         protected global::System.Web.UI.WebControls.Button btnConfirm;
         protected global::System.Web.UI.WebControls.Button btnCancel;
     }
-} 
+}
