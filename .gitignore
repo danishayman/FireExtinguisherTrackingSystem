@@ -6,8 +6,6 @@
 obj/
 packages/
 bin/
-App.config
-Web.config
 
 ExpiryNotifications/bin/Debug/ExpiryNotifications.exe
 ExpiryNotifications/bin/Debug/ExpiryNotifications.pdb
