@@ -48,27 +48,19 @@ The Fire Extinguisher Tracking System (FETS) is a comprehensive web-based soluti
 Open the specified SQL studio, run the query in DATABASE folder.
 DB_UPDATES file is optional.
 
-### 2. Environment Configuration
-ALL env config can be setup in the App.Config and Web.config
-replace all the email credentials and connection string with proper info.
 
-THINGS THAT NEED REPLACING:-
-FETS connection string
-mailSettings
---app passwords from--> Enable 2FA, search app passwords, create, paste in config file
-
-
-### 3. Application Setup
+### 2. Application Setup
 1. Clone the repository(Github)
 2. Open `FireExtinguisherTrackingSystem.sln` in Visual Studio
 3. Restore NuGet packages
 4. Build the solution
 5. Deploy to IIS
 
-### 4. Service Configuration
+### 3. Service Configuration
 - Configure Windows Task Scheduler for daily notifications
 - Set up the ExpiryNotifications service
 - Configure email templates in `EmailTemplates` directory
+- Sender name can be changed to appropriate name in `ViewSection.aspx.cs` Line 983.
 
 ## 🧪 Testing
 1. Complete a service entry for a fire extinguisher
