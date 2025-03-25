@@ -17,7 +17,7 @@ namespace FETS
                 if (Context.User.Identity.IsAuthenticated)
                 {
                     lblUsername.Text = Context.User.Identity.Name;
-                    
+
                     // Highlight the current page in the navigation sidebar
                     SetActivePage();
                 }
@@ -28,7 +28,7 @@ namespace FETS
                 }
             }
         }
-        
+
         /// <summary>
         /// Sets the active navigation link based on the current URL
         /// Adds the "active" CSS class to the appropriate navigation button
@@ -36,14 +36,14 @@ namespace FETS
         private void SetActivePage()
         {
             string currentUrl = Request.Url.AbsolutePath.ToLower();
-            
+
             // Reset all navigation links to default state
             btnDashboard.CssClass = "nav-link";
             btnDataEntry.CssClass = "nav-link";
             btnViewSection.CssClass = "nav-link";
             btnMapLayout.CssClass = "nav-link";
             btnProfile.CssClass = "nav-link";
-            
+
             // Set active class for the current page
             if (currentUrl.Contains("/dashboard/"))
             {
