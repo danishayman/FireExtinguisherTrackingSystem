@@ -17,3 +17,5 @@ ExpiryNotifications/bin/Debug/ExpiryNotifications.exe
 bin/FETS.dll
 bin/FETS.dll.config
 bin/FETS.pdb
+
+Web.config
