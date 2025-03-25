@@ -20,6 +20,9 @@ namespace FETS.Pages
             }
         }
 
+        /// <summary>
+        /// Loads fire extinguisher statistics for each plant into the repeater control
+        /// </summary>
         private void LoadPlantStatistics()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -49,7 +52,7 @@ namespace FETS.Pages
                         DataTable dt = new DataTable();
                         adapter.Fill(dt);
 
-                        // Handle null values
+                        // Replace null values with zero to prevent rendering issues
                         foreach (DataRow row in dt.Rows)
                         {
                             if (row["TotalFE"] == DBNull.Value) row["TotalFE"] = 0;
@@ -66,6 +69,9 @@ namespace FETS.Pages
             }
         }
 
+        /// <summary>
+        /// Loads fire extinguisher type distribution data for the dashboard chart
+        /// </summary>
         private void LoadChartData()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
@@ -93,13 +99,19 @@ namespace FETS.Pages
                             else if (type == "CO2") co2Count = count;
                         }
 
+                        // Store chart data as comma-separated values for JavaScript processing
                         hdnChartData.Value = $"{abcCount},{co2Count}";
                     }
                 }
             }
         }
         
-        // Helper method to calculate percentages for progress bars
+        /// <summary>
+        /// Calculates percentage for progress bar visualization
+        /// </summary>
+        /// <param name="value">Current value</param>
+        /// <param name="total">Total value</param>
+        /// <returns>Percentage value capped at 100%</returns>
         protected string GetPercentage(object value, object total)
         {
             if (value == null || total == null) return "0";

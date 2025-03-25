@@ -386,7 +386,7 @@
         </div>
 
         <div class="dashboard-grid">
-            <!-- Chart Section -->
+            <!-- Main chart showing overall distribution of fire extinguisher types -->
             <section class="chart-section">
                 <h3>Fire Extinguisher Types Distribution</h3>
                 <div class="chart-container">
@@ -395,7 +395,7 @@
                 <asp:HiddenField ID="hdnChartData" runat="server" />
             </section>
 
-            <!-- Plants Section - Improved Version -->
+            <!-- Cards showing statistics for each plant with responsive charts -->
             <section class="plants-section">
                 <h3>Plant Statistics</h3>
                 <div class="plants-grid">
@@ -424,6 +424,7 @@
                                 </div>
                                 
                                 <ul class="stats-list">
+                                    <!-- In-Use extinguishers with percentage bar -->
                                     <li class="stat-item">
                                         <span class="stat-label">
                                             <span class="stat-indicator in-use"></span>
@@ -432,12 +433,13 @@
                                         <div class="stat-value-container">
                                             <div class="progress-bar">
                                                 <div class="progress in-use" 
-                                                     style="width: <%# GetPercentage(Eval("InUse"), Eval("TotalFE")) %>%">
+                                                     style="width: <%# GetPercentage(Eval("InUse"), Eval("TotalFE")) %>%;">
                                                 </div>
                                             </div>
                                             <span class="stat-value in-use"><%# Eval("InUse", "{0:N0}") %></span>
                                         </div>
                                     </li>
+                                    <!-- Under service extinguishers with percentage bar -->
                                     <li class="stat-item">
                                         <span class="stat-label">
                                             <span class="stat-indicator under-service"></span>
@@ -446,12 +448,13 @@
                                         <div class="stat-value-container">
                                             <div class="progress-bar">
                                                 <div class="progress under-service" 
-                                                     style="width: <%# GetPercentage(Eval("UnderService"), Eval("TotalFE")) %>%">
+                                                     style="width: <%# GetPercentage(Eval("UnderService"), Eval("TotalFE")) %>%;">
                                                 </div>
                                             </div>
                                             <span class="stat-value under-service"><%# Eval("UnderService", "{0:N0}") %></span>
                                         </div>
                                     </li>
+                                    <!-- Expired extinguishers with percentage bar -->
                                     <li class="stat-item">
                                         <span class="stat-label">
                                             <span class="stat-indicator expired"></span>
@@ -460,12 +463,13 @@
                                         <div class="stat-value-container">
                                             <div class="progress-bar">
                                                 <div class="progress expired" 
-                                                     style="width: <%# GetPercentage(Eval("Expired"), Eval("TotalFE")) %>%">
+                                                     style="width: <%# GetPercentage(Eval("Expired"), Eval("TotalFE")) %>%;">
                                                 </div>
                                             </div>
                                             <span class="stat-value expired"><%# Eval("Expired", "{0:N0}") %></span>
                                         </div>
                                     </li>
+                                    <!-- Soon-to-expire extinguishers with percentage bar -->
                                     <li class="stat-item">
                                         <span class="stat-label">
                                             <span class="stat-indicator expiring-soon"></span>
@@ -474,7 +478,7 @@
                                         <div class="stat-value-container">
                                             <div class="progress-bar">
                                                 <div class="progress expiring-soon" 
-                                                     style="width: <%# GetPercentage(Eval("ExpiringSoon"), Eval("TotalFE")) %>%">
+                                                     style="width: <%# GetPercentage(Eval("ExpiringSoon"), Eval("TotalFE")) %>%;">
                                                 </div>
                                             </div>
                                             <span class="stat-value expiring-soon"><%# Eval("ExpiringSoon", "{0:N0}") %></span>
@@ -566,7 +570,7 @@
                 }
             });
             
-            // Initialize the Plant Status Mini-Charts
+            // Initialize individual status charts for each plant
             document.querySelectorAll('.status-pie').forEach(canvas => {
                 const ctx = canvas.getContext('2d');
                 const inUse = parseInt(canvas.getAttribute('data-in-use')) || 0;
@@ -620,7 +624,7 @@
                 });
             });
             
-            // Add animation to progress bars
+            // Animate progress bars on page load for visual effect
             setTimeout(() => {
                 document.querySelectorAll('.progress').forEach(bar => {
                     const width = bar.style.width;

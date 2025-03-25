@@ -2,6 +2,7 @@
     MasterPageFile="~/Site.Master" %>
 
     <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
+        <!-- Styles for the data entry form and UI elements -->
         <style>
             .content-container {
                 flex: 1;
@@ -112,7 +113,6 @@
                 text-align: center;
                 font-size: 0.95rem;
                 display: block;
-
             }
 
             .message.success {
@@ -127,7 +127,7 @@
                 border: 1px solid #f5c6cb;
             }
 
-            /* Responsive styles */
+            /* Responsive layout for smaller screens */
             @media (max-width: 1200px) {
                 .data-entry-form {
                     min-width: auto;
@@ -145,7 +145,7 @@
                 }
             }
 
-            /* Update the Save Fire Extinguisher button style */
+            /* Submit button styling */
             #btnSubmit {
                 background-color: #007bff;
                 color: white;
@@ -170,13 +170,13 @@
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             }
 
-            /* Update the text-center class to provide better spacing */
             .text-center {
                 text-align: center;
                 margin-top: 20px;
                 margin-bottom: 10px;
             }
 
+            /* Confirmation popup styling */
             .popup-panel {
                 position: fixed;
                 top: 0;
@@ -251,21 +251,23 @@
         </style>
 
         <script type="text/javascript">
-
-            
+            // Show confirmation dialog before submitting the form
             function showConfirmationPopup() {
                 document.getElementById('<%= pnlConfirmation.ClientID %>').style.display = 'flex';
             }
 
+            // Hide the confirmation dialog
             function hideConfirmationPopup() {
                 document.getElementById('<%= pnlConfirmation.ClientID %>').style.display = 'none';
             }
+            
             window.onload = function() {
+                // Set minimum date for expiry date field to today
                 var today = new Date().toISOString().split('T')[0];
                 document.getElementById('<%= txtExpiryDate.ClientID %>').setAttribute('min', today);
             }
 
-            // Prevent the browser from storing the form submission state
+            // Prevent form resubmission on page refresh
             if (window.history.replaceState) {
                 window.history.replaceState(null, null, window.location.href);
             }
@@ -274,11 +276,12 @@
 
     <asp:Content ID="MainContent" ContentPlaceHolderID="MainContent" runat="server">
         <div class="content-container">
-            <div class="data-entry-form">
+            <div class="data-entry-form"></div>
                 <h3 class="text-center">Add New Fire Extinguisher</h3>
 
+                <!-- Serial Number and Plant Selection -->
                 <div class="form-row">
-                    <div class="form-col">
+                    <div class="form-col"></div>
                         <div class="form-group">
                             <asp:Label ID="lblSerialNumber" runat="server" Text="Serial Number:"
                                 AssociatedControlID="txtSerialNumber"></asp:Label>
@@ -290,7 +293,7 @@
                         </div>
                     </div>
 
-                    <div class="form-col">
+                    <div class="form-col"></div>
                         <div class="form-group">
                             <asp:Label ID="lblPlant" runat="server" Text="Plant:" AssociatedControlID="ddlPlant">
                             </asp:Label>
@@ -298,14 +301,15 @@
                                 OnSelectedIndexChanged="ddlPlant_SelectedIndexChanged"></asp:DropDownList>
                             <asp:RequiredFieldValidator ID="rfvPlant" runat="server" ControlToValidate="ddlPlant"
                                 ErrorMessage="Plant is required." CssClass="validation-error" Display="Dynamic"
-                                InitialValue="">
+                                InitialValue=""></asp:RequiredFieldValidator>
                             </asp:RequiredFieldValidator>
                         </div>
                     </div>
                 </div>
 
+                <!-- Level and Location Information -->
                 <div class="form-row">
-                    <div class="form-col">
+                    <div class="form-col"></div>
                         <div class="form-group">
                             <asp:Label ID="lblLevel" runat="server" Text="Level:" AssociatedControlID="ddlLevel">
                             </asp:Label>
@@ -329,9 +333,10 @@
                     </div>
                 </div>
 
+                <!-- Extinguisher Type and Expiry Date -->
                 <div class="form-row">
                     <div class="form-col">
-                        <div class="form-group">
+                        <div class="form-group"></div>
                             <asp:Label ID="lblType" runat="server" Text="Type:" AssociatedControlID="ddlType">
                             </asp:Label>
                             <asp:DropDownList ID="ddlType" runat="server" CssClass="form-control"></asp:DropDownList>
@@ -356,26 +361,28 @@
                     </div>
                 </div>
 
-                <div class="form-group">
+                <!-- Additional Remarks -->
+                <div class="form-group"></div>
                     <asp:Label ID="lblRemarks" runat="server" Text="Remarks:" AssociatedControlID="txtRemarks">
                     </asp:Label>
                     <asp:TextBox ID="txtRemarks" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3">
                     </asp:TextBox>
                 </div>
 
-                <div class="form-group text-center">
+                <!-- Submit Button -->
+                <div class="form-group text-center"></div>
                     <asp:Button ID="btnSubmit" runat="server" Text="Add Fire Extinguisher" OnClick="btnSubmit_Click"
                         CssClass="btn btn-primary" />
                 </div>
 
+                <!-- Message Display Area -->
                 <asp:Label ID="lblMessage" runat="server" CssClass="message"></asp:Label>
             </div>
         </div>
 
-
-        <!-- Confirmation Popup -->
+        <!-- Confirmation Popup Panel -->
         <asp:Panel ID="pnlConfirmation" runat="server" CssClass="popup-panel" Style="display: none;">
-            <div class="popup-content">
+            <div class="popup-content"></div>
                 <h3>Confirm Fire Extinguisher Details</h3>
                 <table>
                     <tr>
@@ -422,7 +429,6 @@
                     </tr>
                 </table>
                 <div class="popup-buttons">
-
                     <asp:Button ID="btnCancel" runat="server" Text="Cancel"
                         OnClientClick="hideConfirmationPopup(); return false;" CssClass="button cancel" />
 
@@ -432,6 +438,7 @@
             </div>
         </asp:Panel>
 
+        <!-- Custom Validator for Expiry Date -->
         <asp:CustomValidator ID="cvExpiryDate" runat="server" ControlToValidate="txtExpiryDate"
             ErrorMessage="Expiry date cannot be in the past." CssClass="validation-error" Display="Dynamic"
             OnServerValidate="cvExpiryDate_ServerValidate">
