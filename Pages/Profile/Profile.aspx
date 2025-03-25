@@ -2,7 +2,7 @@
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <style>
-        /* Base styles to match View Section and Data Entry */
+        /* Main layout and container styling */
         .dashboard-container {
             padding: 20px;
             max-width: 1200px;
@@ -22,6 +22,7 @@
             box-sizing: border-box;
         }
 
+        /* Typography styling */
         h3 {
             text-align: center;
             margin: 0 0 30px 0;
@@ -40,6 +41,7 @@
             border-bottom: 2px solid #007bff;
         }
 
+        /* Form element styling */
         .form-group {
             margin-bottom: 20px;
         }
@@ -68,6 +70,7 @@
             outline: none;
         }
 
+        /* Button styling */
         .btn-primary {
             background-color: #007bff;
             color: white;
@@ -105,6 +108,7 @@
             background-color: #c82333;
         }
 
+        /* Validation and message styling */
         .validation-error {
             color: #dc3545;
             font-size: 0.875rem;
@@ -140,7 +144,7 @@
             gap: 10px;
         }
 
-        /* Grid styling */
+        /* Grid styling for tables */
         .user-management {
             margin-top: 30px;
             overflow-x: auto;
@@ -179,7 +183,7 @@
             background-color: #f2f2f2;
         }
 
-        /* Form layout */
+        /* Form layout for responsive design */
         .form-row {
             display: flex;
             gap: 20px;
@@ -192,7 +196,7 @@
             min-width: 250px;
         }
 
-        /* Responsive styles */
+        /* Responsive adjustments */
         @media (max-width: 1200px) {
             .profile-section {
                 min-width: auto;
@@ -235,7 +239,7 @@
             white-space: nowrap;
         }
 
-        /* Status styles */
+        /* Status indicator styling */
         .status-active {
             color: #28a745;
             font-weight: 600;
@@ -246,7 +250,7 @@
             font-weight: 600;
         }
         
-        /* Button styles */
+        /* Additional button styles */
         .btn-secondary {
             background-color: #6c757d;
             color: white;
@@ -307,10 +311,11 @@
     <div class="dashboard-container">
         <h3>Profile Management</h3>
         
+        <!-- Status message area -->
         <asp:Label ID="lblMessage" runat="server" CssClass="message" Visible="false"></asp:Label>
 
-        <!-- Change Password Section -->
-        <section class="profile-section">
+        <!-- Password change section - available to all users -->
+        <section class="profile-section"></section>
             <h4 class="section-title">Change Password</h4>
             
             <div class="form-row">
@@ -331,7 +336,7 @@
 
             <div class="form-row">
                 <div class="form-col">
-                    <div class="form-group">
+                    <div class="form-group"></div>
                         <asp:Label runat="server" AssociatedControlID="txtNewPassword">New Password:</asp:Label>
                         <asp:TextBox ID="txtNewPassword" runat="server" CssClass="form-control" TextMode="Password"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="rfvNewPassword" runat="server" 
@@ -343,7 +348,7 @@
                         </asp:RequiredFieldValidator>
                     </div>
                 </div>
-                <div class="form-col">
+                <div class="form-col"></div>
                     <div class="form-group">
                         <asp:Label runat="server" AssociatedControlID="txtConfirmPassword">Confirm New Password:</asp:Label>
                         <asp:TextBox ID="txtConfirmPassword" runat="server" CssClass="form-control" TextMode="Password"></asp:TextBox>
@@ -366,16 +371,16 @@
                 </div>
             </div>
 
-            <div class="btn-section">
+            <div class="btn-section"></div>
                 <asp:Button ID="btnChangePassword" runat="server" Text="Change Password" OnClick="btnChangePassword_Click" CssClass="btn btn-primary" ValidationGroup="ChangePassword" />
             </div>
         </section>
 
-        <!-- User Management Section (Only visible to administrators) -->
-        <asp:Panel ID="pnlUserManagement" runat="server" CssClass="profile-section" Visible="false">
+        <!-- User Management Section - Admin only interface for creating and managing users -->
+        <asp:Panel ID="pnlUserManagement" runat="server" CssClass="profile-section" Visible="false"></asp:Panel>
             <h4 class="section-title">User Management</h4>
             
-            <!-- Add New User Form -->
+            <!-- User creation form -->
             <div class="form-row">
                 <div class="form-col">
                     <div class="form-group">
@@ -416,15 +421,15 @@
                     </div>
                 </div>
                 <div class="form-col">
-                    <!-- Empty column for alignment -->
+                    <!-- Spacer column for layout balance -->
                 </div>
             </div>
 
-            <div class="btn-section">
+            <div class="btn-section"></div>
                 <asp:Button ID="btnAddUser" runat="server" Text="Add User" OnClick="btnAddUser_Click" CssClass="btn btn-primary" ValidationGroup="AddUser" />
             </div>
 
-            <!-- Users Grid -->
+            <!-- Users data grid - displays all system users -->
             <div class="user-management">
                 <h4 class="section-title">Existing Users</h4>
                 <asp:GridView ID="gvUsers" runat="server" 
@@ -454,14 +459,14 @@
             </div>
         </asp:Panel>
 
-        <!-- Email Recipients Management Section (Only visible to administrators) -->
+        <!-- Email Recipients Management - Admin only interface for notification configuration -->
         <asp:Panel ID="pnlEmailRecipients" runat="server" CssClass="profile-section" Visible="false">
             <h4 class="section-title">Email Recipients Management</h4>
             
-            <!-- Add New Email Recipient Form -->
+            <!-- Email recipient creation/editing form -->
             <asp:HiddenField ID="hdnRecipientID" runat="server" />
             
-            <div class="form-row">
+            <div class="form-row"></div>
                 <div class="form-col">
                     <div class="form-group">
                         <asp:Label runat="server" AssociatedControlID="txtEmailAddress">Email Address:</asp:Label>
@@ -479,7 +484,7 @@
                             CssClass="validation-error"
                             Display="Dynamic"
                             ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"
-                            ValidationGroup="AddRecipient">
+                            ValidationGroup="AddRecipient"></asp:RegularExpressionValidator>
                         </asp:RegularExpressionValidator>
                     </div>
                 </div>
@@ -502,7 +507,7 @@
                 <div class="form-col">
                     <div class="form-group">
                         <asp:Label runat="server" AssociatedControlID="ddlNotificationType">Notification Type:</asp:Label>
-                        <asp:DropDownList ID="ddlNotificationType" runat="server" CssClass="form-control">
+                        <asp:DropDownList ID="ddlNotificationType" runat="server" CssClass="form-control"></asp:DropDownList>
                             <asp:ListItem Text="All Notifications" Value="All" />
                             <asp:ListItem Text="Expiry Notifications Only" Value="Expiry" />
                             <asp:ListItem Text="Service Reminders Only" Value="Service" />
@@ -510,17 +515,17 @@
                     </div>
                 </div>
                 <div class="form-col">
-                    <!-- Empty column for alignment -->
+                    <!-- Spacer column for layout balance -->
                 </div>
             </div>
 
-            <div class="btn-section">
+            <div class="btn-section"></div>
                 <asp:Button ID="btnCancelEdit" runat="server" Text="Cancel" OnClick="btnCancelEdit_Click" CssClass="btn btn-secondary" Visible="false" />
                 <asp:Button ID="btnUpdateRecipient" runat="server" Text="Update Recipient" OnClick="btnUpdateRecipient_Click" CssClass="btn btn-primary" ValidationGroup="AddRecipient" Visible="false" />
                 <asp:Button ID="btnAddRecipient" runat="server" Text="Add Recipient" OnClick="btnAddRecipient_Click" CssClass="btn btn-primary" ValidationGroup="AddRecipient" />
             </div>
 
-            <!-- Email Recipients Grid -->
+            <!-- Email recipients data grid - displays all notification recipients -->
             <div class="user-management">
                 <h4 class="section-title">Existing Email Recipients</h4>
                 <asp:GridView ID="gvEmailRecipients" runat="server" 
@@ -554,7 +559,7 @@
                                     <asp:LinkButton ID="btnToggle" runat="server" 
                                         CommandName="ToggleStatus" 
                                         CommandArgument='<%# Eval("RecipientID") %>'
-                                        CssClass='<%# Convert.ToBoolean(Eval("IsActive")) ? "btn btn-warning" : "btn btn-success" %>'>
+                                        CssClass='<%# Convert.ToBoolean(Eval("IsActive")) ? "btn btn-warning" : "btn btn-success" %>'></asp:LinkButton>
                                         <%# Convert.ToBoolean(Eval("IsActive")) ? "Deactivate" : "Activate" %>
                                     </asp:LinkButton>
                                     <asp:LinkButton ID="btnDelete" runat="server" 
@@ -572,4 +577,4 @@
             </div>
         </asp:Panel>
     </div>
-</asp:Content> 
+</asp:Content>
