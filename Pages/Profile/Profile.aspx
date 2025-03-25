@@ -315,7 +315,7 @@
         <asp:Label ID="lblMessage" runat="server" CssClass="message" Visible="false"></asp:Label>
 
         <!-- Password change section - available to all users -->
-        <section class="profile-section"></section>
+        <section class="profile-section">
             <h4 class="section-title">Change Password</h4>
             
             <div class="form-row">
@@ -336,7 +336,7 @@
 
             <div class="form-row">
                 <div class="form-col">
-                    <div class="form-group"></div>
+                    <div class="form-group">
                         <asp:Label runat="server" AssociatedControlID="txtNewPassword">New Password:</asp:Label>
                         <asp:TextBox ID="txtNewPassword" runat="server" CssClass="form-control" TextMode="Password"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="rfvNewPassword" runat="server" 
@@ -348,7 +348,7 @@
                         </asp:RequiredFieldValidator>
                     </div>
                 </div>
-                <div class="form-col"></div>
+                <div class="form-col">
                     <div class="form-group">
                         <asp:Label runat="server" AssociatedControlID="txtConfirmPassword">Confirm New Password:</asp:Label>
                         <asp:TextBox ID="txtConfirmPassword" runat="server" CssClass="form-control" TextMode="Password"></asp:TextBox>
@@ -371,13 +371,13 @@
                 </div>
             </div>
 
-            <div class="btn-section"></div>
+            <div class="btn-section">
                 <asp:Button ID="btnChangePassword" runat="server" Text="Change Password" OnClick="btnChangePassword_Click" CssClass="btn btn-primary" ValidationGroup="ChangePassword" />
             </div>
         </section>
 
         <!-- User Management Section - Admin only interface for creating and managing users -->
-        <asp:Panel ID="pnlUserManagement" runat="server" CssClass="profile-section" Visible="false"></asp:Panel>
+        <asp:Panel ID="pnlUserManagement" runat="server" CssClass="profile-section" Visible="false">
             <h4 class="section-title">User Management</h4>
             
             <!-- User creation form -->
@@ -425,7 +425,7 @@
                 </div>
             </div>
 
-            <div class="btn-section"></div>
+            <div class="btn-section">
                 <asp:Button ID="btnAddUser" runat="server" Text="Add User" OnClick="btnAddUser_Click" CssClass="btn btn-primary" ValidationGroup="AddUser" />
             </div>
 
@@ -466,7 +466,7 @@
             <!-- Email recipient creation/editing form -->
             <asp:HiddenField ID="hdnRecipientID" runat="server" />
             
-            <div class="form-row"></div>
+            <div class="form-row">
                 <div class="form-col">
                     <div class="form-group">
                         <asp:Label runat="server" AssociatedControlID="txtEmailAddress">Email Address:</asp:Label>
@@ -484,7 +484,7 @@
                             CssClass="validation-error"
                             Display="Dynamic"
                             ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"
-                            ValidationGroup="AddRecipient"></asp:RegularExpressionValidator>
+                            ValidationGroup="AddRecipient">
                         </asp:RegularExpressionValidator>
                     </div>
                 </div>
@@ -507,7 +507,7 @@
                 <div class="form-col">
                     <div class="form-group">
                         <asp:Label runat="server" AssociatedControlID="ddlNotificationType">Notification Type:</asp:Label>
-                        <asp:DropDownList ID="ddlNotificationType" runat="server" CssClass="form-control"></asp:DropDownList>
+                        <asp:DropDownList ID="ddlNotificationType" runat="server" CssClass="form-control">
                             <asp:ListItem Text="All Notifications" Value="All" />
                             <asp:ListItem Text="Expiry Notifications Only" Value="Expiry" />
                             <asp:ListItem Text="Service Reminders Only" Value="Service" />
@@ -519,7 +519,7 @@
                 </div>
             </div>
 
-            <div class="btn-section"></div>
+            <div class="btn-section">
                 <asp:Button ID="btnCancelEdit" runat="server" Text="Cancel" OnClick="btnCancelEdit_Click" CssClass="btn btn-secondary" Visible="false" />
                 <asp:Button ID="btnUpdateRecipient" runat="server" Text="Update Recipient" OnClick="btnUpdateRecipient_Click" CssClass="btn btn-primary" ValidationGroup="AddRecipient" Visible="false" />
                 <asp:Button ID="btnAddRecipient" runat="server" Text="Add Recipient" OnClick="btnAddRecipient_Click" CssClass="btn btn-primary" ValidationGroup="AddRecipient" />
@@ -559,7 +559,7 @@
                                     <asp:LinkButton ID="btnToggle" runat="server" 
                                         CommandName="ToggleStatus" 
                                         CommandArgument='<%# Eval("RecipientID") %>'
-                                        CssClass='<%# Convert.ToBoolean(Eval("IsActive")) ? "btn btn-warning" : "btn btn-success" %>'></asp:LinkButton>
+                                        CssClass='<%# Convert.ToBoolean(Eval("IsActive")) ? "btn btn-warning" : "btn btn-success" %>'>
                                         <%# Convert.ToBoolean(Eval("IsActive")) ? "Deactivate" : "Activate" %>
                                     </asp:LinkButton>
                                     <asp:LinkButton ID="btnDelete" runat="server" 
