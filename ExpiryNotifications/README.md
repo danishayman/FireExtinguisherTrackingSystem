@@ -37,6 +37,10 @@ Lines that are needed to be change will be tagged
 </configuration>
 ```
 
+
+1. in PROGRAM.CS, LINE 57, update same connection string in App.config
+
+
 ## Usage
 
 ### Running Manually[IN cmd or manually]
