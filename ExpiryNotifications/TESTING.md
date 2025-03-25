@@ -5,8 +5,10 @@ This guide explains how to test the notification system without waiting for actu
 ## Quick Start
 
 1. Build the solution in Visual Studio
-2. Open a command prompt in the ExpiryNotifications folder
-3. Run one of the following commands:
+2. Ensure the App.config and Web.Config is properly configured.
+3. Run ExpiryNotifications.exe
+
+3. Run one of the following commands if want to use Test Mode
 
 ```
 RunTests.bat all         # Test all scenarios
@@ -49,7 +51,7 @@ When running in test mode:
 
 After running a test:
 
-1. Check your email inbox for the test notifications
+1. Check your email inbox/spam inbox for the test notifications
 2. Verify that the email content is formatted correctly
 3. For the "critical" scenario, check that items expiring within 7 days are highlighted in red
 4. For the "one-month" scenario, check that items expiring within 30 days are highlighted in orange
@@ -58,7 +60,7 @@ After running a test:
 
 If you don't receive test emails:
 
-1. Check that your SMTP settings in Web.config are correct
-2. Verify that the email address in the code is correct
+1. Check that your SMTP settings in Web.config and App Config are correct
+2. Verify that the email address added is correct
 3. Check your spam/junk folder
 4. Look at the console output for any error messages
