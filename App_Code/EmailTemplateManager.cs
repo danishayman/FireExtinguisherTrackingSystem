@@ -24,7 +24,7 @@ namespace FETS
             DateTime? estimatedReturnDate = null)
         {
             // Path to the template file
-            string templatePath = HttpContext.Current.Server.MapPath("~/EmailTemplates/ServiceEmailTemplate.html");
+            string templatePath = HttpContext.Current.Server.MapPath("~/ExpiryNotifications/EmailTemplates/ServiceEmailTemplate.html");
             
             // Read the template
             string template = File.ReadAllText(templatePath);
@@ -59,7 +59,7 @@ namespace FETS
         public static string GetMultipleServiceEmailTemplate(List<FireExtinguisherServiceInfo> extinguishers)
         {
             // Path to the template file
-            string templatePath = HttpContext.Current.Server.MapPath("~/EmailTemplates/ServiceEmailTemplate.html");
+            string templatePath = HttpContext.Current.Server.MapPath("~/ExpiryNotifications/EmailTemplates/ServiceEmailTemplate.html");
             
             // Read the template
             string template = File.ReadAllText(templatePath);
@@ -139,7 +139,7 @@ namespace FETS
             string notificationType = "Expiry Notification")
         {
             // Path to the template file
-            string templatePath = HttpContext.Current.Server.MapPath("~/EmailTemplates/ExpiryEmailTemplate.html");
+            string templatePath = HttpContext.Current.Server.MapPath("~/ExpiryNotifications/EmailTemplates/ExpiryEmailTemplate.html");
             
             // Read the template
             string template = File.ReadAllText(templatePath);
@@ -197,7 +197,7 @@ namespace FETS
         public static string GetMultipleExpiryEmailTemplate(List<FireExtinguisherExpiryInfo> extinguishers)
         {
             // Path to the template file
-            string templatePath = HttpContext.Current.Server.MapPath("~/EmailTemplates/ExpiryEmailTemplate.html");
+            string templatePath = HttpContext.Current.Server.MapPath("~/ExpiryNotifications/EmailTemplates/ExpiryEmailTemplate.html");
             
             // Read the template
             string template = File.ReadAllText(templatePath);
@@ -318,7 +318,7 @@ namespace FETS
             string remarks = null)
         {
             // Path to the template file
-            string templatePath = HttpContext.Current.Server.MapPath("~/EmailTemplates/ServiceEmailTemplate.html");
+            string templatePath = HttpContext.Current.Server.MapPath("~/ExpiryNotifications/EmailTemplates/ServiceEmailTemplate.html");
             
             // Read the template
             string template = File.ReadAllText(templatePath);
@@ -358,7 +358,7 @@ namespace FETS
         public static string GetMultipleServiceCompletionEmailTemplate(List<FireExtinguisherServiceInfo> extinguishers, DateTime serviceCompletionDate, DateTime newExpiryDate)
         {
             // Path to the template file
-            string templatePath = HttpContext.Current.Server.MapPath("~/EmailTemplates/ServiceEmailTemplate.html");
+            string templatePath = HttpContext.Current.Server.MapPath("~/ExpiryNotifications/EmailTemplates/ServiceEmailTemplate.html");
             
             // Read the template
             string template = File.ReadAllText(templatePath);
