@@ -25,9 +25,9 @@
   </system.web>
   <system.net>
     <mailSettings>
-      <smtp from="irfandanishnoorazlin@gmail.com">
-        <network host="smtp.gmail.com" port="587" userName="irfandanishnoorazlin@gmail.com"
-          password="hsjw qekp vtxi zoki" enableSsl="true" />
+      <smtp from="">
+        <network host="smtp.gmail.com" port="587" userName=""
+          password="" enableSsl="true" />
       </smtp>
     </mailSettings>
   </system.net>
