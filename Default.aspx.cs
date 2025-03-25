@@ -14,7 +14,7 @@ namespace FETS
                 Response.Redirect("~/Pages/Dashboard/Dashboard.aspx");
             }
         }
-
+        //prevent from login again when page reload
         protected void btnLogin_Click(object sender, EventArgs e)
         {
             string username = txtUsername.Text.Trim();
@@ -32,8 +32,8 @@ namespace FETS
                 lblMessage.Visible = true;
             }
         }
-
-        private bool ValidateUser(string username, string password)
+        //normal log in --> redirects to page
+        private bool ValidateUser(string username, string password)  //check db for role as admin
         {
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))

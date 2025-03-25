@@ -2,6 +2,8 @@ using System;
 using System.Web.UI;
 using System.Web.Security;
 
+
+//THIS IS THE NAVBAR
 namespace FETS
 {
     public partial class SiteMaster : MasterPage

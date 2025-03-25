@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="Assets/css/styles.css" rel="stylesheet" />
         <style>
-          /* Enhanced styling for FETS login page */
             body {
                 background-color: #f5f7fa;
                 font-family: 'Poppins', sans-serif;
@@ -64,7 +63,7 @@
             }
 
             .logo {
-                /* max-width: 120px; */
+                
                 height: auto;
                 display: block;
                 position: relative;
@@ -96,10 +95,10 @@
             .message {
                 display: block;
                 position: absolute;
-                bottom: 20px; /* Adjust position from bottom */
-                right: 20px; /* Align to bottom-right */
+                bottom: 20px; 
+                right: 20px; 
                 width: auto;
-                max-width: 300px; /* Prevent excessive width */
+                max-width: 300px; 
                 padding: 12px 20px;
                 background-color: #ffe8e8;
                 color: #d63031;
@@ -200,36 +199,36 @@
 
             @media (min-width: 1600px) {
                 .logo {
-                    width: 50%; /* Slightly larger logo for big screens */
-                    top: 12rem; /* Adjust position slightly */
+                    width: 50%; 
+                    top: 12rem; 
                 }
             }
 
-            /* Standard Desktop Screens */
+            
             @media (max-width: 1440px) {
                 .logo {
-                    width: 50%; /* Standard size */
+                    width: 50%; 
                     top: 8rem;
                 }
             }
 
-            /* Small Desktops and Laptops */
+            
             @media (max-width: 1080px) {
                 .logo {
-                    width: 50%; /* Slightly smaller for smaller desktops */
+                    width: 50%; 
                     top: 6rem;
                 }
             }
 
-            /* Tablets and Small Laptops */
+            
             @media (max-width: 1024px) {
                 .logo {
-                    width: 40%; /* Reduce size */
+                    width: 40%; 
                     top: 5rem;
                 }
             }
 
-            /* Mobile Screens */
+            
             @media (max-width: 768px) {
                 .logo {
                     width: 140px;
@@ -237,7 +236,7 @@
                 }
             }
 
-            /* Very Small Phones */
+            
             @media (max-width: 480px) {
                 .logo {
                     width: 120px;
