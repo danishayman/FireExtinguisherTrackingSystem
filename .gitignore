@@ -6,5 +6,5 @@
 obj/
 packages/
 bin/
-
+App.config
 Web.config
