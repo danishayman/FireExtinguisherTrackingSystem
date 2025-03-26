@@ -985,7 +985,7 @@ namespace FETS.Pages.ViewSection
                     // If a specific recipient is provided, use it
                     if (!string.IsNullOrEmpty(recipient))
                     {
-                        message.To.Add(new MailboxAddress("", recipient));
+                    message.To.Add(new MailboxAddress("", recipient));
                     }
                     else
                     {
@@ -1132,7 +1132,7 @@ namespace FETS.Pages.ViewSection
             public string NotificationType { get; set; }
         }
 
-        protected void btnSendToService_Click(object sender, EventArgs e)
+         protected void btnSendToService_Click(object sender, EventArgs e)
         {
             LinkButton btn = (LinkButton)sender;
             string extinguisherId = btn.CommandArgument;
