@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web.config" />
+    <Content Include="ExpiryNotifications\App.config" />
     <Content Include="Default.aspx" />
     <Content Include="Assets\css\styles.css" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />
