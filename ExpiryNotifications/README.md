@@ -23,7 +23,7 @@ Lines that are needed to be change will be tagged
     <add key="EmailRecipient" value="danishaiman3b@gmail.com" />  -->default recipient email
   </appSettings>
   <connectionStrings>
-    <add name="FETSConnection" connectionString="Data Source=localhost;Initial Catalog=FETS;User ID=danishaiman;Password=12345;Connection   Timeout=30" providerName="System.Data.SqlClient" />         --> alter based on DB credentials
+    <add name="FETSConnection" connectionString="Data Source=localhost;Initial Catalog=FETS;User ID=;Password=;Connection   Timeout=30" providerName="System.Data.SqlClient" />         --> alter based on DB credentials
   </connectionStrings>
   <system.net>
     <mailSettings>
