@@ -1,4 +1,5 @@
 # 🧯 Fire Extinguisher Tracking System (FETS)
+![alt text](Uploads\misc\image.png)
 
 ## 📖 About
 The Fire Extinguisher Tracking System (FETS) is a comprehensive web-based solution designed to manage and monitor fire extinguishers across facilities. This system helps organizations maintain safety compliance by tracking inspections, services, and sending timely notifications.
@@ -9,20 +10,21 @@ The Fire Extinguisher Tracking System (FETS) is a comprehensive web-based soluti
 - 🔍 Fire Extinguisher Management
   - Track location and status
   - Monitor expiry dates
+  
 
 - 📅 Service Management
   - Schedule maintenance
   - Track service dates
-  - Vendor management
-  - Service quality follow-ups
+![alt text](Uploads\misc\image-1.png)
 
 - 📧 Automated Notifications
   - Expiry reminders
   - Service follow-up reminders (7 days post-service)
   - Email notifications to person in charge
   - Custom email templates
+  ![alt text](Uploads\misc\image-2.png)
 
-
+0
 ## 🛠️ Technology Stack
 - **Framework**: ASP.NET Web Forms (.NET Framework 4.8)
 - **Database**: Microsoft SQL Server
