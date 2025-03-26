@@ -14,32 +14,36 @@
             --text-secondary: #666;
             --border-color: #dee2e6;
             --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            --radius: 5px;
+            --radius: 8px;
             --background-color: #f5f7fa;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
         }
 
         /* Layout */
         body {
             background-color: var(--background-color);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
         }
 
         .dashboard-container {
-            padding: 20px;
-            max-width: 1200px;
+            padding: clamp(1rem, 2vw, 2rem);
+            max-width: 1400px;
             margin: 0 auto;
             width: 100%;
+            box-sizing: border-box;
         }
 
         .dashboard-header {
             width: 100%;
-            max-width: 1100px;
-            min-width: 1000px;
             text-align: center;
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            padding: 25px;
-            margin: 0 auto 30px auto;
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
+            padding: clamp(1.5rem, 3vw, 2rem);
+            margin: 0 auto 2rem auto;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -50,9 +54,9 @@
         .dashboard-header h2 {
             margin: 0;
             color: var(--text-color);
-            font-size: 1.75rem;
+            font-size: clamp(1.5rem, 3vw, 2rem);
             font-weight: 600;
-            padding-bottom: 15px;
+            padding-bottom: 1rem;
             text-align: center;
             width: 100%;
             border-bottom: 2px solid var(--primary-color);
@@ -61,38 +65,36 @@
         .dashboard-grid {
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 2rem;
             width: 100%;
         }
 
         /* Chart section */
         .chart-section {
             background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: clamp(1.5rem, 3vw, 2rem);
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
             width: 100%;
-            max-width: 1100px;
-            min-width: 1000px;
             margin: 0 auto;
             box-sizing: border-box;
             height: auto;
         }
 
         .chart-section h3 {
-            margin: 0 0 20px 0;
+            margin: 0 0 1.5rem 0;
             color: var(--text-color);
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
             text-align: center;
-            padding-bottom: 10px;
+            padding-bottom: 0.75rem;
             border-bottom: 2px solid var(--primary-color);
             width: 100%;
         }
 
         .chart-container {
             width: 100%;
-            height: 350px;
-            max-width: 500px;
+            height: clamp(250px, 40vh, 400px);
+            max-width: 600px;
             margin: 0 auto;
             display: flex;
             justify-content: center;
@@ -116,53 +118,57 @@
         /* Plants section */
         .plants-section {
             background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: clamp(1.5rem, 3vw, 2rem);
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
             width: 100%;
-            max-width: 1100px;
-            min-width: 1000px;
             margin: 0 auto;
             box-sizing: border-box;
-            padding-bottom: 50px;
+            padding-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .plants-section h3 {
-            margin: 0 0 20px 0;
+            margin: 0 0 1.5rem 0;
             color: var(--text-color);
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
             text-align: center;
-            padding-bottom: 10px;
+            padding-bottom: 0.75rem;
             border-bottom: 2px solid var(--primary-color);
             width: 100%;
         }
 
         .plants-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(3, 320px);
+            gap: 3rem;
+            padding: 3rem;
+            justify-content: center;
+            max-width: 1200px;
             width: 100%;
-            padding: 15px;
         }
 
         /* Plant Card Styles */
         .plant-card {
             background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
             display: flex;
             flex-direction: column;
             height: 100%;
             border: 1px solid var(--border-color);
             position: relative;
             overflow: hidden;
+            width: 100%;
         }
 
         .plant-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         }
 
         .plant-card:before {
@@ -179,14 +185,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
             border-bottom: 1px solid var(--border-color);
         }
 
         .plant-title {
             color: var(--text-color);
-            font-size: 1.3rem;
+            font-size: 0.9rem;
             font-weight: 600;
             text-align: left;
             flex: 1;
@@ -197,19 +203,19 @@
             flex-direction: column;
             align-items: center;
             background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 8px 15px;
+            border-radius: var(--radius);
+            padding: 0.3rem 0.6rem;
             border: 1px solid #e9ecef;
         }
 
         .total-number {
-            font-size: 1.5rem;
+            font-size: 1rem;
             font-weight: 700;
             color: var(--primary-color);
         }
 
         .total-label {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #6c757d;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -219,53 +225,70 @@
         .status-summary {
             display: flex;
             justify-content: center;
-            margin-bottom: 20px;
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
         }
 
         .status-chart {
-            width: 180px;
-            height: 180px;
+            width: 140px;
+            height: 140px;
             position: relative;
         }
 
         .status-pie-container {
             width: 100%;
             height: 100%;
+            padding: 0.5rem;
         }
 
         /* Stats list improvements */
         .stats-list {
             list-style: none;
-            padding: 0;
+            padding: 0.75rem;
             margin: 0;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
+            gap: 1rem;
+            background-color: #f8f9fa;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
         }
 
         .stat-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            margin-bottom: 10px;
+            padding: 0.75rem 1rem;
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            transform: translateX(3px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
         }
 
         .stat-label {
-            color: var(--text-secondary);
+            color: var(--text-color);
             font-size: 0.95rem;
             font-weight: 500;
-            flex: 1;
             display: flex;
             align-items: center;
+            gap: 0.75rem;
         }
 
         .stat-indicator {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            margin-right: 8px;
             display: inline-block;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
         }
 
         .stat-indicator.in-use { background-color: var(--success-color); }
@@ -273,63 +296,54 @@
         .stat-indicator.expired { background-color: var(--danger-color); }
         .stat-indicator.expiring-soon { background-color: var(--alert-color); }
 
-        .stat-value-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 2;
-        }
-
-        .progress-bar {
-            height: 10px;
-            background-color: #f1f1f1;
-            border-radius: 5px;
-            overflow: hidden;
-            flex: 1;
-        }
-
-        .progress {
-            height: 100%;
-            border-radius: 5px;
-            transition: width 1s ease-in-out;
-        }
-
-        .progress.in-use { background-color: var(--success-color); }
-        .progress.under-service { background-color: var(--warning-color); }
-        .progress.expired { background-color: var(--danger-color); }
-        .progress.expiring-soon { background-color: var(--alert-color); }
-
         .stat-value {
             font-size: 1.1rem;
             font-weight: 600;
-            min-width: 40px;
-            text-align: right;
+            min-width: 45px;
+            text-align: center;
             white-space: nowrap;
+            padding: 0.3rem 0.75rem;
+            border-radius: 6px;
+            background-color: #f8f9fa;
         }
 
-        .stat-value.in-use { color: var(--success-color); }
-        .stat-value.under-service { color: var(--warning-color); }
-        .stat-value.expired { color: var(--danger-color); }
-        .stat-value.expiring-soon { color: var(--alert-color); }
+        .stat-value.in-use { 
+            color: var(--success-color);
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+        .stat-value.under-service { 
+            color: var(--warning-color);
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+        .stat-value.expired { 
+            color: var(--danger-color);
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        .stat-value.expiring-soon { 
+            color: var(--alert-color);
+            background-color: rgba(253, 126, 20, 0.1);
+        }
 
         /* Enhanced responsive design */
         @media (max-width: 1200px) {
-            .chart-section,
-            .plants-section,
-            .dashboard-header {
-                min-width: auto;
-                width: 100%;
-            }
-            
             .plants-grid {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                grid-template-columns: repeat(2, 320px);
+                gap: 1.75rem;
+                max-width: 800px;
             }
         }
 
         @media (max-width: 768px) {
+            .plants-grid {
+                grid-template-columns: 320px;
+                gap: 1.5rem;
+                max-width: 400px;
+                padding: 0.5rem;
+            }
+            
             .plant-header {
                 flex-direction: column;
-                gap: 10px;
+                gap: 0.5rem;
                 align-items: flex-start;
             }
             
@@ -338,43 +352,64 @@
             }
             
             .status-chart {
-                width: 150px;
-                height: 150px;
-            }
-            
-            .dashboard-container {
-                padding: 10px;
-            }
-            
-            .chart-section, 
-            .plants-section {
-                padding: 20px;
+                width: 100px;
+                height: 100px;
             }
         }
 
-        @media (max-width: 576px) {
+        @media (max-width: 480px) {
             .plants-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 1.25rem;
             }
             
             .plant-card {
-                padding: 15px;
+                padding: 0.6rem;
             }
             
-            .stat-value-container {
+            .next-expiry {
                 flex-direction: column;
-                align-items: flex-end;
-                gap: 5px;
+                gap: 0.4rem;
+                align-items: flex-start;
+                padding: 0.6rem 0.75rem;
             }
-            
-            .progress-bar {
-                width: 100%;
+
+            .expiry-date {
+                align-self: flex-end;
+                font-size: 0.85rem;
             }
-            
-            .chart-container {
-                height: 300px;
-            }
+        }
+
+        .next-expiry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background-color: #f8f9fa;
+            border-radius: var(--radius);
+            margin-bottom: 0.75rem;
+            border: 1px solid #e9ecef;
+            transition: var(--transition);
+        }
+
+        .next-expiry:hover {
+            background-color: #f1f3f5;
+        }
+
+        .expiry-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .expiry-date {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .expiry-date.no-expiry {
+            color: #6c757d;
+            font-style: italic;
         }
     </style>
 </asp:Content>
@@ -410,6 +445,13 @@
                                     </div>
                                 </div>
                                 
+                                <div class="next-expiry">
+                                    <span class="expiry-label">Next Expiry:</span>
+                                    <span class="expiry-date <%# Convert.ToDateTime(Eval("NextExpiryDate")) == DateTime.MaxValue ? "no-expiry" : "" %>">
+                                        <%# Convert.ToDateTime(Eval("NextExpiryDate")) == DateTime.MaxValue ? "No upcoming expiries" : Convert.ToDateTime(Eval("NextExpiryDate")).ToString("dd/MM/yyyy") %>
+                                    </span>
+                                </div>
+                                
                                 <div class="status-summary">
                                     <div class="status-chart">
                                         <div class="status-pie-container">
@@ -424,65 +466,37 @@
                                 </div>
                                 
                                 <ul class="stats-list">
-                                    <!-- In-Use extinguishers with percentage bar -->
+                                    <!-- In-Use extinguishers -->
                                     <li class="stat-item">
                                         <span class="stat-label">
                                             <span class="stat-indicator in-use"></span>
                                             In Use
                                         </span>
-                                        <div class="stat-value-container">
-                                            <div class="progress-bar">
-                                                <div class="progress in-use" 
-                                                     style="width: <%# GetPercentage(Eval("InUse"), Eval("TotalFE")) %>%;">
-                                                </div>
-                                            </div>
-                                            <span class="stat-value in-use"><%# Eval("InUse", "{0:N0}") %></span>
-                                        </div>
+                                        <span class="stat-value in-use"><%# Eval("InUse", "{0:N0}") %></span>
                                     </li>
-                                    <!-- Under service extinguishers with percentage bar -->
+                                    <!-- Under service extinguishers -->
                                     <li class="stat-item">
                                         <span class="stat-label">
                                             <span class="stat-indicator under-service"></span>
                                             Under Service
                                         </span>
-                                        <div class="stat-value-container">
-                                            <div class="progress-bar">
-                                                <div class="progress under-service" 
-                                                     style="width: <%# GetPercentage(Eval("UnderService"), Eval("TotalFE")) %>%;">
-                                                </div>
-                                            </div>
-                                            <span class="stat-value under-service"><%# Eval("UnderService", "{0:N0}") %></span>
-                                        </div>
+                                        <span class="stat-value under-service"><%# Eval("UnderService", "{0:N0}") %></span>
                                     </li>
-                                    <!-- Expired extinguishers with percentage bar -->
+                                    <!-- Expired extinguishers -->
                                     <li class="stat-item">
                                         <span class="stat-label">
                                             <span class="stat-indicator expired"></span>
                                             Expired
                                         </span>
-                                        <div class="stat-value-container">
-                                            <div class="progress-bar">
-                                                <div class="progress expired" 
-                                                     style="width: <%# GetPercentage(Eval("Expired"), Eval("TotalFE")) %>%;">
-                                                </div>
-                                            </div>
-                                            <span class="stat-value expired"><%# Eval("Expired", "{0:N0}") %></span>
-                                        </div>
+                                        <span class="stat-value expired"><%# Eval("Expired", "{0:N0}") %></span>
                                     </li>
-                                    <!-- Soon-to-expire extinguishers with percentage bar -->
+                                    <!-- Soon-to-expire extinguishers -->
                                     <li class="stat-item">
                                         <span class="stat-label">
                                             <span class="stat-indicator expiring-soon"></span>
                                             Expiring Soon
                                         </span>
-                                        <div class="stat-value-container">
-                                            <div class="progress-bar">
-                                                <div class="progress expiring-soon" 
-                                                     style="width: <%# GetPercentage(Eval("ExpiringSoon"), Eval("TotalFE")) %>%;">
-                                                </div>
-                                            </div>
-                                            <span class="stat-value expiring-soon"><%# Eval("ExpiringSoon", "{0:N0}") %></span>
-                                        </div>
+                                        <span class="stat-value expiring-soon"><%# Eval("ExpiringSoon", "{0:N0}") %></span>
                                     </li>
                                 </ul>
                             </div>
@@ -518,6 +532,35 @@
                     maintainAspectRatio: false,
                     cutout: '75%',
                     plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: '#333',
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyColor: '#666',
+                            bodyFont: {
+                                size: 13
+                            },
+                            padding: 12,
+                            boxPadding: 8,
+                            borderColor: '#ddd',
+                            borderWidth: 1,
+                            displayColors: true,
+                            boxWidth: 12,
+                            boxHeight: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return ` ${label}: ${value} units (${percentage}%)`;
+                                }
+                            }
+                        },
                         legend: {
                             position: 'bottom',
                             labels: {
@@ -537,35 +580,9 @@
                                         lineWidth: 1,
                                         strokeStyle: '#666'
                                     }));
-                                },
-                                onClick: function(e, legendItem, legend) {
-                                    const index = legendItem.index;
-                                    const chart = legend.chart;
-                                    
-                                    chart.toggleDataVisibility(index);
-                                    
-                                    legend.options.labels.generateLabels(chart);
-                                    
-                                    chart.update();
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
                                 }
                             }
                         }
-                    },
-                    animation: {
-                        animateScale: true,
-                        animateRotate: true,
-                        duration: 1000
                     }
                 }
             });
@@ -585,40 +602,96 @@
                         datasets: [{
                             data: [inUse, underService, expired, expiringSoon],
                             backgroundColor: [
-                                '#28a745', // success-color
-                                '#ffc107', // warning-color
-                                '#dc3545', // danger-color
-                                '#fd7e14'  // alert-color
+                                'rgba(40, 167, 69, 0.85)',  // success-color
+                                'rgba(255, 193, 7, 0.85)',  // warning-color
+                                'rgba(220, 53, 69, 0.85)',  // danger-color
+                                'rgba(253, 126, 20, 0.85)'  // alert-color
                             ],
-                            borderWidth: 1,
-                            borderColor: '#ffffff'
+                            borderColor: [
+                                '#28a745',  // success-color
+                                '#ffc107',  // warning-color
+                                '#dc3545',  // danger-color
+                                '#fd7e14'   // alert-color
+                            ],
+                            borderWidth: 2,
+                            hoverBackgroundColor: [
+                                'rgba(40, 167, 69, 1)',   // solid success-color
+                                'rgba(255, 193, 7, 1)',   // solid warning-color
+                                'rgba(220, 53, 69, 1)',   // solid danger-color
+                                'rgba(253, 126, 20, 1)'   // solid alert-color
+                            ],
+                            hoverBorderColor: '#ffffff',
+                            hoverBorderWidth: 3
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: true,
-                        cutout: '70%',
+                        cutout: '60%',
+                        layout: {
+                            padding: {
+                                top: 20,
+                                bottom: 20,
+                                left: 20,
+                                right: 20
+                            }
+                        },
                         plugins: {
-                            legend: {
-                                display: false
-                            },
                             tooltip: {
+                                enabled: true,
+                                position: 'nearest',
+                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                titleColor: '#333',
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                bodyColor: '#666',
+                                bodyFont: {
+                                    size: 13,
+                                    weight: '500'
+                                },
+                                padding: 12,
+                                boxPadding: 8,
+                                borderColor: '#ddd',
+                                borderWidth: 1,
+                                displayColors: true,
+                                boxWidth: 12,
+                                boxHeight: 12,
+                                cornerRadius: 8,
+                                usePointStyle: true,
+                                caretSize: 8,
+                                caretPadding: 6,
                                 callbacks: {
+                                    title: function(tooltipItems) {
+                                        return tooltipItems[0].label;
+                                    },
                                     label: function(context) {
-                                        const label = context.label || '';
                                         const value = context.raw || 0;
                                         const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        if (total === 0) return `${label}: ${value}`;
-                                        const percentage = Math.round((value / total) * 100);
-                                        return `${label}: ${value} (${percentage}%)`;
+                                        const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                        return ` ${value} units (${percentage}%)`;
                                     }
                                 }
+                            },
+                            legend: {
+                                display: false
                             }
                         },
                         animation: {
                             animateScale: true,
                             animateRotate: true,
                             duration: 1000
+                        },
+                        elements: {
+                            arc: {
+                                borderWidth: 2
+                            }
+                        },
+                        interaction: {
+                            mode: 'nearest',
+                            intersect: false,
+                            axis: 'xy'
                         }
                     }
                 });

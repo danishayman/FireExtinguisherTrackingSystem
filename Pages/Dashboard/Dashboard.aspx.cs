@@ -30,22 +30,24 @@ namespace FETS.Pages
             {
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(@"
-                    SELECT 
-                        p.PlantID,
-                        p.PlantName,
-                        COUNT(fe.FEID) as TotalFE,
-                        SUM(CASE WHEN s.StatusName = 'Active' THEN 1 ELSE 0 END) as InUse,
-                        SUM(CASE WHEN s.StatusName = 'Under Service' THEN 1 ELSE 0 END) as UnderService,
-                        SUM(CASE WHEN fe.DateExpired < GETDATE() THEN 1 ELSE 0 END) as Expired,
-                        SUM(CASE 
-                            WHEN fe.DateExpired >= GETDATE() 
-                            AND fe.DateExpired <= DATEADD(month, 2, GETDATE()) 
-                            THEN 1 ELSE 0 END) as ExpiringSoon
-                    FROM Plants p
-                    LEFT JOIN FireExtinguishers fe ON p.PlantID = fe.PlantID
-                    LEFT JOIN Status s ON fe.StatusID = s.StatusID
-                    GROUP BY p.PlantID, p.PlantName
-                    ORDER BY p.PlantName", conn))
+SELECT 
+    p.PlantID,
+    p.PlantName,
+    COUNT(fe.FEID) as TotalFE,
+    SUM(CASE WHEN s.StatusName = 'Active' THEN 1 ELSE 0 END) as InUse,
+    SUM(CASE WHEN s.StatusName = 'Under Service' THEN 1 ELSE 0 END) as UnderService,
+    SUM(CASE WHEN s.StatusName = 'Expired' THEN 1 ELSE 0 END) as Expired,
+    SUM(CASE WHEN s.StatusName = 'Expiring Soon' THEN 1 ELSE 0 END) as ExpiringSoon,
+    MIN(CASE 
+        WHEN s.StatusName IN ('Active', 'Expiring Soon') AND fe.DateExpired >= GETDATE()
+        THEN fe.DateExpired 
+        ELSE NULL 
+    END) as NextExpiryDate
+FROM Plants p
+LEFT JOIN FireExtinguishers fe ON p.PlantID = fe.PlantID
+LEFT JOIN Status s ON fe.StatusID = s.StatusID
+GROUP BY p.PlantID, p.PlantName
+ORDER BY p.PlantName", conn))
                 {
                     using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                     {
@@ -60,6 +62,7 @@ namespace FETS.Pages
                             if (row["UnderService"] == DBNull.Value) row["UnderService"] = 0;
                             if (row["Expired"] == DBNull.Value) row["Expired"] = 0;
                             if (row["ExpiringSoon"] == DBNull.Value) row["ExpiringSoon"] = 0;
+                            if (row["NextExpiryDate"] == DBNull.Value) row["NextExpiryDate"] = DateTime.MaxValue;
                         }
 
                         rptPlants.DataSource = dt;
@@ -94,7 +97,7 @@ namespace FETS.Pages
                         {
                             string type = reader["Type"].ToString();
                             int count = Convert.ToInt32(reader["Count"]);
-                            
+
                             if (type == "ABC") abcCount = count;
                             else if (type == "CO2") co2Count = count;
                         }
@@ -105,7 +108,7 @@ namespace FETS.Pages
                 }
             }
         }
-        
+
         /// <summary>
         /// Calculates percentage for progress bar visualization
         /// </summary>
@@ -115,12 +118,12 @@ namespace FETS.Pages
         protected string GetPercentage(object value, object total)
         {
             if (value == null || total == null) return "0";
-            
+
             int val = Convert.ToInt32(value);
             int tot = Convert.ToInt32(total);
-            
+
             if (tot == 0) return "0";
-            
+
             return Math.Min(100, (val * 100) / tot).ToString();
         }
     }

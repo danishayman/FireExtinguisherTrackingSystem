@@ -276,32 +276,30 @@
 
     <asp:Content ID="MainContent" ContentPlaceHolderID="MainContent" runat="server">
         <div class="content-container">
-            <div class="data-entry-form"></div>
+            <div class="data-entry-form">
                 <h3 class="text-center">Add New Fire Extinguisher</h3>
 
                 <!-- Serial Number and Plant Selection -->
                 <div class="form-row">
-                    <div class="form-col"></div>
+                    <div class="form-col">
                         <div class="form-group">
-                            <asp:Label ID="lblSerialNumber" runat="server" Text="Serial Number:"
-                                AssociatedControlID="txtSerialNumber"></asp:Label>
+                            <asp:Label ID="lblSerialNumber" runat="server" Text="Serial Number:" AssociatedControlID="txtSerialNumber"></asp:Label>
                             <asp:TextBox ID="txtSerialNumber" runat="server" CssClass="form-control"></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvSerialNumber" runat="server"
-                                ControlToValidate="txtSerialNumber" ErrorMessage="Serial Number is required."
-                                CssClass="validation-error" Display="Dynamic">
+                            <asp:RequiredFieldValidator ID="rfvSerialNumber" runat="server" ControlToValidate="txtSerialNumber" 
+                                ErrorMessage="Serial Number is required." CssClass="validation-error" Display="Dynamic">
                             </asp:RequiredFieldValidator>
                         </div>
                     </div>
 
-                    <div class="form-col"></div>
+                    <div class="form-col">
                         <div class="form-group">
-                            <asp:Label ID="lblPlant" runat="server" Text="Plant:" AssociatedControlID="ddlPlant">
-                            </asp:Label>
-                            <asp:DropDownList ID="ddlPlant" runat="server" CssClass="form-control" AutoPostBack="true"
-                                OnSelectedIndexChanged="ddlPlant_SelectedIndexChanged"></asp:DropDownList>
+                            <asp:Label ID="lblPlant" runat="server" Text="Plant:" AssociatedControlID="ddlPlant"></asp:Label>
+                            <asp:DropDownList ID="ddlPlant" runat="server" CssClass="form-control" AutoPostBack="true" 
+                                OnSelectedIndexChanged="ddlPlant_SelectedIndexChanged">
+                            </asp:DropDownList>
                             <asp:RequiredFieldValidator ID="rfvPlant" runat="server" ControlToValidate="ddlPlant"
                                 ErrorMessage="Plant is required." CssClass="validation-error" Display="Dynamic"
-                                InitialValue=""></asp:RequiredFieldValidator>
+                                InitialValue="">
                             </asp:RequiredFieldValidator>
                         </div>
                     </div>
@@ -309,11 +307,10 @@
 
                 <!-- Level and Location Information -->
                 <div class="form-row">
-                    <div class="form-col"></div>
+                    <div class="form-col">
                         <div class="form-group">
-                            <asp:Label ID="lblLevel" runat="server" Text="Level:" AssociatedControlID="ddlLevel">
-                            </asp:Label>
-                            <asp:DropDownList ID="ddlLevel" runat="server" CssClass="form-control" Enabled="false"> </asp:DropDownList>
+                            <asp:Label ID="lblLevel" runat="server" Text="Level:" AssociatedControlID="ddlLevel"></asp:Label>
+                            <asp:DropDownList ID="ddlLevel" runat="server" CssClass="form-control" Enabled="false"></asp:DropDownList>
                             <asp:RequiredFieldValidator ID="rfvLevel" runat="server" ControlToValidate="ddlLevel"
                                 ErrorMessage="Level is required." CssClass="validation-error" Display="Dynamic"
                                 InitialValue="">
@@ -323,8 +320,7 @@
 
                     <div class="form-col">
                         <div class="form-group">
-                            <asp:Label ID="lblLocation" runat="server" Text="Location:"
-                                AssociatedControlID="txtLocation"></asp:Label>
+                            <asp:Label ID="lblLocation" runat="server" Text="Location:" AssociatedControlID="txtLocation"></asp:Label>
                             <asp:TextBox ID="txtLocation" runat="server" CssClass="form-control"></asp:TextBox>
                             <asp:RequiredFieldValidator ID="rfvLocation" runat="server" ControlToValidate="txtLocation"
                                 ErrorMessage="Location is required." CssClass="validation-error" Display="Dynamic">
@@ -336,9 +332,8 @@
                 <!-- Extinguisher Type and Expiry Date -->
                 <div class="form-row">
                     <div class="form-col">
-                        <div class="form-group"></div>
-                            <asp:Label ID="lblType" runat="server" Text="Type:" AssociatedControlID="ddlType">
-                            </asp:Label>
+                        <div class="form-group">
+                            <asp:Label ID="lblType" runat="server" Text="Type:" AssociatedControlID="ddlType"></asp:Label>
                             <asp:DropDownList ID="ddlType" runat="server" CssClass="form-control"></asp:DropDownList>
                             <asp:RequiredFieldValidator ID="rfvType" runat="server" ControlToValidate="ddlType"
                                 ErrorMessage="Type is required." CssClass="validation-error" Display="Dynamic"
@@ -349,29 +344,24 @@
 
                     <div class="form-col">
                         <div class="form-group">
-                            <asp:Label ID="lblExpiryDate" runat="server" Text="Expiry Date:"
-                                AssociatedControlID="txtExpiryDate"></asp:Label>
-                            <asp:TextBox ID="txtExpiryDate" runat="server" CssClass="form-control" TextMode="Date">
-                            </asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvExpiryDate" runat="server"
-                                ControlToValidate="txtExpiryDate" ErrorMessage="Expiry Date is required."
-                                CssClass="validation-error" Display="Dynamic">
+                            <asp:Label ID="lblExpiryDate" runat="server" Text="Expiry Date:" AssociatedControlID="txtExpiryDate"></asp:Label>
+                            <asp:TextBox ID="txtExpiryDate" runat="server" CssClass="form-control" TextMode="Date"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvExpiryDate" runat="server" ControlToValidate="txtExpiryDate" 
+                                ErrorMessage="Expiry Date is required." CssClass="validation-error" Display="Dynamic">
                             </asp:RequiredFieldValidator>
                         </div>
                     </div>
                 </div>
 
                 <!-- Additional Remarks -->
-                <div class="form-group"></div>
-                    <asp:Label ID="lblRemarks" runat="server" Text="Remarks:" AssociatedControlID="txtRemarks">
-                    </asp:Label>
-                    <asp:TextBox ID="txtRemarks" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3">
-                    </asp:TextBox>
+                <div class="form-group">
+                    <asp:Label ID="lblRemarks" runat="server" Text="Remarks:" AssociatedControlID="txtRemarks"></asp:Label>
+                    <asp:TextBox ID="txtRemarks" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3"></asp:TextBox>
                 </div>
 
                 <!-- Submit Button -->
-                <div class="form-group text-center"></div>
-                    <asp:Button ID="btnSubmit" runat="server" Text="Add Fire Extinguisher" OnClick="btnSubmit_Click"
+                <div class="form-group text-center">
+                    <asp:Button ID="btnSubmit" runat="server" Text="Add Fire Extinguisher" OnClick="btnSubmit_Click" 
                         CssClass="btn btn-primary" />
                 </div>
 
@@ -382,57 +372,42 @@
 
         <!-- Confirmation Popup Panel -->
         <asp:Panel ID="pnlConfirmation" runat="server" CssClass="popup-panel" Style="display: none;">
-            <div class="popup-content"></div>
+            <div class="popup-content">
                 <h3>Confirm Fire Extinguisher Details</h3>
                 <table>
                     <tr>
                         <td>Serial Number:</td>
-                        <td>
-                            <asp:Label ID="lblConfirmSerialNumber" runat="server"></asp:Label>
-                        </td>
+                        <td><asp:Label ID="lblConfirmSerialNumber" runat="server"></asp:Label></td>
                     </tr>
                     <tr>
                         <td>Plant:</td>
-                        <td>
-                            <asp:Label ID="lblConfirmPlant" runat="server"></asp:Label>
-                        </td>
+                        <td><asp:Label ID="lblConfirmPlant" runat="server"></asp:Label></td>
                     </tr>
                     <tr>
                         <td>Level:</td>
-                        <td>
-                            <asp:Label ID="lblConfirmLevel" runat="server"></asp:Label>
-                        </td>
+                        <td><asp:Label ID="lblConfirmLevel" runat="server"></asp:Label></td>
                     </tr>
                     <tr>
                         <td>Location:</td>
-                        <td>
-                            <asp:Label ID="lblConfirmLocation" runat="server"></asp:Label>
-                        </td>
+                        <td><asp:Label ID="lblConfirmLocation" runat="server"></asp:Label></td>
                     </tr>
                     <tr>
                         <td>Type:</td>
-                        <td>
-                            <asp:Label ID="lblConfirmType" runat="server"></asp:Label>
-                        </td>
+                        <td><asp:Label ID="lblConfirmType" runat="server"></asp:Label></td>
                     </tr>
                     <tr>
                         <td>Expiry Date:</td>
-                        <td>
-                            <asp:Label ID="lblConfirmExpiryDate" runat="server"></asp:Label>
-                        </td>
+                        <td><asp:Label ID="lblConfirmExpiryDate" runat="server"></asp:Label></td>
                     </tr>
                     <tr>
                         <td>Remarks:</td>
-                        <td>
-                            <asp:Label ID="lblConfirmRemarks" runat="server"></asp:Label>
-                        </td>
+                        <td><asp:Label ID="lblConfirmRemarks" runat="server"></asp:Label></td>
                     </tr>
                 </table>
                 <div class="popup-buttons">
-                    <asp:Button ID="btnCancel" runat="server" Text="Cancel"
+                    <asp:Button ID="btnCancel" runat="server" Text="Cancel" 
                         OnClientClick="hideConfirmationPopup(); return false;" CssClass="button cancel" />
-
-                    <asp:Button ID="btnConfirm" runat="server" Text="Confirm" OnClick="btnConfirm_Click"
+                    <asp:Button ID="btnConfirm" runat="server" Text="Confirm" OnClick="btnConfirm_Click" 
                         CssClass="button confirm" />
                 </div>
             </div>
