@@ -915,17 +915,29 @@ namespace FETS.Pages.ViewSection
         /// </summary>
         private void DeleteFireExtinguisher(int feId)
         {
-            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            string connectionString = GetConnectionString();
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("DELETE FROM FireExtinguishers WHERE FEID = @FEID", conn))
+                
+                // First, delete related records from ServiceReminders table
+                using (SqlCommand cmdDeleteReminders = new SqlCommand(
+                    "DELETE FROM ServiceReminders WHERE FEID = @FEID", conn))
                 {
-                    cmd.Parameters.AddWithValue("@FEID", feId);
-                    cmd.ExecuteNonQuery();
+                    cmdDeleteReminders.Parameters.AddWithValue("@FEID", feId);
+                    cmdDeleteReminders.ExecuteNonQuery();
+                }
+                
+                // Then delete the fire extinguisher
+                using (SqlCommand cmdDeleteFE = new SqlCommand(
+                    "DELETE FROM FireExtinguishers WHERE FEID = @FEID", conn))
+                {
+                    cmdDeleteFE.Parameters.AddWithValue("@FEID", feId);
+                    cmdDeleteFE.ExecuteNonQuery();
                 }
             }
-
+            
+            // Reload the grids after deletion
             LoadFireExtinguishers();
             LoadMonitoringPanels();
         }
