@@ -11,12 +11,51 @@ namespace FETS.Pages
 {
     public partial class Dashboard : System.Web.UI.Page
     {
+        // Add these properties to store the total counts
+        protected int TotalActive { get; private set; }
+        protected int TotalUnderService { get; private set; }
+        protected int TotalExpired { get; private set; }
+        protected int TotalExpiringSoon { get; private set; }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
+                LoadTotalStatusCounts();
                 LoadPlantStatistics();
                 LoadChartData();
+            }
+        }
+
+        /// <summary>
+        /// Loads total counts of fire extinguishers by status across all plants
+        /// </summary>
+        private void LoadTotalStatusCounts()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(@"
+                    SELECT 
+                        SUM(CASE WHEN s.StatusName = 'Active' THEN 1 ELSE 0 END) as TotalActive,
+                        SUM(CASE WHEN s.StatusName = 'Under Service' THEN 1 ELSE 0 END) as TotalUnderService,
+                        SUM(CASE WHEN s.StatusName = 'Expired' THEN 1 ELSE 0 END) as TotalExpired,
+                        SUM(CASE WHEN s.StatusName = 'Expiring Soon' THEN 1 ELSE 0 END) as TotalExpiringSoon
+                    FROM FireExtinguishers fe
+                    JOIN Status s ON fe.StatusID = s.StatusID", conn))
+                {
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            TotalActive = reader.IsDBNull(reader.GetOrdinal("TotalActive")) ? 0 : reader.GetInt32(reader.GetOrdinal("TotalActive"));
+                            TotalUnderService = reader.IsDBNull(reader.GetOrdinal("TotalUnderService")) ? 0 : reader.GetInt32(reader.GetOrdinal("TotalUnderService"));
+                            TotalExpired = reader.IsDBNull(reader.GetOrdinal("TotalExpired")) ? 0 : reader.GetInt32(reader.GetOrdinal("TotalExpired"));
+                            TotalExpiringSoon = reader.IsDBNull(reader.GetOrdinal("TotalExpiringSoon")) ? 0 : reader.GetInt32(reader.GetOrdinal("TotalExpiringSoon"));
+                        }
+                    }
+                }
             }
         }
 

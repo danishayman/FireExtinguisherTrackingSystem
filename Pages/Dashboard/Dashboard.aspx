@@ -411,6 +411,179 @@
             color: #6c757d;
             font-style: italic;
         }
+
+        /* Add this in the dashboard-grid div, right after the chart-section section */
+        <section class="chart-section total-stats-section">
+            <h3>Fire Extinguisher Status Overview</h3>
+            <div class="total-stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon active-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Active</h4>
+                        <div class="stat-number"><%= TotalActive %></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon service-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Under Service</h4>
+                        <div class="stat-number"><%= TotalUnderService %></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon expired-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Expired</h4>
+                        <div class="stat-number"><%= TotalExpired %></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon expiring-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Expiring Soon</h4>
+                        <div class="stat-number"><%= TotalExpiringSoon %></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        .total-stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: var(--radius);
+            padding: 1rem;
+            flex: 1;
+            min-width: 180px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .active-icon {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+
+        .service-icon {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning-color);
+        }
+
+        .expired-icon {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+        }
+
+        .expiring-icon {
+            background-color: rgba(253, 126, 20, 0.1);
+            color: var(--alert-color);
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-info h4 {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        /* Responsive styling */
+        @media (max-width: 768px) {
+            .total-stats-container {
+                flex-direction: column;
+            }
+            
+            .stat-card {
+                min-width: 100%;
+            }
+        }
+
+        /* Add these styles to the existing style section */
+        .chart-row {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .types-chart-section, .total-stats-section {
+            flex: 1;
+            min-width: 0; /* Ensures proper flexbox behavior */
+            width: calc(50% - 1rem);
+        }
+
+        /* Responsive styles for the chart row */
+        @media (max-width: 992px) {
+            .chart-row {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            
+            .types-chart-section, .total-stats-section {
+                width: 100%;
+            }
+        }
+
+        /* Adjust the cards to fit better in the status section */
+        .total-stats-container {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .stat-card {
+            min-width: calc(50% - 0.5rem);
+            flex: 0 0 calc(50% - 0.5rem);
+            box-sizing: border-box;
+        }
+
+        /* Make cards stack on smaller screens */
+        @media (max-width: 480px) {
+            .stat-card {
+                min-width: 100%;
+                flex: 0 0 100%;
+            }
+        }
     </style>
 </asp:Content>
 
@@ -421,16 +594,62 @@
         </div>
 
         <div class="dashboard-grid">
-            <!-- Main chart showing overall distribution of fire extinguisher types -->
-            <section class="chart-section">
-                <h3>Fire Extinguisher Types Distribution</h3>
-                <div class="chart-container">
-                    <canvas id="feTypeChart"></canvas>
-                </div>
-                <asp:HiddenField ID="hdnChartData" runat="server" />
-            </section>
+            <!-- Create a flex container for the two sections -->
+            <div class="chart-row">
+                <!-- Chart section (unchanged) -->
+                <section class="chart-section types-chart-section">
+                    <h3>Fire Extinguisher Types Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="feTypeChart"></canvas>
+                    </div>
+                    <asp:HiddenField ID="hdnChartData" runat="server" />
+                </section>
 
-            <!-- Cards showing statistics for each plant with responsive charts -->
+                <!-- Status overview section (unchanged) -->
+                <section class="chart-section total-stats-section">
+                    <h3>Fire Extinguisher Status Overview</h3>
+                    <div class="total-stats-container">
+                        <div class="stat-card">
+                            <div class="stat-icon active-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>Active</h4>
+                                <div class="stat-number"><%= TotalActive %></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon service-icon">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>Under Service</h4>
+                                <div class="stat-number"><%= TotalUnderService %></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon expired-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>Expired</h4>
+                                <div class="stat-number"><%= TotalExpired %></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon expiring-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>Expiring Soon</h4>
+                                <div class="stat-number"><%= TotalExpiringSoon %></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Plant statistics section (unchanged) -->
             <section class="plants-section">
                 <h3>Plant Statistics</h3>
                 <div class="plants-grid">
