@@ -21,8 +21,17 @@ namespace FETS.Pages.DataEntry
 
             if (!IsPostBack)
             {
+                // Show plant management section for admin users
+                divPlantManagement.Visible = (User.Identity.Name.ToLower() == "admin");
+                
                 LoadDropDownLists();
                 ddlLevel.Enabled = false; // Level dropdown is initially disabled until a plant is selected
+                
+                // Load plants for the deletion dropdown
+                if (divPlantManagement.Visible)
+                {
+                    LoadPlantsForDeletion();
+                }
 
                 // Display any success messages from previous operations
                 if (Session["SuccessMessage"] != null)
@@ -81,6 +90,35 @@ namespace FETS.Pages.DataEntry
         }
 
         /// <summary>
+        /// Loads all plants into the deletion dropdown
+        /// </summary>
+        private void LoadPlantsForDeletion()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                // Load Plants dropdown for deletion
+                using (SqlCommand cmd = new SqlCommand("SELECT PlantID, PlantName FROM Plants ORDER BY PlantName", conn))
+                {
+                    ddlDeletePlant.Items.Clear();
+                    ddlDeletePlant.Items.Add(new ListItem("-- Select Plant --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlDeletePlant.Items.Add(new ListItem(
+                                reader["PlantName"].ToString(),
+                                reader["PlantID"].ToString()
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Determines the status ID based on the extinguisher's expiry date
         /// </summary>
         /// <param name="expiryDate">The extinguisher's expiry date</param>
@@ -108,7 +146,7 @@ namespace FETS.Pages.DataEntry
                     statusName = "Active";
                 }
 
-                System.Diagnostics.Debug.WriteLine($"Determined status: {statusName} for expiry date: {expiryDate}");
+                System.Diagnostics.Debug.WriteLine(string.Format("Determined status: {0} for expiry date: {1}", statusName, expiryDate));
 
                 // Get status ID from database
                 using (SqlCommand cmd = new SqlCommand(
@@ -120,7 +158,7 @@ namespace FETS.Pages.DataEntry
                     if (result != null)
                     {
                         int statusId = Convert.ToInt32(result);
-                        System.Diagnostics.Debug.WriteLine($"Found StatusID: {statusId} for StatusName: {statusName}");
+                        System.Diagnostics.Debug.WriteLine(string.Format("Found StatusID: {0} for StatusName: {1}", statusId, statusName));
                         return statusId;
                     }
 
@@ -133,17 +171,17 @@ namespace FETS.Pages.DataEntry
                             System.Diagnostics.Debug.WriteLine("Available statuses in database:");
                             while (reader.Read())
                             {
-                                System.Diagnostics.Debug.WriteLine($"StatusID: {reader["StatusID"]}, StatusName: {reader["StatusName"]}");
+                                System.Diagnostics.Debug.WriteLine(string.Format("StatusID: {0}, StatusName: {1}", reader["StatusID"], reader["StatusName"]));
                             }
                         }
                     }
 
-                    throw new Exception($"Status '{statusName}' not found in the database. Please ensure the Status table is properly initialized.");
+                    throw new Exception(string.Format("Status '{0}' not found in the database. Please ensure the Status table is properly initialized.", statusName));
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error in GetStatusIdBasedOnExpiryDate: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine(string.Format("Error in GetStatusIdBasedOnExpiryDate: {0}", ex.Message));
                 throw;
             }
         }
@@ -296,17 +334,17 @@ namespace FETS.Pages.DataEntry
                 }
                 catch (SqlException sqlEx)
                 {
-                    System.Diagnostics.Debug.WriteLine($"SQL Error: {sqlEx.Message}");
-                    System.Diagnostics.Debug.WriteLine($"SQL Error Number: {sqlEx.Number}");
-                    System.Diagnostics.Debug.WriteLine($"SQL State: {sqlEx.State}");
-                    lblMessage.Text = $"Database error: {sqlEx.Message}";
+                    System.Diagnostics.Debug.WriteLine(string.Format("SQL Error: {0}", sqlEx.Message));
+                    System.Diagnostics.Debug.WriteLine(string.Format("SQL Error Number: {0}", sqlEx.Number));
+                    System.Diagnostics.Debug.WriteLine(string.Format("SQL State: {0}", sqlEx.State));
+                    lblMessage.Text = string.Format("Database error: {0}", sqlEx.Message);
                     lblMessage.CssClass = "message error";
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}");
-                    System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
-                    lblMessage.Text = $"Error adding fire extinguisher: {ex.Message}";
+                    System.Diagnostics.Debug.WriteLine(string.Format("Error: {0}", ex.Message));
+                    System.Diagnostics.Debug.WriteLine(string.Format("Stack Trace: {0}", ex.StackTrace));
+                    lblMessage.Text = string.Format("Error adding fire extinguisher: {0}", ex.Message);
                     lblMessage.CssClass = "message error";
                 }
             }
@@ -338,6 +376,240 @@ namespace FETS.Pages.DataEntry
             }
             else {
                 args.IsValid = false;
+            }
+        }
+
+        /// <summary>
+        /// Adds a new plant with the specified number of levels
+        /// </summary>
+        protected void btnAddPlant_Click(object sender, EventArgs e)
+        {
+            // Check validation for the plant form
+            Page.Validate("PlantGroup");
+            if (!Page.IsValid)
+            {
+                return;
+            }
+
+            string plantName = txtPlantName.Text.Trim();
+            int levelCount;
+            
+            if (!int.TryParse(txtLevelCount.Text, out levelCount) || levelCount < 1 || levelCount > 20)
+            {
+                lblPlantMessage.Text = "Please enter a valid number of levels (between 1 and 20).";
+                lblPlantMessage.CssClass = "message error";
+                return;
+            }
+
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                
+                // Check if plant name already exists
+                using (SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM Plants WHERE PlantName = @PlantName", conn))
+                {
+                    cmd.Parameters.AddWithValue("@PlantName", plantName);
+                    int count = (int)cmd.ExecuteScalar();
+                    
+                    if (count > 0)
+                    {
+                        lblPlantMessage.Text = "A plant with this name already exists.";
+                        lblPlantMessage.CssClass = "message error";
+                        return;
+                    }
+                }
+                
+                // Use a transaction to ensure data consistency
+                using (SqlTransaction transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        int plantId;
+                        
+                        // Add the plant
+                        using (SqlCommand cmd = new SqlCommand(
+                            "INSERT INTO Plants (PlantName) VALUES (@PlantName); SELECT SCOPE_IDENTITY();", 
+                            conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@PlantName", plantName);
+                            plantId = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+                        
+                        // Add levels for the plant
+                        for (int i = 1; i <= levelCount; i++)
+                        {
+                            using (SqlCommand cmd = new SqlCommand(
+                                "INSERT INTO Levels (PlantID, LevelName) VALUES (@PlantID, @LevelName)",
+                                conn, transaction))
+                            {
+                                cmd.Parameters.AddWithValue("@PlantID", plantId);
+                                cmd.Parameters.AddWithValue("@LevelName", "Level " + i);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        
+                        // Commit the transaction
+                        transaction.Commit();
+                        
+                        // Success message
+                        lblPlantMessage.Text = string.Format("Plant '{0}' with {1} level(s) has been added.", plantName, levelCount);
+                        lblPlantMessage.CssClass = "message success";
+                        
+                        // Clear form inputs
+                        txtPlantName.Text = string.Empty;
+                        txtLevelCount.Text = "1";
+                        
+                        // Reload the plant dropdown list
+                        LoadDropDownLists();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Rollback the transaction in case of error
+                        transaction.Rollback();
+                        
+                        // Display error message
+                        lblPlantMessage.Text = "Error adding plant: " + ex.Message;
+                        lblPlantMessage.CssClass = "message error";
+                        
+                        // Log error details for debugging
+                        System.Diagnostics.Debug.WriteLine(string.Format("Error in btnAddPlant_Click: {0}", ex.Message));
+                        System.Diagnostics.Debug.WriteLine(string.Format("Stack Trace: {0}", ex.StackTrace));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Custom validator to ensure the confirmation checkbox is checked
+        /// </summary>
+        protected void cvConfirmDelete_ServerValidate(object source, ServerValidateEventArgs args)
+        {
+            args.IsValid = chkConfirmDelete.Checked;
+        }
+        
+        /// <summary>
+        /// Deletes the selected plant and all its levels
+        /// </summary>
+        protected void btnDeletePlant_Click(object sender, EventArgs e)
+        {
+            // Check validation for the delete plant form
+            Page.Validate("DeletePlantGroup");
+            if (!Page.IsValid)
+            {
+                return;
+            }
+
+            int plantId;
+            if (!int.TryParse(ddlDeletePlant.SelectedValue, out plantId))
+            {
+                lblPlantMessage.Text = "Please select a valid plant to delete.";
+                lblPlantMessage.CssClass = "message error";
+                return;
+            }
+
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                
+                // Check if there are fire extinguishers associated with this plant
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT COUNT(*) FROM FireExtinguishers WHERE PlantID = @PlantID", conn))
+                {
+                    cmd.Parameters.AddWithValue("@PlantID", plantId);
+                    int count = (int)cmd.ExecuteScalar();
+                    
+                    if (count > 0)
+                    {
+                        lblPlantMessage.Text = string.Format(
+                            "Cannot delete this plant. {0} fire extinguisher(s) are associated with it. " +
+                            "Remove or reassign these fire extinguishers first.", count);
+                        lblPlantMessage.CssClass = "message error";
+                        return;
+                    }
+                }
+                
+                // Check if there are map images associated with this plant
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT COUNT(*) FROM MapImages WHERE PlantID = @PlantID", conn))
+                {
+                    cmd.Parameters.AddWithValue("@PlantID", plantId);
+                    int count = (int)cmd.ExecuteScalar();
+                    
+                    if (count > 0)
+                    {
+                        lblPlantMessage.Text = string.Format(
+                            "Cannot delete this plant. {0} map image(s) are associated with it. " +
+                            "Delete these map images first.", count);
+                        lblPlantMessage.CssClass = "message error";
+                        return;
+                    }
+                }
+                
+                // Store the plant name for the success message
+                string plantName = ddlDeletePlant.SelectedItem.Text;
+                
+                // Use a transaction to ensure data consistency
+                using (SqlTransaction transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Delete all levels associated with the plant
+                        using (SqlCommand cmd = new SqlCommand(
+                            "DELETE FROM Levels WHERE PlantID = @PlantID", conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@PlantID", plantId);
+                            int levelsDeleted = cmd.ExecuteNonQuery();
+                            
+                            // Now delete the plant
+                            using (SqlCommand cmdPlant = new SqlCommand(
+                                "DELETE FROM Plants WHERE PlantID = @PlantID", conn, transaction))
+                            {
+                                cmdPlant.Parameters.AddWithValue("@PlantID", plantId);
+                                int result = cmdPlant.ExecuteNonQuery();
+                                
+                                if (result > 0)
+                                {
+                                    // Commit the transaction
+                                    transaction.Commit();
+                                    
+                                    // Success message
+                                    lblPlantMessage.Text = string.Format(
+                                        "Plant '{0}' and its {1} level(s) have been deleted successfully.", 
+                                        plantName, levelsDeleted);
+                                    lblPlantMessage.CssClass = "message success";
+                                    
+                                    // Reload dropdowns
+                                    LoadDropDownLists();
+                                    LoadPlantsForDeletion();
+                                    
+                                    // Reset the checkbox
+                                    chkConfirmDelete.Checked = false;
+                                }
+                                else
+                                {
+                                    transaction.Rollback();
+                                    lblPlantMessage.Text = "Delete failed. Plant not found.";
+                                    lblPlantMessage.CssClass = "message error";
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Rollback the transaction in case of error
+                        transaction.Rollback();
+                        
+                        // Display error message
+                        lblPlantMessage.Text = "Error deleting plant: " + ex.Message;
+                        lblPlantMessage.CssClass = "message error";
+                        
+                        // Log error details for debugging
+                        System.Diagnostics.Debug.WriteLine(string.Format("Error in btnDeletePlant_Click: {0}", ex.Message));
+                        System.Diagnostics.Debug.WriteLine(string.Format("Stack Trace: {0}", ex.StackTrace));
+                    }
+                }
             }
         }
     }

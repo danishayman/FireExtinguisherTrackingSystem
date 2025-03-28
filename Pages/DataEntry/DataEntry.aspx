@@ -276,6 +276,81 @@
 
     <asp:Content ID="MainContent" ContentPlaceHolderID="MainContent" runat="server">
         <div class="content-container">
+            <!-- Plant Management Section (visible only for admin) -->
+            <div class="data-entry-form" id="divPlantManagement" runat="server" visible="false">
+                <h3 class="text-center">Plant Management</h3>
+                
+                <!-- Add New Plant Section -->
+                <h4>Add New Plant</h4>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <asp:Label ID="lblPlantName" runat="server" Text="Plant Name:" AssociatedControlID="txtPlantName"></asp:Label>
+                            <asp:TextBox ID="txtPlantName" runat="server" CssClass="form-control"></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvPlantName" runat="server" ControlToValidate="txtPlantName" 
+                                ErrorMessage="Plant name is required." CssClass="validation-error" Display="Dynamic" 
+                                ValidationGroup="PlantGroup">
+                            </asp:RequiredFieldValidator>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <asp:Label ID="lblLevelCount" runat="server" Text="Number of Levels:" AssociatedControlID="txtLevelCount"></asp:Label>
+                            <asp:TextBox ID="txtLevelCount" runat="server" CssClass="form-control" TextMode="Number" min="1" Text="1"></asp:TextBox>
+                            <asp:RangeValidator ID="rvLevelCount" runat="server" ControlToValidate="txtLevelCount" 
+                                ErrorMessage="Level count must be between 1 and 20." CssClass="validation-error" Display="Dynamic" 
+                                MinimumValue="1" MaximumValue="20" Type="Integer" ValidationGroup="PlantGroup">
+                            </asp:RangeValidator>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group text-center">
+                    <asp:Button ID="btnAddPlant" runat="server" Text="Add Plant" CssClass="btn btn-primary" 
+                        OnClick="btnAddPlant_Click" ValidationGroup="PlantGroup" />
+                </div>
+                
+                <hr style="margin: 20px 0;" />
+                
+                <!-- Delete Plant Section -->
+                <h4>Delete Plant</h4>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <asp:Label ID="lblDeletePlant" runat="server" Text="Select Plant:" AssociatedControlID="ddlDeletePlant"></asp:Label>
+                            <asp:DropDownList ID="ddlDeletePlant" runat="server" CssClass="form-control">
+                            </asp:DropDownList>
+                            <asp:RequiredFieldValidator ID="rfvDeletePlant" runat="server" ControlToValidate="ddlDeletePlant" 
+                                ErrorMessage="Please select a plant to delete." CssClass="validation-error" Display="Dynamic" 
+                                ValidationGroup="DeletePlantGroup" InitialValue="">
+                            </asp:RequiredFieldValidator>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <asp:Label runat="server" Text="Warning:" AssociatedControlID="chkConfirmDelete"></asp:Label>
+                            <div style="margin-top: 8px;">
+                                <asp:CheckBox ID="chkConfirmDelete" runat="server" Text="I understand this will delete the plant and all its levels" />
+                                <asp:CustomValidator ID="cvConfirmDelete" runat="server" 
+                                    ErrorMessage="You must confirm deletion by checking the box." 
+                                    CssClass="validation-error" Display="Dynamic" ValidationGroup="DeletePlantGroup"
+                                    OnServerValidate="cvConfirmDelete_ServerValidate">
+                                </asp:CustomValidator>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group text-center">
+                    <asp:Button ID="btnDeletePlant" runat="server" Text="Delete Plant" CssClass="btn btn-danger" 
+                        OnClick="btnDeletePlant_Click" ValidationGroup="DeletePlantGroup" 
+                        OnClientClick="return confirm('Are you sure you want to delete this plant? This action cannot be undone.');" />
+                </div>
+                
+                <!-- Plant Management Messages -->
+                <asp:Label ID="lblPlantMessage" runat="server" CssClass="message"></asp:Label>
+                
+                <hr style="margin: 30px 0;" />
+            </div>
+
             <div class="data-entry-form">
                 <h3 class="text-center">Add New Fire Extinguisher</h3>
 
