@@ -56,4 +56,4 @@ GO
 
 
 INSERT INTO Users (Username, PasswordHash, Role, PlantID)
-VALUES ('admin', HASHBYTES('SHA2_256', CONVERT(NVARCHAR(50), 'admin123')), 'Admin', NULL);
+VALUES ('admin', HASHBYTES('SHA2_256', CONVERT(NVARCHAR(50), 'admin123')), 'Administrator', NULL);
