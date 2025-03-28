@@ -421,13 +421,22 @@
                     </div>
                 </div>
                 <div class="form-col">
-                    <!-- Spacer column for layout balance -->
+                    <div class="form-group">
+                        <asp:Label runat="server" AssociatedControlID="ddlPlant">Assigned Plant:</asp:Label>
+                        <asp:DropDownList ID="ddlPlant" runat="server" CssClass="form-control">
+                        </asp:DropDownList>
+                    </div>
                 </div>
             </div>
 
             <div class="btn-section">
+                <asp:Button ID="btnCancelUserEdit" runat="server" Text="Cancel" OnClick="btnCancelUserEdit_Click" CssClass="btn btn-secondary" Visible="false" />
+                <asp:Button ID="btnUpdateUser" runat="server" Text="Update User" OnClick="btnUpdateUser_Click" CssClass="btn btn-primary" ValidationGroup="AddUser" Visible="false" />
                 <asp:Button ID="btnAddUser" runat="server" Text="Add User" OnClick="btnAddUser_Click" CssClass="btn btn-primary" ValidationGroup="AddUser" />
             </div>
+
+            <!-- Add a hidden field for the user ID -->
+            <asp:HiddenField ID="hdnUserID" runat="server" />
 
             <!-- Users data grid - displays all system users -->
             <div class="user-management">
@@ -442,16 +451,25 @@
                     <Columns>
                         <asp:BoundField DataField="Username" HeaderText="Username" />
                         <asp:BoundField DataField="Role" HeaderText="Role" />
+                        <asp:BoundField DataField="PlantName" HeaderText="Assigned Plant" />
                         <asp:TemplateField HeaderText="Actions">
                             <ItemTemplate>
-                                <asp:LinkButton ID="btnDelete" runat="server" 
-                                    CommandName="DeleteUser" 
-                                    CommandArgument='<%# Eval("UserID") %>'
-                                    CssClass="btn btn-danger"
-                                    OnClientClick="return confirm('Are you sure you want to delete this user?');"
-                                    Visible='<%# Eval("Username").ToString() != "admin" %>'>
-                                    Delete
-                                </asp:LinkButton>
+                                <div class="action-buttons">
+                                    <asp:LinkButton ID="btnEdit" runat="server" 
+                                        CommandName="EditUser" 
+                                        CommandArgument='<%# Eval("UserID") %>'
+                                        CssClass="btn btn-primary">
+                                        Edit
+                                    </asp:LinkButton>
+                                    <asp:LinkButton ID="btnDelete" runat="server" 
+                                        CommandName="DeleteUser" 
+                                        CommandArgument='<%# Eval("UserID") %>'
+                                        CssClass="btn btn-danger"
+                                        OnClientClick="return confirm('Are you sure you want to delete this user?');"
+                                        Visible='<%# Eval("Username").ToString() != "admin" %>'>
+                                        Delete
+                                    </asp:LinkButton>
+                                </div>
                             </ItemTemplate>
                         </asp:TemplateField>
                     </Columns>
