@@ -766,10 +766,23 @@ namespace FETS.Pages.ViewSection
                             SUM(CASE WHEN fe.DateExpired >= GETDATE() AND fe.DateExpired <= DATEADD(day, 60, GETDATE()) AND s.StatusName != 'Under Service' THEN 1 ELSE 0 END) as ExpiringSoonCount,
                             SUM(CASE WHEN s.StatusName = 'Under Service' THEN 1 ELSE 0 END) as UnderServiceCount
                         FROM FireExtinguishers fe
-                        INNER JOIN Status s ON fe.StatusID = s.StatusID";
+                        INNER JOIN Status s ON fe.StatusID = s.StatusID
+                        WHERE 1=1";
+                        
+                    // Add plant restriction for non-admin users
+                    if (!IsAdministrator && UserPlantID.HasValue)
+                    {
+                        countQuery += " AND fe.PlantID = @UserPlantID";
+                    }
                         
                     using (SqlCommand countCmd = new SqlCommand(countQuery, conn))
                     {
+                        // Add user plant parameter if needed
+                        if (!IsAdministrator && UserPlantID.HasValue)
+                        {
+                            countCmd.Parameters.AddWithValue("@UserPlantID", UserPlantID.Value);
+                        }
+
                         using (SqlDataReader countReader = countCmd.ExecuteReader())
                         {
                             if (countReader.Read())
@@ -811,8 +824,15 @@ namespace FETS.Pages.ViewSection
                                 INNER JOIN Plants p ON fe.PlantID = p.PlantID
                                 INNER JOIN Levels l ON fe.LevelID = l.LevelID
                                 INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
-                                WHERE fe.DateExpired < GETDATE() AND s.StatusName != 'Under Service'
-                                ORDER BY fe.DateExpired ASC";
+                                WHERE fe.DateExpired < GETDATE() AND s.StatusName != 'Under Service'";
+                                
+                            // Add plant restriction for non-admin users
+                            if (!IsAdministrator && UserPlantID.HasValue)
+                            {
+                                dataQuery += " AND fe.PlantID = @UserPlantID";
+                            }
+                                
+                            dataQuery += " ORDER BY fe.DateExpired ASC";
                             break;
                             
                         case "expiringSoon":
@@ -832,8 +852,15 @@ namespace FETS.Pages.ViewSection
                                 INNER JOIN Plants p ON fe.PlantID = p.PlantID
                                 INNER JOIN Levels l ON fe.LevelID = l.LevelID
                                 INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
-                                WHERE fe.DateExpired >= GETDATE() AND fe.DateExpired <= DATEADD(day, 60, GETDATE()) AND s.StatusName != 'Under Service'
-                                ORDER BY fe.DateExpired ASC";
+                                WHERE fe.DateExpired >= GETDATE() AND fe.DateExpired <= DATEADD(day, 60, GETDATE()) AND s.StatusName != 'Under Service'";
+                                
+                            // Add plant restriction for non-admin users
+                            if (!IsAdministrator && UserPlantID.HasValue)
+                            {
+                                dataQuery += " AND fe.PlantID = @UserPlantID";
+                            }
+                                
+                            dataQuery += " ORDER BY fe.DateExpired ASC";
                             break;
                             
                         case "underService":
@@ -852,14 +879,27 @@ namespace FETS.Pages.ViewSection
                                 INNER JOIN Plants p ON fe.PlantID = p.PlantID
                                 INNER JOIN Levels l ON fe.LevelID = l.LevelID
                                 INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
-                                WHERE s.StatusName = 'Under Service'
-                                ORDER BY fe.DateExpired ASC";
+                                WHERE s.StatusName = 'Under Service'";
+                                
+                            // Add plant restriction for non-admin users
+                            if (!IsAdministrator && UserPlantID.HasValue)
+                            {
+                                dataQuery += " AND fe.PlantID = @UserPlantID";
+                            }
+                                
+                            dataQuery += " ORDER BY fe.DateExpired ASC";
                             break;
                     }
                     
                     // Execute the query and bind data to the appropriate grid
                     using (SqlCommand dataCmd = new SqlCommand(dataQuery, conn))
                     {
+                        // Add user plant parameter if needed
+                        if (!IsAdministrator && UserPlantID.HasValue)
+                        {
+                            dataCmd.Parameters.AddWithValue("@UserPlantID", UserPlantID.Value);
+                        }
+                        
                         using (SqlDataAdapter adapter = new SqlDataAdapter(dataCmd))
                         {
                             DataTable dt = new DataTable();
@@ -1329,11 +1369,24 @@ namespace FETS.Pages.ViewSection
                         fe.DateExpired < GETDATE() -- Expired
                         OR 
                         (fe.DateExpired >= GETDATE() AND fe.DateExpired <= DATEADD(day, 60, GETDATE())) -- Expiring Soon (within 60 days)
-                    )
-                    ORDER BY fe.DateExpired ASC";
+                    )";
+                    
+                // Add plant restriction for non-admin users
+                if (!IsAdministrator && UserPlantID.HasValue)
+                {
+                    query += " AND fe.PlantID = @UserPlantID";
+                }
+                
+                query += " ORDER BY fe.DateExpired ASC";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
+                    // Add user plant parameter if needed
+                    if (!IsAdministrator && UserPlantID.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@UserPlantID", UserPlantID.Value);
+                    }
+                    
                     using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                     {
                         DataTable dt = new DataTable();
@@ -1799,11 +1852,24 @@ namespace FETS.Pages.ViewSection
                     INNER JOIN Levels l ON fe.LevelID = l.LevelID
                     INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
                     INNER JOIN Status s ON fe.StatusID = s.StatusID
-                    WHERE s.StatusName = 'Under Service'
-                    ORDER BY fe.SerialNumber";
+                    WHERE s.StatusName = 'Under Service'";
+                    
+                // Add plant restriction for non-admin users
+                if (!IsAdministrator && UserPlantID.HasValue)
+                {
+                    query += " AND fe.PlantID = @UserPlantID";
+                }
+                    
+                query += " ORDER BY fe.SerialNumber";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
+                    // Add user plant parameter if needed
+                    if (!IsAdministrator && UserPlantID.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@UserPlantID", UserPlantID.Value);
+                    }
+                    
                     using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                     {
                         DataTable dt = new DataTable();
