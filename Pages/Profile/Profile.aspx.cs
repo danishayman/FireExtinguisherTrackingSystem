@@ -10,6 +10,12 @@ namespace FETS.Pages.Profile
 {
     public partial class Profile : System.Web.UI.Page
     {
+        // Add these control declarations to match what's in your ASPX file
+        protected global::System.Web.UI.WebControls.DropDownList ddlPlant;
+        protected global::System.Web.UI.WebControls.Button btnUpdateUser;
+        protected global::System.Web.UI.WebControls.Button btnCancelUserEdit;
+        protected global::System.Web.UI.WebControls.HiddenField hdnUserID;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             // Redirect unauthenticated users to the login page
@@ -26,6 +32,7 @@ namespace FETS.Pages.Profile
                 {
                     LoadUsers();
                     LoadEmailRecipients();
+                    LoadPlants();
                 }
             }
         }
@@ -58,7 +65,11 @@ namespace FETS.Pages.Profile
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                using (SqlCommand cmd = new SqlCommand("SELECT UserID, Username, Role FROM Users ORDER BY Username", conn))
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT u.UserID, u.Username, u.Role, u.PlantID, ISNULL(p.PlantName, 'None') AS PlantName " +
+                    "FROM Users u " +
+                    "LEFT JOIN Plants p ON u.PlantID = p.PlantID " +
+                    "ORDER BY Username", conn))
                 {
                     using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                     {
@@ -82,6 +93,11 @@ namespace FETS.Pages.Profile
             string username = txtNewUsername.Text.Trim();
             string password = txtUserPassword.Text;
             string role = ddlRole.SelectedValue;
+            
+            // Get the selected plant ID (or DBNull.Value if "None" is selected)
+            object plantId = ddlPlant.SelectedValue == string.Empty ? 
+                (object)DBNull.Value : 
+                Convert.ToInt32(ddlPlant.SelectedValue);
 
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -100,13 +116,14 @@ namespace FETS.Pages.Profile
                     }
                 }
 
-                // Add new user
+                // Add new user with plant assignment
                 using (SqlCommand cmd = new SqlCommand(
-                    "INSERT INTO Users (Username, PasswordHash, Role) VALUES (@Username, HASHBYTES('SHA2_256', @Password), @Role)", conn))
+                    "INSERT INTO Users (Username, PasswordHash, Role, PlantID) VALUES (@Username, HASHBYTES('SHA2_256', @Password), @Role, @PlantID)", conn))
                 {
                     cmd.Parameters.AddWithValue("@Username", username);
                     cmd.Parameters.AddWithValue("@Password", password);
                     cmd.Parameters.AddWithValue("@Role", role);
+                    cmd.Parameters.AddWithValue("@PlantID", plantId);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -125,6 +142,11 @@ namespace FETS.Pages.Profile
             {
                 int userId = Convert.ToInt32(e.CommandArgument);
                 DeleteUser(userId);
+            }
+            else if (e.CommandName == "EditUser")
+            {
+                int userId = Convert.ToInt32(e.CommandArgument);
+                LoadUserForEdit(userId);
             }
         }
 
@@ -156,6 +178,7 @@ namespace FETS.Pages.Profile
             txtNewUsername.Text = string.Empty;
             txtUserPassword.Text = string.Empty;
             ddlRole.SelectedIndex = 0;
+            ddlPlant.SelectedIndex = 0;
         }
         
         /// <summary>
@@ -484,6 +507,135 @@ namespace FETS.Pages.Profile
             txtCurrentPassword.Text = string.Empty;
             txtNewPassword.Text = string.Empty;
             txtConfirmPassword.Text = string.Empty;
+        }
+
+        /// <summary>
+        /// Loads plants from the database and populates the plant dropdown
+        /// </summary>
+        private void LoadPlants()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("SELECT PlantID, PlantName FROM Plants ORDER BY PlantName", conn))
+                {
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dt = new DataTable();
+                        adapter.Fill(dt);
+                        
+                        // Add a "None" option
+                        DataRow noneRow = dt.NewRow();
+                        noneRow["PlantID"] = DBNull.Value;
+                        noneRow["PlantName"] = "-- None --";
+                        dt.Rows.InsertAt(noneRow, 0);
+                        
+                        ddlPlant.DataSource = dt;
+                        ddlPlant.DataTextField = "PlantName";
+                        ddlPlant.DataValueField = "PlantID";
+                        ddlPlant.DataBind();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads a user for editing
+        /// </summary>
+        private void LoadUserForEdit(int userId)
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("SELECT UserID, Username, Role, PlantID FROM Users WHERE UserID = @UserID", conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserID", userId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            hdnUserID.Value = userId.ToString();
+                            txtNewUsername.Text = reader["Username"].ToString();
+                            txtNewUsername.Enabled = false; // Don't allow changing username
+                            txtUserPassword.Text = string.Empty; // Clear password field
+                            txtUserPassword.Enabled = false; // Don't allow changing password here
+                            
+                            ddlRole.SelectedValue = reader["Role"].ToString();
+                            
+                            // Set plant dropdown value
+                            if (reader["PlantID"] != DBNull.Value)
+                            {
+                                ddlPlant.SelectedValue = reader["PlantID"].ToString();
+                            }
+                            else
+                            {
+                                ddlPlant.SelectedIndex = 0; // Select "None"
+                            }
+                            
+                            btnAddUser.Visible = false;
+                            btnUpdateUser.Visible = true;
+                            btnCancelUserEdit.Visible = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates an existing user
+        /// </summary>
+        protected void btnUpdateUser_Click(object sender, EventArgs e)
+        {
+            if (!Page.IsValid)
+                return;
+            
+            int userId = Convert.ToInt32(hdnUserID.Value);
+            string role = ddlRole.SelectedValue;
+            
+            // Get the selected plant ID (or DBNull.Value if "None" is selected)
+            object plantId = ddlPlant.SelectedValue == string.Empty ? 
+                (object)DBNull.Value : 
+                Convert.ToInt32(ddlPlant.SelectedValue);
+            
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                
+                // Update user
+                using (SqlCommand cmd = new SqlCommand(
+                    "UPDATE Users SET Role = @Role, PlantID = @PlantID WHERE UserID = @UserID", conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserID", userId);
+                    cmd.Parameters.AddWithValue("@Role", role);
+                    cmd.Parameters.AddWithValue("@PlantID", plantId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            
+            ShowMessage("User updated successfully!", true);
+            ClearNewUserForm();
+            txtNewUsername.Enabled = true;
+            txtUserPassword.Enabled = true;
+            btnAddUser.Visible = true;
+            btnUpdateUser.Visible = false;
+            btnCancelUserEdit.Visible = false;
+            LoadUsers();
+        }
+
+        /// <summary>
+        /// Cancels the current user edit operation
+        /// </summary>
+        protected void btnCancelUserEdit_Click(object sender, EventArgs e)
+        {
+            ClearNewUserForm();
+            txtNewUsername.Enabled = true;
+            txtUserPassword.Enabled = true;
+            btnAddUser.Visible = true;
+            btnUpdateUser.Visible = false;
+            btnCancelUserEdit.Visible = false;
         }
     }
 }

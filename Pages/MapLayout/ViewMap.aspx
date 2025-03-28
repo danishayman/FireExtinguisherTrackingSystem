@@ -283,7 +283,7 @@
             <header class="dashboard-header">
                 <h2>Fire Extinguisher Tracking System</h2>
                 <div class="user-info">
-                    Welcome, <asp:Label ID="lblUsername" runat="server"></asp:Label>
+                    <asp:Label ID="lblUsername" runat="server"></asp:Label>
                     <asp:LinkButton ID="btnBack" runat="server" OnClick="btnBack_Click" CssClass="btn-logout">Back to Map Layout</asp:LinkButton>
                     <asp:LinkButton ID="btnLogout" runat="server" OnClick="btnLogout_Click" CssClass="btn-logout">Logout</asp:LinkButton>
                 </div>

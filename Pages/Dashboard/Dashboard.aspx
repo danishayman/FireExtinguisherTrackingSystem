@@ -470,7 +470,7 @@
                                     <li class="stat-item">
                                         <span class="stat-label">
                                             <span class="stat-indicator in-use"></span>
-                                            In Use
+                                            Active
                                         </span>
                                         <span class="stat-value in-use"><%# Eval("InUse", "{0:N0}") %></span>
                                     </li>
@@ -598,7 +598,7 @@
                 new Chart(ctx, {
                     type: 'doughnut',
                     data: {
-                        labels: ['In Use', 'Under Service', 'Expired', 'Expiring Soon'],
+                        labels: ['Active', 'Under Service', 'Expired', 'Expiring Soon'],
                         datasets: [{
                             data: [inUse, underService, expired, expiringSoon],
                             backgroundColor: [

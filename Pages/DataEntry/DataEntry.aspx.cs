@@ -10,6 +10,10 @@ namespace FETS.Pages.DataEntry
 {
     public partial class DataEntry : System.Web.UI.Page
     {
+        // Property to store the user's assigned plant ID
+        private int? UserPlantID { get; set; }
+        private bool IsAdministrator { get; set; }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             // Redirect unauthenticated users to login page
@@ -19,26 +23,62 @@ namespace FETS.Pages.DataEntry
                 return;
             }
 
+            // Get user's assigned plant and role
+            GetUserPlantAndRole();
+
             if (!IsPostBack)
             {
                 // Show plant management section for admin users
                 divPlantManagement.Visible = (User.Identity.Name.ToLower() == "admin");
                 
                 LoadDropDownLists();
-                ddlLevel.Enabled = false; // Level dropdown is initially disabled until a plant is selected
                 
                 // Load plants for the deletion dropdown
                 if (divPlantManagement.Visible)
                 {
                     LoadPlantsForDeletion();
                 }
-
+                
                 // Display any success messages from previous operations
                 if (Session["SuccessMessage"] != null)
                 {
                     lblMessage.Text = Session["SuccessMessage"].ToString();
                     lblMessage.CssClass = "message success";
                     Session["SuccessMessage"] = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the current user's assigned plant and role from the database
+        /// </summary>
+        private void GetUserPlantAndRole()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("SELECT PlantID, Role FROM Users WHERE Username = @Username", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Username", User.Identity.Name);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            // Get the user's plant ID
+                            if (!reader.IsDBNull(reader.GetOrdinal("PlantID")))
+                            {
+                                UserPlantID = reader.GetInt32(reader.GetOrdinal("PlantID"));
+                            }
+                            else
+                            {
+                                UserPlantID = null;
+                            }
+
+                            // Check if user is an administrator
+                            IsAdministrator = reader["Role"].ToString() == "Administrator";
+                        }
+                    }
                 }
             }
         }
@@ -53,22 +93,8 @@ namespace FETS.Pages.DataEntry
             {
                 conn.Open();
 
-                // Load Plants dropdown
-                using (SqlCommand cmd = new SqlCommand("SELECT PlantID, PlantName FROM Plants ORDER BY PlantName", conn))
-                {
-                    ddlPlant.Items.Clear();
-                    ddlPlant.Items.Add(new ListItem("-- Select Plant --", ""));
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            ddlPlant.Items.Add(new ListItem(
-                                reader["PlantName"].ToString(),
-                                reader["PlantID"].ToString()
-                            ));
-                        }
-                    }
-                }
+                // Load Plants dropdown - with restriction based on user's assigned plant
+                LoadPlantsDropdown(conn);
 
                 // Load Fire Extinguisher Types dropdown
                 using (SqlCommand cmd = new SqlCommand("SELECT TypeID, TypeName FROM FireExtinguisherTypes ORDER BY TypeName", conn))
@@ -116,6 +142,139 @@ namespace FETS.Pages.DataEntry
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Loads the Plants dropdown with appropriate restrictions based on user role
+        /// </summary>
+        private void LoadPlantsDropdown(SqlConnection conn)
+        {
+            ddlPlant.Items.Clear();
+            
+            // If user is not administrator and has no assigned plant, disable everything
+            if (!IsAdministrator && !UserPlantID.HasValue)
+            {
+                ddlPlant.Items.Add(new ListItem("No plant assigned to your account", ""));
+                ddlPlant.Enabled = false;
+                ddlLevel.Enabled = false;
+                btnSubmit.Enabled = false;
+                lblMessage.Text = "You do not have permission to add fire extinguishers. Please contact your administrator.";
+                lblMessage.CssClass = "message error";
+                lblMessage.Visible = true;
+                return;
+            }
+
+            // For regular users with an assigned plant, only show that plant
+            if (!IsAdministrator && UserPlantID.HasValue)
+            {
+                using (SqlCommand cmd = new SqlCommand("SELECT PlantID, PlantName FROM Plants WHERE PlantID = @PlantID", conn))
+                {
+                    cmd.Parameters.AddWithValue("@PlantID", UserPlantID.Value);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            ddlPlant.Items.Add(new ListItem(
+                                reader["PlantName"].ToString(),
+                                reader["PlantID"].ToString()
+                            ));
+                        }
+                    }
+                }
+                
+                // Pre-select the plant and trigger the level dropdown load
+                if (ddlPlant.Items.Count > 0)
+                {
+                    ddlPlant.SelectedIndex = 0;
+                    ddlPlant.Enabled = false; // Disable changing the plant
+                    ddlLevel.Enabled = true;
+                    
+                    // Load levels for the pre-selected plant
+                    LoadLevelsForPlant(UserPlantID.Value);
+                }
+            }
+            // For administrators, show all plants
+            else if (IsAdministrator)
+            {
+                using (SqlCommand cmd = new SqlCommand("SELECT PlantID, PlantName FROM Plants ORDER BY PlantName", conn))
+                {
+                    ddlPlant.Items.Add(new ListItem("-- Select Plant --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlPlant.Items.Add(new ListItem(
+                                reader["PlantName"].ToString(),
+                                reader["PlantID"].ToString()
+                            ));
+                        }
+                    }
+                }
+                
+                // If admin also has an assigned plant, pre-select it
+                if (UserPlantID.HasValue)
+                {
+                    ListItem item = ddlPlant.Items.FindByValue(UserPlantID.Value.ToString());
+                    if (item != null)
+                    {
+                        ddlPlant.SelectedValue = UserPlantID.Value.ToString();
+                        LoadLevelsForPlant(UserPlantID.Value);
+                        ddlLevel.Enabled = true;
+                    }
+                }
+                else
+                {
+                    ddlLevel.Enabled = false;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Loads levels for a specific plant
+        /// </summary>
+        private void LoadLevelsForPlant(int plantId)
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                
+                // Load levels for selected plant
+                using (SqlCommand cmd = new SqlCommand("SELECT LevelID, LevelName FROM Levels WHERE PlantID = @PlantID ORDER BY LevelName", conn))
+                {
+                    cmd.Parameters.AddWithValue("@PlantID", plantId);
+                    ddlLevel.Items.Clear();
+                    ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlLevel.Items.Add(new ListItem(
+                                reader["LevelName"].ToString(),
+                                reader["LevelID"].ToString()
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Populates the Level dropdown when a plant is selected
+        /// </summary>
+        protected void ddlPlant_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(ddlPlant.SelectedValue))
+            {
+                ddlLevel.Items.Clear();
+                ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
+                ddlLevel.Enabled = false;
+                return;
+            }
+            
+            ddlLevel.Enabled = true;
+            int plantId = Convert.ToInt32(ddlPlant.SelectedValue);
+            LoadLevelsForPlant(plantId);
         }
 
         /// <summary>
@@ -187,52 +346,21 @@ namespace FETS.Pages.DataEntry
         }
 
         /// <summary>
-        /// Populates the Level dropdown when a plant is selected
-        /// </summary>
-        protected void ddlPlant_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(ddlPlant.SelectedValue))
-            {
-                ddlLevel.Items.Clear();
-                ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
-                ddlLevel.Enabled = false;
-                return;
-            }
-            
-            ddlLevel.Enabled = true;
-
-            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-
-                // Load levels for selected plant
-                using (SqlCommand cmd = new SqlCommand("SELECT LevelID, LevelName FROM Levels WHERE PlantID = @PlantID ORDER BY LevelName", conn))
-                {
-                    cmd.Parameters.AddWithValue("@PlantID", ddlPlant.SelectedValue);
-                    ddlLevel.Items.Clear();
-                    ddlLevel.Items.Add(new ListItem("-- Select Level --", ""));
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            ddlLevel.Items.Add(new ListItem(
-                                reader["LevelName"].ToString(),
-                                reader["LevelID"].ToString()
-                            ));
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// Handles the initial submission and shows the confirmation dialog
         /// </summary>
         protected void btnSubmit_Click(object sender, EventArgs e)
         {
             if(!Page.IsValid)
             {
+                return;
+            }
+
+            // Security check - verify the user is allowed to add data for this plant
+            int selectedPlantId = Convert.ToInt32(ddlPlant.SelectedValue);
+            if (!IsAdministrator && UserPlantID != selectedPlantId)
+            {
+                lblMessage.Text = "You do not have permission to add data for this plant.";
+                lblMessage.CssClass = "message error";
                 return;
             }
 
@@ -292,6 +420,15 @@ namespace FETS.Pages.DataEntry
         /// </summary>
         protected void btnConfirm_Click(object sender, EventArgs e)
         {
+            // Additional security check before saving
+            int selectedPlantId = Convert.ToInt32(ddlPlant.SelectedValue);
+            if (!IsAdministrator && UserPlantID != selectedPlantId)
+            {
+                lblMessage.Text = "You do not have permission to add data for this plant.";
+                lblMessage.CssClass = "message error";
+                return;
+            }
+
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
