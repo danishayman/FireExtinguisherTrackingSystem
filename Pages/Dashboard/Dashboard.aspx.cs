@@ -18,6 +18,12 @@ namespace FETS.Pages
         protected int TotalExpiringSoon { get; private set; }
         protected int TotalFireExtinguishers { get; private set; }
 
+
+
+        // Welcome, brave soul. If you're reading this, 
+        // you have inherited my code.
+        // May the odds be ever in your favor.
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
