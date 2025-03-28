@@ -16,6 +16,7 @@ namespace FETS.Pages
         protected int TotalUnderService { get; private set; }
         protected int TotalExpired { get; private set; }
         protected int TotalExpiringSoon { get; private set; }
+        protected int TotalFireExtinguishers { get; private set; }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -38,6 +39,7 @@ namespace FETS.Pages
                 conn.Open();
                 using (SqlCommand cmd = new SqlCommand(@"
                     SELECT 
+                        COUNT(fe.FEID) as TotalFE,
                         SUM(CASE WHEN s.StatusName = 'Active' THEN 1 ELSE 0 END) as TotalActive,
                         SUM(CASE WHEN s.StatusName = 'Under Service' THEN 1 ELSE 0 END) as TotalUnderService,
                         SUM(CASE WHEN s.StatusName = 'Expired' THEN 1 ELSE 0 END) as TotalExpired,
@@ -49,6 +51,7 @@ namespace FETS.Pages
                     {
                         if (reader.Read())
                         {
+                            TotalFireExtinguishers = reader.IsDBNull(reader.GetOrdinal("TotalFE")) ? 0 : reader.GetInt32(reader.GetOrdinal("TotalFE"));
                             TotalActive = reader.IsDBNull(reader.GetOrdinal("TotalActive")) ? 0 : reader.GetInt32(reader.GetOrdinal("TotalActive"));
                             TotalUnderService = reader.IsDBNull(reader.GetOrdinal("TotalUnderService")) ? 0 : reader.GetInt32(reader.GetOrdinal("TotalUnderService"));
                             TotalExpired = reader.IsDBNull(reader.GetOrdinal("TotalExpired")) ? 0 : reader.GetInt32(reader.GetOrdinal("TotalExpired"));

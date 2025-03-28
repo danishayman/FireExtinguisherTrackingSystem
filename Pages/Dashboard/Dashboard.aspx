@@ -584,6 +584,36 @@
                 flex: 0 0 100%;
             }
         }
+
+        /* Add this to the style section */
+        .total-fe-counter {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: #f8f9fa;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            gap: 0.75rem;
+        }
+
+        .counter-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .counter-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            background-color: rgba(0, 123, 255, 0.1);
+            padding: 0.25rem 1rem;
+            border-radius: var(--radius);
+            min-width: 80px;
+            text-align: center;
+        }
     </style>
 </asp:Content>
 
@@ -603,6 +633,12 @@
                         <canvas id="feTypeChart"></canvas>
                     </div>
                     <asp:HiddenField ID="hdnChartData" runat="server" />
+                    
+                    <!-- Add this total count display below the chart -->
+                    <div class="total-fe-counter">
+                        <div class="counter-label">Total Fire Extinguishers:</div>
+                        <div class="counter-value"><%= TotalFireExtinguishers %></div>
+                    </div>
                 </section>
 
                 <!-- Status overview section (unchanged) -->
