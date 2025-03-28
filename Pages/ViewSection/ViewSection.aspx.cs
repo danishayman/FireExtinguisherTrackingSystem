@@ -53,6 +53,10 @@ namespace FETS.Pages.ViewSection
         protected int ExpiringSoonCount { get; private set; }
         protected int UnderServiceCount { get; private set; }
 
+        // Add these properties at the class level, right after the class declaration
+        private int? UserPlantID { get; set; }
+        private bool IsAdministrator { get; set; }
+
         // Method for tab button class
         protected string GetTabButtonClass(string tabName)
         {
@@ -74,6 +78,9 @@ namespace FETS.Pages.ViewSection
                 return;
             }
 
+            // Add this line to get user's plant and role
+            GetUserPlantAndRole();
+
             if (!IsPostBack)
             {
                 if (Session["NotificationMessage"] != null)
@@ -91,6 +98,40 @@ namespace FETS.Pages.ViewSection
             
         }
 
+        /// <summary>
+        /// Gets the current user's assigned plant and role from the database
+        /// </summary>
+        private void GetUserPlantAndRole()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("SELECT PlantID, Role FROM Users WHERE Username = @Username", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Username", User.Identity.Name);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            // Get the user's plant ID
+                            if (!reader.IsDBNull(reader.GetOrdinal("PlantID")))
+                            {
+                                UserPlantID = reader.GetInt32(reader.GetOrdinal("PlantID"));
+                            }
+                            else
+                            {
+                                UserPlantID = null;
+                            }
+
+                            // Check if user is an administrator
+                            IsAdministrator = reader["Role"].ToString() == "Administrator";
+                        }
+                    }
+                }
+            }
+        }
+
         
         /// <summary>
         /// Loads all dropdown lists with data:
@@ -105,9 +146,24 @@ namespace FETS.Pages.ViewSection
             {
                 conn.Open();
 
-                // Load Plants
-                using (SqlCommand cmd = new SqlCommand("SELECT PlantID, PlantName FROM Plants ORDER BY PlantName", conn))
+                // Modify the Plant dropdown loading to respect user's assigned plant
+                string plantQuery = "SELECT PlantID, PlantName FROM Plants";
+                
+                // If not administrator and has assigned plant, only show that plant
+                if (!IsAdministrator && UserPlantID.HasValue)
                 {
+                    plantQuery += " WHERE PlantID = @UserPlantID";
+                }
+                
+                plantQuery += " ORDER BY PlantName";
+
+                using (SqlCommand cmd = new SqlCommand(plantQuery, conn))
+                {
+                    if (!IsAdministrator && UserPlantID.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@UserPlantID", UserPlantID.Value);
+                    }
+
                     ddlFilterPlant.Items.Clear();
                     ddlFilterPlant.Items.Add(new ListItem("-- All Plants --", ""));
                     using (SqlDataReader reader = cmd.ExecuteReader())
@@ -199,7 +255,13 @@ namespace FETS.Pages.ViewSection
                     INNER JOIN Status s ON fe.StatusID = s.StatusID
                     WHERE 1=1";
 
-                // Add filters
+                // Add restriction based on user's assigned plant (if not administrator)
+                if (!IsAdministrator && UserPlantID.HasValue)
+                {
+                    baseQuery += " AND fe.PlantID = @UserPlantID";
+                }
+
+                // Add other filters
                 if (!string.IsNullOrEmpty(ddlFilterPlant.SelectedValue))
                     baseQuery += " AND fe.PlantID = @PlantID";
                 if (!string.IsNullOrEmpty(ddlFilterLevel.SelectedValue))
@@ -213,6 +275,13 @@ namespace FETS.Pages.ViewSection
 
                 using (SqlCommand cmd = new SqlCommand(baseQuery, conn))
                 {
+                    // Add user plant parameter if needed
+                    if (!IsAdministrator && UserPlantID.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@UserPlantID", UserPlantID.Value);
+                    }
+
+                    // Add other parameters
                     if (!string.IsNullOrEmpty(ddlFilterPlant.SelectedValue))
                         cmd.Parameters.AddWithValue("@PlantID", ddlFilterPlant.SelectedValue);
                     if (!string.IsNullOrEmpty(ddlFilterLevel.SelectedValue))
