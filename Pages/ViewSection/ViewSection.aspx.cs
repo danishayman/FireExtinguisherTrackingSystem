@@ -165,7 +165,21 @@ namespace FETS.Pages.ViewSection
                     }
 
                     ddlFilterPlant.Items.Clear();
-                    ddlFilterPlant.Items.Add(new ListItem("-- All Plants --", ""));
+                    
+                    // For regular users with assigned plant, don't add the "All Plants" option
+                    // and disable the dropdown
+                    if (!IsAdministrator && UserPlantID.HasValue)
+                    {
+                        // Don't add "All Plants" option
+                        ddlFilterPlant.Enabled = false; // Lock the dropdown
+                    }
+                    else
+                    {
+                        // For admins or users without assigned plant, add "All Plants" option
+                        ddlFilterPlant.Items.Add(new ListItem("-- All Plants --", ""));
+                        ddlFilterPlant.Enabled = true;
+                    }
+                    
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -175,6 +189,16 @@ namespace FETS.Pages.ViewSection
                                 reader["PlantID"].ToString()
                             ));
                         }
+                    }
+                    
+                    // For regular users with assigned plant, auto-select their plant
+                    if (!IsAdministrator && UserPlantID.HasValue)
+                    {
+                        // Set the selected value to user's plant
+                        ddlFilterPlant.SelectedValue = UserPlantID.ToString();
+                        
+                        // Trigger the selection change to load appropriate levels
+                        ddlFilterPlant_SelectedIndexChanged(ddlFilterPlant, EventArgs.Empty);
                     }
                 }
 
