@@ -515,7 +515,7 @@
         <!-- Sidebar Navigation Panel -->
         <div class="sidebar" id="sidebar" runat="server" visible="true">
             <div class="sidebar-header">
-                <div class="sidebar-brand">Welcome, <asp:Label ID="lblUsername" runat="server" EnableViewState="true"></asp:Label></div>
+                <div class="sidebar-brand"><asp:Label ID="lblUsername" runat="server" EnableViewState="true"></asp:Label></div>
                 <button type="button" class="sidebar-toggle" onclick="return false;">
                     <i class="fas fa-bars"></i>
                 </button>
