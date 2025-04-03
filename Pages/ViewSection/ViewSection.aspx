@@ -1338,9 +1338,6 @@
                     }
                 }
 
-                // Enhance sorting for the main grid
-                enhanceSorting();
-
                 // Enhance pagination for monitoring grids
                 enhanceMonitoringPagination();
 
@@ -1356,8 +1353,6 @@
                         restoreScrollPosition();
                         // Reinitialize touch events and responsive UI after partial postbacks
                         initResponsiveUI();
-                        // Enhance sorting after postback
-                        enhanceSorting();
                         // Enhance pagination again after postback
                         enhanceMonitoringPagination();
                         // Hide loading indicator
@@ -1373,42 +1368,6 @@
                             hideLoadingOverlay();
                         }
                     });
-                }
-
-                function enhanceSorting() {
-                    // Add visual cues for sortable columns
-                    const grid = document.getElementById('<%= gvFireExtinguishers.ClientID %>');
-                    if (grid) {
-                        const headers = grid.querySelectorAll('th');
-                        headers.forEach(function(header) {
-                            if (header.getAttribute('onclick')) {
-                                // This is a sortable column, add visual indicator
-                                if (!header.querySelector('.sort-indicator')) {
-                                    const indicator = document.createElement('span');
-                                    indicator.className = 'sort-indicator';
-                                    indicator.innerHTML = ' ↕';
-                                    header.appendChild(indicator);
-                                }
-                                
-                                // Make sure the header has a pointer cursor
-                                header.style.cursor = 'pointer';
-                                
-                                // Add a hover effect
-                                header.addEventListener('mouseover', function() {
-                                    this.style.backgroundColor = '#0056b3';
-                                });
-                                
-                                header.addEventListener('mouseout', function() {
-                                    this.style.backgroundColor = '';
-                                });
-                                
-                                // Add click feedback
-                                header.addEventListener('click', function() {
-                                    console.log('Header clicked for sorting: ' + this.innerText);
-                                });
-                            }
-                        });
-                    }
                 }
 
                 function enhanceMonitoringPagination() {
@@ -1806,44 +1765,6 @@
             padding: 8px 10px;
             margin: 2px 0;
         }
-    }
-    
-    /* Sorting styles */
-    .grid-header th {
-        position: relative;
-        transition: background-color 0.2s ease;
-    }
-    
-    .grid-header th[onclick] {
-        cursor: pointer;
-        user-select: none;
-    }
-    
-    .grid-header th[onclick]:hover {
-        background-color: #0069d9;
-    }
-    
-    .grid-header th[onclick]:after {
-        content: "↕";
-        display: inline-block;
-        margin-left: 5px;
-        font-size: 0.8em;
-        opacity: 0.7;
-    }
-    
-    /* Sort direction indicators will be added via JavaScript */
-    .sort-indicator {
-        display: inline-block;
-        margin-left: 5px;
-        font-size: 0.8em;
-    }
-    
-    .sort-asc:after {
-        content: "↑" !important;
-    }
-    
-    .sort-desc:after {
-        content: "↓" !important;
     }
 </style>
     
