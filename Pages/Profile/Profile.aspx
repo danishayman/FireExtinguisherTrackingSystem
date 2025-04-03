@@ -458,13 +458,13 @@
                                     <asp:LinkButton ID="btnEdit" runat="server" 
                                         CommandName="EditUser" 
                                         CommandArgument='<%# Eval("UserID") %>'
-                                        CssClass="btn btn-primary">
+                                        CssClass="btn btn-primary btn-sm">
                                         Edit
                                     </asp:LinkButton>
                                     <asp:LinkButton ID="btnDelete" runat="server" 
                                         CommandName="DeleteUser" 
                                         CommandArgument='<%# Eval("UserID") %>'
-                                        CssClass="btn btn-danger"
+                                        CssClass="btn btn-danger btn-sm"
                                         OnClientClick="return confirm('Are you sure you want to delete this user?');"
                                         Visible='<%# Eval("Username").ToString() != "admin" %>'>
                                         Delete

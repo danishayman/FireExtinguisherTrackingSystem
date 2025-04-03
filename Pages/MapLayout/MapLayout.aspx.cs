@@ -267,13 +267,9 @@ namespace FETS.Pages.MapLayout
         {
             if (e.CommandName == "ViewMap")
             {
-                string[] args = e.CommandArgument.ToString().Split(',');
-                if (args.Length == 2)
-                {
-                    string plantId = args[0];
-                    string levelId = args[1];
-                    Response.Redirect($"~/Pages/MapLayout/ViewMap.aspx?PlantID={plantId}&LevelID={levelId}");
-                }
+                // Note: We're now handling map viewing through client-side JavaScript
+                // No server-side action needed here as we're showing the map in a modal
+                // The map URL, plant name, and level name are passed directly to the JavaScript openMapModal function
             }
             else if (e.CommandName == "DeleteMap")
             {

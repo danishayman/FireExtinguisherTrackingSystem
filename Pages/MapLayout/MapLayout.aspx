@@ -248,6 +248,90 @@
             border: 1px solid #dee2e6;
         }
 
+        /* Modal Styles */
+        .map-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s;
+        }
+
+        .map-modal-content {
+            position: relative;
+            background-color: #fefefe;
+            margin: 3% auto;
+            padding: 0;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 1200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.4s;
+        }
+
+        .map-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            background-color: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .map-modal-header h4 {
+            margin: 0;
+            color: #333;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover,
+        .close-modal:focus {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .map-modal-body {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .full-screen-map {
+            max-width: 100%;
+            max-height: 80vh;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0}
+            to {opacity: 1}
+        }
+
+        @keyframes slideIn {
+            from {transform: translateY(-50px); opacity: 0;}
+            to {transform: translateY(0); opacity: 1;}
+        }
+
         /* Responsive styles */
         @media (max-width: 1200px) {
             .map-layout-section {
@@ -515,9 +599,10 @@
                                     <div class="action-buttons">
                                         <asp:LinkButton ID="btnView" runat="server" 
                                             CommandName="ViewMap" 
-                                            CommandArgument='<%# Eval("PlantID") + "," + Eval("LevelID") %>'
+                                            CommandArgument='<%# Eval("ImagePath") + "," + Eval("PlantName") + "," + Eval("LevelName") %>'
                                             CssClass="btn btn-sm btn-primary"
-                                            Text="View" />
+                                            Text="View"
+                                            OnClientClick='<%# "openMapModal(\"" + ResolveUrl("~/Uploads/Maps/" + Eval("ImagePath")) + "\", \"" + Eval("PlantName") + "\", \"" + Eval("LevelName") + "\"); return false;" %>' />
                                         <asp:LinkButton ID="btnDelete" runat="server" 
                                             CommandName="DeleteMap" 
                                             CommandArgument='<%# Eval("MapID") %>'
@@ -537,6 +622,19 @@
                         </EmptyDataTemplate>
                     </asp:GridView>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Screen Map Modal -->
+    <div id="mapModal" class="map-modal">
+        <div class="map-modal-content">
+            <div class="map-modal-header">
+                <h4 id="mapModalTitle">Map View</h4>
+                <span class="close-modal" onclick="closeMapModal()">&times;</span>
+            </div>
+            <div class="map-modal-body">
+                <img id="fullScreenMap" class="full-screen-map" src="" alt="Floor Map" />
             </div>
         </div>
     </div>
@@ -591,6 +689,59 @@
             
             // Prevent the form from submitting
             return false;
+        }
+
+        // Modal functions
+        function openMapModal(imageUrl, plantName, levelName) {
+            var modal = document.getElementById('mapModal');
+            var fullScreenMap = document.getElementById('fullScreenMap');
+            var modalTitle = document.getElementById('mapModalTitle');
+            
+            // Set the map image source
+            fullScreenMap.src = imageUrl;
+            
+            // Set the modal title
+            modalTitle.innerText = plantName + ' - ' + levelName + ' Map';
+            
+            // Show the modal
+            modal.style.display = 'block';
+            
+            // Disable scrolling on the body
+            document.body.style.overflow = 'hidden';
+            
+            // Add escape key listener
+            document.addEventListener('keydown', closeModalOnEscape);
+        }
+        
+        function closeMapModal() {
+            var modal = document.getElementById('mapModal');
+            modal.style.display = 'none';
+            
+            // Re-enable scrolling on the body
+            document.body.style.overflow = 'auto';
+            
+            // Remove escape key listener
+            document.removeEventListener('keydown', closeModalOnEscape);
+        }
+        
+        function closeModalOnEscape(e) {
+            if (e.key === 'Escape') {
+                closeMapModal();
+            }
+        }
+        
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            var modal = document.getElementById('mapModal');
+            if (event.target == modal) {
+                closeMapModal();
+            }
+        }
+
+        // Fallback for browsers that don't support our modal
+        // This will redirect to a full page view if needed
+        function fallbackToFullPage(plantId, levelId) {
+            window.location.href = '<%=ResolveUrl("~/Pages/MapLayout/ViewMap.aspx")%>?PlantID=' + plantId + '&LevelID=' + levelId;
         }
     </script>
 </asp:Content> 
