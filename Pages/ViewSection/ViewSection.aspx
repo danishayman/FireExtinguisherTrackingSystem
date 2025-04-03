@@ -400,6 +400,12 @@
                                                 </div>
                                             </ContentTemplate>
                                         </asp:UpdatePanel>
+                                        
+                                        <!-- Export to Excel button outside UpdatePanel -->
+                                        <div class="export-button-container" style="margin: 20px 0; text-align: right;">
+                                            <asp:Button ID="btnExportToExcel" runat="server" Text="Export to Excel" 
+                                                CssClass="btn btn-info" OnClick="btnExportToExcel_Click" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

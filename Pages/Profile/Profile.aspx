@@ -304,32 +304,6 @@
         .btn-success:hover {
             background-color: #218838;
         }
-
-        /* Force consistent button sizing */
-        .user-management .action-buttons .btn {
-            padding: 5px 10px !important;
-            font-size: 14px !important;
-            min-width: 60px !important;
-            max-width: 100px !important;
-            margin: 2px !important;
-            white-space: nowrap !important;
-            height: auto !important;
-        }
-        
-        /* Ensure all buttons in action containers have same styles */
-        .user-management .action-buttons .btn-primary,
-        .user-management .action-buttons .btn-danger,
-        .user-management .action-buttons .btn-warning,
-        .user-management .action-buttons .btn-success {
-            display: inline-block !important;
-            line-height: normal !important;
-        }
-        
-        /* Fix for the toggle button which might be larger */
-        .user-management .action-buttons .btn-warning,
-        .user-management .action-buttons .btn-success {
-            font-size: 13px !important;
-        }
     </style>
 </asp:Content>
 
@@ -597,22 +571,19 @@
                                     <asp:LinkButton ID="btnEdit" runat="server" 
                                         CommandName="EditRecipient" 
                                         CommandArgument='<%# Eval("RecipientID") %>'
-                                        CssClass="btn btn-primary btn-sm"
-                                        Style="padding: 5px 10px; font-size: 14px; min-width: 60px; max-width: 100px;">
+                                        CssClass="btn btn-primary">
                                         Edit
                                     </asp:LinkButton>
                                     <asp:LinkButton ID="btnToggle" runat="server" 
                                         CommandName="ToggleStatus" 
                                         CommandArgument='<%# Eval("RecipientID") %>'
-                                        CssClass='<%# Convert.ToBoolean(Eval("IsActive")) ? "btn btn-warning btn-sm" : "btn btn-success btn-sm" %>'
-                                        Style="padding: 5px 10px; font-size: 13px; min-width: 60px; max-width: 100px;">
+                                        CssClass='<%# Convert.ToBoolean(Eval("IsActive")) ? "btn btn-warning" : "btn btn-success" %>'>
                                         <%# Convert.ToBoolean(Eval("IsActive")) ? "Deactivate" : "Activate" %>
                                     </asp:LinkButton>
                                     <asp:LinkButton ID="btnDelete" runat="server" 
                                         CommandName="DeleteRecipient" 
                                         CommandArgument='<%# Eval("RecipientID") %>'
-                                        CssClass="btn btn-danger btn-sm"
-                                        Style="padding: 5px 10px; font-size: 14px; min-width: 60px; max-width: 100px;"
+                                        CssClass="btn btn-danger"
                                         OnClientClick="return confirm('Are you sure you want to delete this recipient?');">
                                         Delete
                                     </asp:LinkButton>

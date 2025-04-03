@@ -2,6 +2,7 @@ using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -2152,6 +2153,199 @@ namespace FETS.Pages.ViewSection
             
             ScriptManager.RegisterStartupScript(this, GetType(), "hideCompleteServicePanel", 
                 "hideCompleteServicePanel();", true);
+        }
+
+        /// <summary>
+        /// Exports the current filtered fire extinguisher list to a CSV file
+        /// </summary>
+        protected void btnExportToExcel_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Get the data that needs to be exported
+                DataTable dt = GetFireExtinguishersForExport();
+                
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    // Set the content type and attachment header for CSV
+                    Response.Clear();
+                    Response.Buffer = true;
+                    Response.ContentType = "text/csv";
+                    Response.AddHeader("content-disposition", "attachment;filename=FireExtinguishers_" + DateTime.Now.ToString("yyyyMMdd") + ".csv");
+                    Response.Charset = "";
+                    Response.Cache.SetCacheability(HttpCacheability.NoCache);
+                    
+                    using (StringWriter sw = new StringWriter())
+                    {
+                        // Create header row
+                        bool firstColumn = true;
+                        foreach (DataColumn column in dt.Columns)
+                        {
+                            // Skip internal ID columns
+                            if (column.ColumnName == "FEID" || column.ColumnName == "StatusID" || 
+                                column.ColumnName == "PlantID" || column.ColumnName == "LevelID" || 
+                                column.ColumnName == "TypeID")
+                                continue;
+                                
+                            if (!firstColumn)
+                                sw.Write(",");
+                            
+                            // Wrap column names in quotes to handle commas in names
+                            sw.Write("\"" + column.ColumnName.Replace("\"", "\"\"") + "\"");
+                            firstColumn = false;
+                        }
+                        sw.WriteLine();
+                        
+                        // Add data rows
+                        foreach (DataRow row in dt.Rows)
+                        {
+                            firstColumn = true;
+                            foreach (DataColumn column in dt.Columns)
+                            {
+                                // Skip internal ID columns
+                                if (column.ColumnName == "FEID" || column.ColumnName == "StatusID" || 
+                                    column.ColumnName == "PlantID" || column.ColumnName == "LevelID" || 
+                                    column.ColumnName == "TypeID")
+                                    continue;
+                                
+                                if (!firstColumn)
+                                    sw.Write(",");
+                                
+                                // Format dates nicely
+                                if (column.ColumnName == "DateExpired" && row[column] != DBNull.Value)
+                                {
+                                    DateTime dateValue = Convert.ToDateTime(row[column]);
+                                    sw.Write("\"" + dateValue.ToString("yyyy-MM-dd") + "\"");
+                                }
+                                else
+                                {
+                                    // Properly escape the value for CSV format
+                                    string value = row[column].ToString();
+                                    // If the value contains commas, quotes or newlines, wrap it in quotes and escape any quotes
+                                    if (value.Contains(",") || value.Contains("\"") || value.Contains("\n"))
+                                    {
+                                        sw.Write("\"" + value.Replace("\"", "\"\"") + "\"");
+                                    }
+                                    else
+                                    {
+                                        sw.Write(value);
+                                    }
+                                }
+                                
+                                firstColumn = false;
+                            }
+                            sw.WriteLine();
+                        }
+                        
+                        // Output the CSV to the response
+                        Response.Write(sw.ToString());
+                        Response.End();
+                    }
+                }
+                else
+                {
+                    // Show an alert since we're doing a full postback
+                    string script = "alert('No data available to export.');";
+                    ClientScript.RegisterStartupScript(this.GetType(), "noDataAlert", script, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception details
+                string script = $"alert('Error exporting data: {ex.Message.Replace("'", "\\'")}');";
+                ClientScript.RegisterStartupScript(this.GetType(), "exportError", script, true);
+            }
+        }
+        
+        /// <summary>
+        /// Helper method to count visible columns (excluding ID columns)
+        /// </summary>
+        private int CountVisibleColumns(DataTable dt)
+        {
+            int count = 0;
+            foreach (DataColumn column in dt.Columns)
+            {
+                if (column.ColumnName != "FEID" && column.ColumnName != "StatusID" && 
+                    column.ColumnName != "PlantID" && column.ColumnName != "LevelID" && 
+                    column.ColumnName != "TypeID")
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+        
+        /// <summary>
+        /// Gets the fire extinguishers data for export based on current filters
+        /// </summary>
+        private DataTable GetFireExtinguishersForExport()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            DataTable dt = new DataTable();
+            
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                
+                // Create query similar to LoadFireExtinguishers but without paging
+                string query = @"
+                    SELECT fe.FEID, fe.SerialNumber, fe.Location, fe.DateExpired, fe.Remarks,
+                           p.PlantID, p.PlantName, l.LevelID, l.LevelName, 
+                           s.StatusID, s.StatusName, t.TypeID, t.TypeName
+                    FROM FireExtinguishers fe
+                    INNER JOIN Plants p ON fe.PlantID = p.PlantID
+                    INNER JOIN Levels l ON fe.LevelID = l.LevelID
+                    INNER JOIN Status s ON fe.StatusID = s.StatusID
+                    INNER JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                    WHERE 1=1";
+                
+                // Apply the same filters used in the UI
+                List<SqlParameter> parameters = new List<SqlParameter>();
+                
+                // Plant filter
+                if (!string.IsNullOrEmpty(ddlFilterPlant.SelectedValue))
+                {
+                    query += " AND fe.PlantID = @PlantID";
+                    parameters.Add(new SqlParameter("@PlantID", ddlFilterPlant.SelectedValue));
+                }
+                
+                // Level filter
+                if (!string.IsNullOrEmpty(ddlFilterLevel.SelectedValue))
+                {
+                    query += " AND fe.LevelID = @LevelID";
+                    parameters.Add(new SqlParameter("@LevelID", ddlFilterLevel.SelectedValue));
+                }
+                
+                // Status filter
+                if (!string.IsNullOrEmpty(ddlFilterStatus.SelectedValue))
+                {
+                    query += " AND fe.StatusID = @StatusID";
+                    parameters.Add(new SqlParameter("@StatusID", ddlFilterStatus.SelectedValue));
+                }
+                
+                // Search filter
+                if (!string.IsNullOrEmpty(txtSearch.Text))
+                {
+                    query += " AND (fe.SerialNumber LIKE @Search OR fe.Location LIKE @Search)";
+                    parameters.Add(new SqlParameter("@Search", "%" + txtSearch.Text + "%"));
+                }
+                
+                // Apply the current sort
+                query += " ORDER BY " + SortExpression + " " + SortDirection;
+                
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    // Add all parameters
+                    cmd.Parameters.AddRange(parameters.ToArray());
+                    
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        adapter.Fill(dt);
+                    }
+                }
+            }
+            
+            return dt;
         }
     }
 }

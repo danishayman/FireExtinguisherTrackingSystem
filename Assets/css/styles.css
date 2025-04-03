@@ -927,20 +927,4 @@ label {
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-/* More specific selector for Profile page buttons */
-.user-management .action-buttons .btn {
-    padding: 5px 10px;
-    font-size: 14px;
-    min-width: 60px;
-    margin: 2px;
-    white-space: nowrap;
-}
-
-.btn-sm {
-    padding: 5px 10px;
-    font-size: 14px;
-    min-width: 60px;
-    transition: all 0.2s ease;
 } 
