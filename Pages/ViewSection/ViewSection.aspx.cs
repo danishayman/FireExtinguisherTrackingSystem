@@ -295,7 +295,8 @@ namespace FETS.Pages.ViewSection
                 if (!string.IsNullOrEmpty(txtSearch.Text))
                     baseQuery += " AND (fe.SerialNumber LIKE @Search OR fe.Location LIKE @Search)";
 
-                baseQuery += " ORDER BY fe.DateExpired ASC";
+                // Add ORDER BY clause with dynamic sort expression
+                baseQuery += " ORDER BY " + SortExpression + " " + SortDirection;
 
                 using (SqlCommand cmd = new SqlCommand(baseQuery, conn))
                 {
@@ -327,6 +328,23 @@ namespace FETS.Pages.ViewSection
         }
 
         /// <summary>
+        /// OnInit override to initialize sort state
+        /// </summary>
+        protected override void OnInit(EventArgs e)
+        {
+            base.OnInit(e);
+            
+            // Initialize sort state if not already set
+            if (ViewState["SortExpression"] == null)
+            {
+                ViewState["SortExpression"] = "SerialNumber";
+                ViewState["SortDirection"] = "ASC";
+            }
+            
+            System.Diagnostics.Debug.WriteLine($"OnInit - SortExpression: {SortExpression}, SortDirection: {SortDirection}");
+        }
+
+        /// <summary>
         /// Event handler for the main grid's row data binding.
         /// Sets the status badge color and text based on the fire extinguisher's status.
         /// </summary>
@@ -341,6 +359,31 @@ namespace FETS.Pages.ViewSection
                     lblStatus.Text = row["StatusName"].ToString();
                     lblStatus.Style["background-color"] = row["ColorCode"].ToString();
                 }
+            }
+            else if (e.Row.RowType == DataControlRowType.Header)
+            {
+                // Add debugging information for header row
+                System.Diagnostics.Debug.WriteLine($"Header binding - Current SortExpression: {SortExpression}, SortDirection: {SortDirection}");
+                
+                // Add client-side script to update sort indicators
+                ScriptManager.RegisterStartupScript(this, GetType(), "updateSortIndicators", 
+                    $@"setTimeout(function() {{
+                        const headers = document.querySelectorAll('.grid-header th');
+                        headers.forEach(function(header) {{
+                            if (header.getAttribute('onclick')) {{
+                                // Remove existing sort direction classes
+                                header.classList.remove('sort-asc', 'sort-desc');
+                                
+                                // Check if this is the current sort column
+                                const headerText = header.textContent.trim();
+                                if (headerText.includes('{SortExpression}')) {{
+                                    // Add appropriate sort direction class
+                                    header.classList.add('{(SortDirection == "ASC" ? "sort-asc" : "sort-desc")}');
+                                    console.log('Added sort indicator to: ' + headerText);
+                                }}
+                            }}
+                        }});
+                    }}, 100);", true);
             }
         }
 
@@ -1000,6 +1043,9 @@ namespace FETS.Pages.ViewSection
         /// </summary>
         protected void gvFireExtinguishers_Sorting(object sender, GridViewSortEventArgs e)
         {
+            // Add debugging information
+            System.Diagnostics.Debug.WriteLine($"Sorting triggered - Expression: {e.SortExpression}, Current SortExpression: {SortExpression}, Current SortDirection: {SortDirection}");
+
             if (SortExpression == e.SortExpression)
             {
                 SortDirection = SortDirection == "ASC" ? "DESC" : "ASC";
@@ -1009,6 +1055,13 @@ namespace FETS.Pages.ViewSection
                 SortExpression = e.SortExpression;
                 SortDirection = "ASC";
             }
+
+            // Log the updated values
+            System.Diagnostics.Debug.WriteLine($"New values - SortExpression: {SortExpression}, SortDirection: {SortDirection}");
+
+            // Update UI feedback for the user
+            ScriptManager.RegisterStartupScript(this, GetType(), "sortUpdated", 
+                $"console.log('Sorting updated: {SortExpression} {SortDirection}');", true);
 
             LoadFireExtinguishers();
         }
