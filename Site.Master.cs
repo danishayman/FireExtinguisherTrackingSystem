@@ -63,7 +63,7 @@ namespace FETS
             }
             else if (currentUrl.Contains("/profile/"))
             {
-                btnProfile.CssClass = "nav-link active";
+                btnProfile.CssClass = "nav-link active"; // Settings button (still links to Profile page)
             }
         }
 

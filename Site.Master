@@ -545,7 +545,7 @@
                 </li>
                 <li class="nav-item">
                     <asp:LinkButton ID="btnProfile" runat="server" CssClass="nav-link" OnClick="btnProfile_Click" EnableViewState="true" CausesValidation="false">
-                        <i class="fas fa-user"></i> <span>Profile</span>
+                        <i class="fas fa-cog"></i> <span>Settings</span>
                     </asp:LinkButton>
                 </li>
             </ul>
