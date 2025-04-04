@@ -237,6 +237,16 @@
         .action-buttons .btn {
             margin: 2px;
             white-space: nowrap;
+            max-width: 100px;
+            width: auto !important;
+            display: inline-block !important;
+        }
+        
+        /* Grid button styling - make buttons in grids smaller and more compact */
+        .grid-view .btn-sm {
+            padding: 3px 8px;
+            font-size: 12px;
+            min-width: 50px;
         }
 
         /* Status indicator styling */
@@ -458,7 +468,7 @@
                                     <asp:LinkButton ID="btnEdit" runat="server" 
                                         CommandName="EditUser" 
                                         CommandArgument='<%# Eval("UserID") %>'
-                                        CssClass="btn btn-primary btn-sm">
+                                        CssClass="btn btn-primary btn-sm" style="width: auto; display: inline-block;">
                                         Edit
                                     </asp:LinkButton>
                                     <asp:LinkButton ID="btnDelete" runat="server" 
@@ -571,19 +581,19 @@
                                     <asp:LinkButton ID="btnEdit" runat="server" 
                                         CommandName="EditRecipient" 
                                         CommandArgument='<%# Eval("RecipientID") %>'
-                                        CssClass="btn btn-primary">
+                                        CssClass="btn btn-primary btn-sm" style="width: auto; display: inline-block;">
                                         Edit
                                     </asp:LinkButton>
                                     <asp:LinkButton ID="btnToggle" runat="server" 
                                         CommandName="ToggleStatus" 
                                         CommandArgument='<%# Eval("RecipientID") %>'
-                                        CssClass='<%# Convert.ToBoolean(Eval("IsActive")) ? "btn btn-warning" : "btn btn-success" %>'>
+                                        CssClass='<%# Convert.ToBoolean(Eval("IsActive")) ? "btn btn-warning btn-sm" : "btn btn-success btn-sm" %>'>
                                         <%# Convert.ToBoolean(Eval("IsActive")) ? "Deactivate" : "Activate" %>
                                     </asp:LinkButton>
                                     <asp:LinkButton ID="btnDelete" runat="server" 
                                         CommandName="DeleteRecipient" 
                                         CommandArgument='<%# Eval("RecipientID") %>'
-                                        CssClass="btn btn-danger"
+                                        CssClass="btn btn-danger btn-sm"
                                         OnClientClick="return confirm('Are you sure you want to delete this recipient?');">
                                         Delete
                                     </asp:LinkButton>
