@@ -1126,7 +1126,7 @@ namespace FETS.Pages.ViewSection
                     }
 
                     var message = new MimeMessage();
-                    message.From.Add(new MailboxAddress("Sender Name", smtpHost.From));
+                    message.From.Add(new MailboxAddress("FETS@INARI", smtpHost.From));
                     
                     // If a specific recipient is provided, use it
                     if (!string.IsNullOrEmpty(recipient))
