@@ -1613,9 +1613,20 @@ namespace FETS.Pages.ViewSection
                     FROM FireExtinguishers fe
                     WHERE fe.FEID = @FEID";
 
+                // For non-admin users with assigned plant, verify they can only edit their own plant's extinguishers
+                if (!IsAdministrator && UserPlantID.HasValue)
+                {
+                    query += " AND fe.PlantID = @UserPlantID";
+                }
+
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@FEID", feId);
+                    if (!IsAdministrator && UserPlantID.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@UserPlantID", UserPlantID.Value);
+                    }
+
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
@@ -1641,6 +1652,13 @@ namespace FETS.Pages.ViewSection
                             
                             txtRemarks.Text = reader["Remarks"] as string ?? string.Empty;
                         }
+                        else if (!IsAdministrator && UserPlantID.HasValue)
+                        {
+                            // If the user tries to edit a fire extinguisher from another plant
+                            ScriptManager.RegisterStartupScript(this, GetType(), "accessError", 
+                                "showNotification('❌ You can only edit fire extinguishers from your assigned plant.', 'error'); hideEditPanel();", true);
+                            return;
+                        }
                     }
                 }
             }
@@ -1664,19 +1682,40 @@ namespace FETS.Pages.ViewSection
             {
                 conn.Open();
 
-                // Load Plants
-                using (SqlCommand cmd = new SqlCommand("SELECT PlantID, PlantName FROM Plants ORDER BY PlantName", conn))
+                // Load Plants - with restriction based on user's assigned plant
+                if (!IsAdministrator && UserPlantID.HasValue)
                 {
-                    ddlPlant.Items.Clear();
-                    ddlPlant.Items.Add(new ListItem("-- Select Plant --", ""));
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    // For users with assigned plant, only load their plant and disable the dropdown
+                    using (SqlCommand cmd = new SqlCommand("SELECT PlantID, PlantName FROM Plants WHERE PlantID = @PlantID", conn))
                     {
-                        while (reader.Read())
+                        cmd.Parameters.AddWithValue("@PlantID", UserPlantID.Value);
+                        ddlPlant.Items.Clear();
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            ddlPlant.Items.Add(new ListItem(
-                                reader["PlantName"].ToString(),
-                                reader["PlantID"].ToString()
-                            ));
+                            if (reader.Read())
+                            {
+                                ddlPlant.Items.Add(new ListItem(reader["PlantName"].ToString(), reader["PlantID"].ToString()));
+                            }
+                        }
+                    }
+                    ddlPlant.Enabled = false;
+                }
+                else
+                {
+                    // For administrators or users without assigned plant, load all plants
+                    using (SqlCommand cmd = new SqlCommand("SELECT PlantID, PlantName FROM Plants ORDER BY PlantName", conn))
+                    {
+                        ddlPlant.Items.Clear();
+                        ddlPlant.Items.Add(new ListItem("-- Select Plant --", ""));
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                ddlPlant.Items.Add(new ListItem(
+                                    reader["PlantName"].ToString(),
+                                    reader["PlantID"].ToString()
+                                ));
+                            }
                         }
                     }
                 }
