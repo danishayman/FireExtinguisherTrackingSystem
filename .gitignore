@@ -7,16 +7,5 @@ obj/
 packages/
 bin/
 
-ExpiryNotifications/bin/Debug/ExpiryNotifications.exe
-ExpiryNotifications/bin/Debug/ExpiryNotifications.pdb
-
-bin/FETS.dll
-bin/FETS.dll.config
-bin/FETS.pdb
-ExpiryNotifications/bin/Debug/ExpiryNotifications.exe
-bin/FETS.dll
-bin/FETS.dll.config
-bin/FETS.pdb
-
-App.config
+# Configuration files
 Web.config
