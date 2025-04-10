@@ -197,7 +197,7 @@
         .marker-icon {
             width: 100%;
             height: 100%;
-            background-image: url('../../Assets/images/fire-extinguisher-icon.png');
+            background-image: url('<%= ResolveUrl("~/Assets/images/fire-extinguisher-icon.png") %>');
             background-size: contain;
             background-repeat: no-repeat;
         }
