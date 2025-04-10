@@ -4,46 +4,91 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 -->
 <Project>
   <PropertyGroup>
-    <_PublishTargetUrl>C:\Users\Legion\Desktop\INARI\PROJECTS\FireExtinguisherTrackingSystem\bin\app.publish\</_PublishTargetUrl>
-    <History>False|2025-04-10T06:47:32.3462689Z||;False|2025-04-10T14:32:47.0123940+08:00||;False|2025-04-10T14:27:04.7452000+08:00||;False|2025-04-10T14:24:44.7971305+08:00||;False|2025-04-10T14:23:22.9263241+08:00||;False|2025-04-10T14:21:18.5131165+08:00||;False|2025-04-10T14:20:58.0582568+08:00||;False|2025-04-10T14:17:39.8379034+08:00||;False|2025-04-10T14:13:13.7946088+08:00||;False|2025-04-10T14:11:14.0191819+08:00||;True|2025-01-17T16:12:36.0495138+08:00||;</History>
+    <_PublishTargetUrl>C:\Users\danis\OneDrive\Documents\Inari\FireExtinguisherTrackingSystem\bin\app.publish\</_PublishTargetUrl>
+    <History>True|2025-04-10T06:55:09.0241743Z||;True|2025-04-10T14:52:14.4410660+08:00||;False|2025-04-10T14:47:32.3462689+08:00||;False|2025-04-10T14:32:47.0123940+08:00||;False|2025-04-10T14:27:04.7452000+08:00||;False|2025-04-10T14:24:44.7971305+08:00||;False|2025-04-10T14:23:22.9263241+08:00||;False|2025-04-10T14:21:18.5131165+08:00||;False|2025-04-10T14:20:58.0582568+08:00||;False|2025-04-10T14:17:39.8379034+08:00||;False|2025-04-10T14:13:13.7946088+08:00||;False|2025-04-10T14:11:14.0191819+08:00||;True|2025-01-17T16:12:36.0495138+08:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
   <ItemGroup>
     <File Include="Assets/css/styles.css">
-      <publishTime>01/09/2025 14:23:39</publishTime>
+      <publishTime>03/04/2025 09:46:17</publishTime>
+    </File>
+    <File Include="bin/BouncyCastle.Cryptography.dll">
+      <publishTime>03/17/2025 11:23:44</publishTime>
     </File>
     <File Include="bin/FETS.dll">
-      <publishTime>01/17/2025 16:12:35</publishTime>
+      <publishTime>04/10/2025 14:55:08</publishTime>
     </File>
     <File Include="bin/FETS.pdb">
-      <publishTime>01/17/2025 16:12:35</publishTime>
+      <publishTime>04/10/2025 14:55:08</publishTime>
+    </File>
+    <File Include="bin/MailKit.dll">
+      <publishTime>03/17/2025 11:23:44</publishTime>
+    </File>
+    <File Include="bin/MailKit.dll.config">
+      <publishTime>03/17/2025 11:23:44</publishTime>
+    </File>
+    <File Include="bin/MailKit.pdb">
+      <publishTime>03/17/2025 11:23:44</publishTime>
+    </File>
+    <File Include="bin/MimeKit.dll">
+      <publishTime>03/17/2025 11:23:45</publishTime>
+    </File>
+    <File Include="bin/MimeKit.pdb">
+      <publishTime>03/17/2025 11:23:45</publishTime>
+    </File>
+    <File Include="bin/System.Buffers.dll">
+      <publishTime>03/20/2025 14:15:27</publishTime>
+    </File>
+    <File Include="bin/System.Formats.Asn1.dll">
+      <publishTime>03/20/2025 14:15:27</publishTime>
+    </File>
+    <File Include="bin/System.Memory.dll">
+      <publishTime>03/20/2025 14:15:27</publishTime>
+    </File>
+    <File Include="bin/System.Numerics.Vectors.dll">
+      <publishTime>03/20/2025 14:15:27</publishTime>
+    </File>
+    <File Include="bin/System.Runtime.CompilerServices.Unsafe.dll">
+      <publishTime>03/20/2025 14:15:27</publishTime>
+    </File>
+    <File Include="bin/System.Threading.Tasks.Extensions.dll">
+      <publishTime>03/20/2025 14:15:27</publishTime>
+    </File>
+    <File Include="bin/System.ValueTuple.dll">
+      <publishTime>03/13/2025 11:40:54</publishTime>
     </File>
     <File Include="Default.aspx">
-      <publishTime>01/08/2025 11:48:31</publishTime>
+      <publishTime>03/25/2025 14:44:36</publishTime>
+    </File>
+    <File Include="EmailTemplates/ServiceEmailTemplate.html">
+      <publishTime>04/10/2025 14:51:19</publishTime>
     </File>
     <File Include="Pages/Dashboard/Dashboard.aspx">
-      <publishTime>01/09/2025 14:58:45</publishTime>
+      <publishTime>04/07/2025 09:11:37</publishTime>
     </File>
     <File Include="Pages/DataEntry/DataEntry.aspx">
-      <publishTime>01/13/2025 15:25:54</publishTime>
+      <publishTime>03/04/2025 09:10:51</publishTime>
     </File>
     <File Include="Pages/MapLayout/MapLayout.aspx">
-      <publishTime>01/09/2025 16:27:29</publishTime>
+      <publishTime>03/04/2025 09:36:05</publishTime>
     </File>
     <File Include="Pages/MapLayout/ViewMap.aspx">
-      <publishTime>01/08/2025 11:48:31</publishTime>
+      <publishTime>03/28/2025 10:04:21</publishTime>
     </File>
     <File Include="Pages/Profile/Profile.aspx">
-      <publishTime>01/15/2025 16:29:28</publishTime>
+      <publishTime>04/04/2025 09:25:03</publishTime>
     </File>
     <File Include="Pages/ViewSection/ViewSection.aspx">
-      <publishTime>01/17/2025 11:59:06</publishTime>
+      <publishTime>03/04/2025 10:22:49</publishTime>
     </File>
     <File Include="Scripts/jquery-3.7.1.min.js">
-      <publishTime>01/06/2025 17:13:56</publishTime>
+      <publishTime>06/02/2025 15:18:45</publishTime>
+    </File>
+    <File Include="Site.Master">
+      <publishTime>04/04/2025 10:21:24</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>01/09/2025 17:53:23</publishTime>
+      <publishTime>04/10/2025 14:54:28</publishTime>
     </File>
   </ItemGroup>
 </Project>
