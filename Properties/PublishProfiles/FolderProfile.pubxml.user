@@ -4,8 +4,8 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 -->
 <Project>
   <PropertyGroup>
-    <_PublishTargetUrl>C:\Users\HP\OneDrive\Desktop\FETS\FETS\bin\app.publish\</_PublishTargetUrl>
-    <History>True|2025-01-17T08:12:36.0495138Z||;</History>
+    <_PublishTargetUrl>C:\Users\Legion\Desktop\INARI\PROJECTS\FireExtinguisherTrackingSystem\bin\app.publish\</_PublishTargetUrl>
+    <History>False|2025-04-10T06:47:32.3462689Z||;False|2025-04-10T14:32:47.0123940+08:00||;False|2025-04-10T14:27:04.7452000+08:00||;False|2025-04-10T14:24:44.7971305+08:00||;False|2025-04-10T14:23:22.9263241+08:00||;False|2025-04-10T14:21:18.5131165+08:00||;False|2025-04-10T14:20:58.0582568+08:00||;False|2025-04-10T14:17:39.8379034+08:00||;False|2025-04-10T14:13:13.7946088+08:00||;False|2025-04-10T14:11:14.0191819+08:00||;True|2025-01-17T16:12:36.0495138+08:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
   <ItemGroup>

@@ -93,16 +93,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web.config" />
-    <Content Include="ExpiryNotifications\App.config" />
     <Content Include="Default.aspx" />
     <Content Include="Assets\css\styles.css" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />
-    <Content Include="Pages\Dashboard.aspx" />
+    <Content Include="Pages\Dashboard\Dashboard.aspx" />
     <Content Include="Pages\DataEntry\DataEntry.aspx" />
     <Content Include="Pages\ViewSection\ViewSection.aspx" />
     <Content Include="Pages\Profile\Profile.aspx" />
     <Content Include="EmailTemplates\ServiceEmailTemplate.html" />
-    <Content Include="EmailTemplates\ExpiryEmailTemplate.html" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Default.aspx.cs">
@@ -154,8 +152,6 @@
     <Folder Include="App_Data\" />
     <Folder Include="Assets\images\" />
     <Folder Include="Assets\js\" />
-    <Folder Include="EmailTemplates\" />
-    <Folder Include="App_Code\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Pages\MapLayout\MapLayout.aspx.cs">
