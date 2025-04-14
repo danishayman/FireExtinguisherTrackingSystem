@@ -165,6 +165,115 @@
             position: relative;
         }
 
+        .plants-section {
+            background-color: #fff;
+            padding: clamp(1.5rem, 3vw, 2rem);
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
+            width: 100%;
+            margin: 2rem auto 0;
+            box-sizing: border-box;
+        }
+
+        .plants-section h3 {
+            margin: 0 0 1.5rem 0;
+            color: var(--text-color);
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            text-align: center;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary-color);
+            width: 100%;
+        }
+
+        .plants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        .plant-card {
+            background-color: #fff;
+            border-radius: var(--radius);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+        }
+
+        .plant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .plant-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .plant-title {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .plant-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+            text-align: left;
+            width: 100%;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0.3rem 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 1rem;
+            font-weight: 600;
+            min-width: 2.5rem;
+            text-align: right;
+        }
+
+        .stat-value.active {
+            color: var(--success-color);
+        }
+
+        .stat-value.service {
+            color: var(--primary-color);
+        }
+
+        .stat-value.expired {
+            color: var(--danger-color);
+        }
+
+        .stat-value.expiring {
+            color: var(--warning-color);
+        }
+
         .login-section {
             background-color: #fff;
             padding: clamp(1.5rem, 3vw, 2rem);
@@ -252,6 +361,43 @@
                     <div class="chart-container">
                         <canvas id="feTypeChart"></canvas>
                         <asp:HiddenField ID="hdnChartData" runat="server" />
+                    </div>
+                </div>
+
+                <div class="plants-section">
+                    <h3>Plant Statistics</h3>
+                    <div class="plants-grid">
+                        <asp:Repeater ID="rptPlants" runat="server">
+                            <ItemTemplate>
+                                <div class="plant-card">
+                                    <div class="plant-header">
+                                        <h4 class="plant-title"><%# Eval("PlantName") %></h4>
+                                    </div>
+                                    <div class="plant-stats">
+                                        <div class="stat-item">
+                                            <span class="stat-label">Total Extinguishers:</span>
+                                            <span class="stat-value"><%# Eval("TotalFE") %></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Active:</span>
+                                            <span class="stat-value active"><%# Eval("InUse") %></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Under Service:</span>
+                                            <span class="stat-value service"><%# Eval("UnderService") %></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Expired:</span>
+                                            <span class="stat-value expired"><%# Eval("Expired") %></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Expiring Soon:</span>
+                                            <span class="stat-value expiring"><%# Eval("ExpiringSoon") %></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ItemTemplate>
+                        </asp:Repeater>
                     </div>
                 </div>
 
