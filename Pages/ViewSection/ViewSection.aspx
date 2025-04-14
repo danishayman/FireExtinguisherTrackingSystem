@@ -999,6 +999,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 15px; /* Add padding */
         }
 
         .modal-content {
@@ -1019,6 +1020,7 @@
             padding: 20px;
             border-radius: 8px;
             max-height: 85vh;
+           
         }
 
         /* Modal components */
@@ -1061,6 +1063,8 @@
             background-color: #fff;
             max-height: 400px;
             overflow-y: auto;
+            width: 100%;
+            overflow-x: auto;
         }
 
         .selection-checkbox {
@@ -1323,6 +1327,183 @@
             max-height: 60vh;
             overflow-y: auto;
             padding: 15px;
+        }
+
+        .service-selection-modal .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .selection-grid {
+            min-width: 800px; /* Minimum width to prevent squishing */
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .service-selection-modal {
+                margin: 10px;
+                max-height: 85vh;
+            }
+
+            .service-selection-modal .modal-body {
+                padding: 10px;
+            }
+
+            .grid-container {
+                margin-bottom: 10px;
+            }
+
+            /* Adjust column widths for mobile */
+            .selection-grid th,
+            .selection-grid td {
+                white-space: nowrap;
+                padding: 8px 4px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .service-selection-modal .modal-header,
+            .service-selection-modal .modal-footer {
+                padding: 10px;
+            }
+
+            .service-selection-modal .modal-footer .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+
+        /* Table adjustments for small screens */
+        @media (max-width: 767px) {
+            .grid-view, 
+            .monitoring-grid,
+            .selection-grid {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .tab-buttons {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+                padding-bottom: 8px;
+            }
+            
+            .tab-button {
+                min-width: 120px;
+            }
+            
+            .button-container {
+                text-align: center;
+            }
+        }
+
+        .edit-modal {
+            max-width: 90%;
+            width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        .validation-error {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        .modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .service-selection-modal .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .selection-grid {
+            min-width: 800px; /* Minimum width to prevent squishing */
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .service-selection-modal {
+                margin: 10px;
+                max-height: 85vh;
+            }
+
+            .service-selection-modal .modal-body {
+                padding: 10px;
+            }
+
+            .grid-container {
+                margin-bottom: 10px;
+            }
+
+            /* Adjust column widths for mobile */
+            .selection-grid th,
+            .selection-grid td {
+                white-space: nowrap;
+                padding: 8px 4px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .service-selection-modal .modal-header,
+            .service-selection-modal .modal-footer {
+                padding: 10px;
+            }
+
+            .service-selection-modal .modal-footer .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+
+        /* Add to your existing styles */
+        .scroll-indicator {
+            text-align: center;
+            color: #666;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 5px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            animation: fadeIn 0.3s ease;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 
