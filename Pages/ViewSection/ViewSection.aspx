@@ -99,7 +99,7 @@
                                                                                     HeaderStyle-HorizontalAlign="Center" />
                                                                                 <asp:BoundField DataField="DateExpired"
                                                                                     HeaderText="Expiry Date"
-                                                                                    DataFormatString="{0:d}"
+                                                                                    DataFormatString="{0:dd/MM/yy}"
                                                                                     ItemStyle-HorizontalAlign="Center"
                                                                                     HeaderStyle-HorizontalAlign="Center" />
                                                                                 <asp:BoundField DataField="DaysExpired"
@@ -158,7 +158,7 @@
                                                                                     HeaderStyle-HorizontalAlign="Center" />
                                                                                 <asp:BoundField DataField="DateExpired"
                                                                                     HeaderText="Expiry Date"
-                                                                                    DataFormatString="{0:d}"
+                                                                                    DataFormatString="{0:dd/MM/yy}"
                                                                                     ItemStyle-HorizontalAlign="Center"
                                                                                     HeaderStyle-HorizontalAlign="Center" />
                                                                                 <asp:BoundField DataField="DaysLeft"
@@ -217,7 +217,7 @@
                                                                                     HeaderStyle-HorizontalAlign="Center" />
                                                                                 <asp:BoundField DataField="DateExpired"
                                                                                     HeaderText="Previous Expiry Date"
-                                                                                    DataFormatString="{0:d}"
+                                                                                    DataFormatString="{0:dd/MM/yy}"
                                                                                     ItemStyle-HorizontalAlign="Center"
                                                                                     HeaderStyle-HorizontalAlign="Center" />
                                                                             </Columns>
@@ -355,7 +355,7 @@
                                                                 <asp:BoundField DataField="DateExpired"
                                                                     HeaderText="Expiry Date"
                                                                     SortExpression="DateExpired"
-                                                                    DataFormatString="{0:d}">
+                                                                    DataFormatString="{0:dd/MM/yy}">
                                                                     <ItemStyle HorizontalAlign="Center" />
                                                                     <HeaderStyle HorizontalAlign="Center" />
                                                                 </asp:BoundField>
@@ -471,7 +471,7 @@
                                 <asp:BoundField DataField="PlantName" HeaderText="Plant" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                 <asp:BoundField DataField="LevelName" HeaderText="Level" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                 <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
-                                <asp:BoundField DataField="DateExpired" HeaderText="Expiry Date" DataFormatString="{0:d}" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                <asp:BoundField DataField="DateExpired" HeaderText="Expiry Date" DataFormatString="{0:dd/MM/yy}" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                 <asp:BoundField DataField="StatusName" HeaderText="Status" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                             </Columns>
                         </asp:GridView>
@@ -635,7 +635,7 @@
                                     <asp:BoundField DataField="PlantName" HeaderText="Plant" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                     <asp:BoundField DataField="LevelName" HeaderText="Level" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                     <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
-                                    <asp:BoundField DataField="DateExpired" HeaderText="Previous Expiry Date" DataFormatString="{0:d}" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                    <asp:BoundField DataField="DateExpired" HeaderText="Previous Expiry Date" DataFormatString="{0:dd/MM/yy}" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                     <asp:TemplateField HeaderText="New Expiry Date" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center">
                                         <ItemTemplate>
                                             <asp:TextBox ID="txtNewExpiryDate" runat="server" CssClass="form-control" TextMode="Date"></asp:TextBox>

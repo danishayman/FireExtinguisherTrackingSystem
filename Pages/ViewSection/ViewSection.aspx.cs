@@ -1952,12 +1952,12 @@ namespace FETS.Pages.ViewSection
         {
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
-                // Set minimum date to today for the expiry date input
+                // Set default value for new expiry date (1 year from today)
                 TextBox txtNewExpiryDate = (TextBox)e.Row.FindControl("txtNewExpiryDate");
                 if (txtNewExpiryDate != null)
                 {
-                    // Default the expiry date to one year from today
-                    txtNewExpiryDate.Text = DateTime.Today.AddYears(1).ToString("yyyy-MM-dd");
+                    txtNewExpiryDate.Text = DateTime.Today.AddYears(1).ToString("yyyy-MM-dd"); // Keep this as yyyy-MM-dd for HTML5 date input
+                    // Note: HTML5 date inputs require ISO format yyyy-MM-dd regardless of display format
                 }
             }
         }
@@ -2210,7 +2210,7 @@ namespace FETS.Pages.ViewSection
                     Response.Clear();
                     Response.Buffer = true;
                     Response.ContentType = "text/csv";
-                    Response.AddHeader("content-disposition", "attachment;filename=FireExtinguishers_" + DateTime.Now.ToString("yyyyMMdd") + ".csv");
+                    Response.AddHeader("content-disposition", "attachment;filename=FireExtinguishers_" + DateTime.Now.ToString("ddMMyy") + ".csv");
                     Response.Charset = "";
                     Response.Cache.SetCacheability(HttpCacheability.NoCache);
                     
@@ -2254,7 +2254,7 @@ namespace FETS.Pages.ViewSection
                                 if (column.ColumnName == "DateExpired" && row[column] != DBNull.Value)
                                 {
                                     DateTime dateValue = Convert.ToDateTime(row[column]);
-                                    sw.Write("\"" + dateValue.ToString("yyyy-MM-dd") + "\"");
+                                    sw.Write("\"" + dateValue.ToString("dd/MM/yy") + "\"");
                                 }
                                 else
                                 {
