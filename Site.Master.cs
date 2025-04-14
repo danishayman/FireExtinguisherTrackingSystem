@@ -23,8 +23,13 @@ namespace FETS
                 }
                 else
                 {
-                    // Redirect unauthenticated users to login page
-                    Response.Redirect("~/Default.aspx");
+                    // Check if the current page is the PublicDashboard
+                    string currentPage = System.IO.Path.GetFileName(Request.Path);
+                    if (currentPage.ToLower() != "publicdashboard.aspx")
+                    {
+                        // Redirect unauthenticated users to login page only if not on the PublicDashboard
+                        Response.Redirect("~/Default.aspx");
+                    }
                 }
             }
         }
