@@ -64,6 +64,12 @@ namespace FETS.Pages.ViewSection
             return "tab-button" + (activeTab == tabName ? " active" : "");
         }
 
+        // Method to check if current user is an administrator
+        public bool IsAdmin()
+        {
+            return IsAdministrator;
+        }
+
         /// <summary>
         /// Loads the monitoring panels with fire extinguisher data:
         /// - Expired fire extinguishers
@@ -341,6 +347,20 @@ namespace FETS.Pages.ViewSection
                 {
                     lblStatus.Text = row["StatusName"].ToString();
                     lblStatus.Style["background-color"] = row["ColorCode"].ToString();
+                }
+
+                // Hide action buttons for non-admin users
+                if (!IsAdministrator)
+                {
+                    e.Row.Cells[e.Row.Cells.Count - 1].Visible = false;
+                }
+            }
+            else if (e.Row.RowType == DataControlRowType.Header)
+            {
+                // Hide the Actions column header for non-admin users
+                if (!IsAdministrator)
+                {
+                    e.Row.Cells[e.Row.Cells.Count - 1].Visible = false;
                 }
             }
         }
