@@ -13,7 +13,7 @@ namespace FETS.Pages.MapLayout
         {
             if (!User.Identity.IsAuthenticated)
             {
-                Response.Redirect("~/Default.aspx");
+                Response.Redirect("~/Pages/Login/Login.aspx");
                 return;
             }
 
@@ -126,7 +126,7 @@ namespace FETS.Pages.MapLayout
         {
             FormsAuthentication.SignOut();
             Session.Clear();
-            Response.Redirect("~/Default.aspx");
+            Response.Redirect("~/Pages/Login/Login.aspx");
         }
     }
 } 

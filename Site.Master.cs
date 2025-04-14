@@ -28,7 +28,7 @@ namespace FETS
                     if (currentPage.ToLower() != "publicdashboard.aspx")
                     {
                         // Redirect unauthenticated users to login page only if not on the PublicDashboard
-                        Response.Redirect("~/Default.aspx");
+                        Response.Redirect("~/Pages/Login/Login.aspx");
                     }
                 }
             }
@@ -106,7 +106,7 @@ namespace FETS
         protected void btnLogout_Click(object sender, EventArgs e)
         {
             FormsAuthentication.SignOut();
-            Response.Redirect("~/Default.aspx");
+            Response.Redirect("~/Pages/Login/Login.aspx");
         }
     }
 }

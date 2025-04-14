@@ -19,7 +19,7 @@ namespace FETS.Pages.DataEntry
             // Redirect unauthenticated users to login page
             if (!User.Identity.IsAuthenticated)
             {
-                Response.Redirect("~/Default.aspx");
+                Response.Redirect("~/Pages/Login/Login.aspx");
                 return;
             }
 
