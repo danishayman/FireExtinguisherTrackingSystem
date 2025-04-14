@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="PublicDashboard.aspx.cs" Inherits="FETS.PublicDashboard" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="PublicDashboard.aspx.cs" Inherits="FETS.Pages.PublicDashboard.PublicDashboard" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -331,7 +331,7 @@
         <div class="dashboard-container">
             <div class="dashboard-header">
                 <div class="logo-container">
-                    <img src="Uploads/misc/logo.jpeg" alt="INARI Logo" class="logo" />
+                    <img src="<%=ResolveUrl("~/Uploads/misc/logo.jpeg")%>" alt="INARI Logo" class="logo" />
                 </div>
                 <h2>Fire Extinguisher Tracking System</h2>
             </div>
@@ -404,7 +404,7 @@
                 <div class="login-section">
                     <h3>Authorized Access</h3>
                     <p>Log in to access complete system features including data entry, map view, and service management.</p>
-                    <a href="Default.aspx" class="btn-login">Login to System</a>
+                    <a href="<%=ResolveUrl("~/Default.aspx")%>" class="btn-login">Login to System</a>
                 </div>
             </div>
 

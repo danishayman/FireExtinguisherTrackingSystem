@@ -334,7 +334,7 @@
                 
                 <!-- Back to Dashboard Button -->
                 <div class="back-to-dashboard">
-                    <a href="PublicDashboard.aspx" class="btn-back">
+                    <a href="Pages/PublicDashboard/PublicDashboard.aspx" class="btn-back">
                         <i class="fas fa-arrow-left"></i> Back to Dashboard
                     </a>
                 </div>
