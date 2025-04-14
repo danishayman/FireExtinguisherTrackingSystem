@@ -7,6 +7,8 @@
     <title>FETS - Login</title>
     <!-- Link to Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Link to Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <!-- Link to external CSS styles -->
     <link href="Assets/css/styles.css" rel="stylesheet" />
     <style>
@@ -197,6 +199,41 @@
             color: #243b78;
             text-decoration: underline;
         }
+        
+        /* Back to dashboard button */
+        .back-to-dashboard {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 35px;
+            width: 100%;
+        }
+        
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #f5f7fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        
+        .btn-back i {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        .btn-back:hover {
+            background-color: #e9ecef;
+            color: #3052a0;
+            border-color: #b6bfc9;
+        }
 
         /* Footer styling */
         .footer {
@@ -293,6 +330,13 @@
                 <!-- Forgot password link -->
                 <div class="password-actions">
                     <asp:LinkButton ID="lnkForgotPassword" runat="server" OnClick="lnkForgotPassword_Click">Forgot password?</asp:LinkButton>
+                </div>
+                
+                <!-- Back to Dashboard Button -->
+                <div class="back-to-dashboard">
+                    <a href="PublicDashboard.aspx" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
                 </div>
             </div>
         </form>
