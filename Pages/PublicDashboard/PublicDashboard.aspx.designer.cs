@@ -1,4 +1,4 @@
-namespace FETS
+namespace FETS.Pages.PublicDashboard
 {
     public partial class PublicDashboard
     {

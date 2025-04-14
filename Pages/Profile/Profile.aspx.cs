@@ -21,7 +21,7 @@ namespace FETS.Pages.Profile
             // Redirect unauthenticated users to the login page
             if (!User.Identity.IsAuthenticated)
             {
-                Response.Redirect("~/Default.aspx");
+                Response.Redirect("~/Pages/Login/Login.aspx");
                 return;
             }
 

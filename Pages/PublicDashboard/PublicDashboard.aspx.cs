@@ -3,7 +3,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace FETS
+namespace FETS.Pages.PublicDashboard
 {
     public partial class PublicDashboard : System.Web.UI.Page
     {

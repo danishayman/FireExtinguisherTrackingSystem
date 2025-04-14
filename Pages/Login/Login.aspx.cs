@@ -3,9 +3,9 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.Web.Security;
 
-namespace FETS
+namespace FETS.Pages.Login
 {
-    public partial class Default : System.Web.UI.Page
+    public partial class Login : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {

@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace FETS
+namespace FETS.Pages.Login
 {
 
 
-    public partial class Default
+    public partial class Login
     {
 
         /// <summary>

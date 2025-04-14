@@ -93,7 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web.config" />
-    <Content Include="Default.aspx" />
+    <Content Include="Pages/Login/Login.aspx" />
     <Content Include="Assets\css\styles.css" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />
     <Content Include="Pages\Dashboard\Dashboard.aspx" />
@@ -102,15 +102,15 @@
     <Content Include="Pages\Profile\Profile.aspx" />
     <Content Include="EmailTemplates\ServiceEmailTemplate.html" />
     <Content Include="DefaultProb.aspx" />
-    <Content Include="PublicDashboard.aspx" />
+    <Content Include="Pages\PublicDashboard\PublicDashboard.aspx" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Default.aspx.cs">
-      <DependentUpon>Default.aspx</DependentUpon>
+    <Compile Include="Pages/Login/Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Default.aspx.designer.cs">
-      <DependentUpon>Default.aspx</DependentUpon>
+    <Compile Include="Pages/Login/Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
     <Compile Include="App_Code\EmailTemplateManager.cs" />
     <Compile Include="Pages\Dashboard\Dashboard.aspx.cs">
@@ -149,11 +149,11 @@
     <Compile Include="Site.Master.designer.cs">
       <DependentUpon>Site.Master</DependentUpon>
     </Compile>
-    <Compile Include="PublicDashboard.aspx.cs">
+    <Compile Include="Pages\PublicDashboard\PublicDashboard.aspx.cs">
       <DependentUpon>PublicDashboard.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="PublicDashboard.aspx.designer.cs">
+    <Compile Include="Pages\PublicDashboard\PublicDashboard.aspx.designer.cs">
       <DependentUpon>PublicDashboard.aspx</DependentUpon>
     </Compile>
   </ItemGroup>

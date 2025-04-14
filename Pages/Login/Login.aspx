@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="FETS.Default" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="FETS.Pages.Login.Login" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -334,7 +334,7 @@
                 
                 <!-- Back to Dashboard Button -->
                 <div class="back-to-dashboard">
-                    <a href="PublicDashboard.aspx" class="btn-back">
+                    <a href="../../Pages/PublicDashboard/PublicDashboard.aspx" class="btn-back">
                         <i class="fas fa-arrow-left"></i> Back to Dashboard
                     </a>
                 </div>
