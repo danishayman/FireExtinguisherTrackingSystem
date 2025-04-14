@@ -1020,7 +1020,120 @@
             padding: 20px;
             border-radius: 8px;
             max-height: 85vh;
-           
+            display: flex;
+            flex-direction: column;
+        }
+
+        .service-selection-modal .modal-body {
+            flex: 1;
+            overflow-y: hidden;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-container {
+            margin-bottom: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #fff;
+            height: calc(100% - 30px);
+            width: 100%;
+            overflow: auto;
+            flex: 1;
+        }
+
+        .selection-grid {
+            width: 100%;
+            margin-bottom: 0;
+            table-layout: fixed;
+        }
+
+        .selection-grid th,
+        .selection-grid td {
+            padding: 8px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Responsive grid columns */
+        .selection-grid th:nth-child(1),
+        .selection-grid td:nth-child(1) {
+            width: 60px; /* Select checkbox column */
+        }
+
+        .selection-grid th:nth-child(2),
+        .selection-grid td:nth-child(2) {
+            width: 120px; /* Serial Number */
+        }
+
+        .selection-grid th:nth-child(3),
+        .selection-grid td:nth-child(3) {
+            width: 100px; /* Plant */
+        }
+
+        .selection-grid th:nth-child(4),
+        .selection-grid td:nth-child(4) {
+            width: 80px; /* Level */
+        }
+
+        .selection-grid th:nth-child(5),
+        .selection-grid td:nth-child(5) {
+            width: 100px; /* Type */
+        }
+
+        .selection-grid th:nth-child(6),
+        .selection-grid td:nth-child(6) {
+            width: auto; /* Location - takes remaining space */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .service-selection-modal {
+                padding: 10px;
+                width: 95%;
+                margin: 10px;
+            }
+
+            .service-selection-modal .modal-body {
+                padding: 10px;
+            }
+
+            .grid-container {
+                margin-bottom: 10px;
+            }
+
+            .selection-grid {
+                table-layout: auto;
+            }
+
+            /* Stack the grid on very small screens */
+            @media (max-width: 480px) {
+                .selection-grid th,
+                .selection-grid td {
+                    font-size: 12px;
+                    padding: 4px;
+                }
+
+                .selection-grid th:nth-child(1),
+                .selection-grid td:nth-child(1) {
+                    width: 40px;
+                }
+
+                .selection-grid th:nth-child(2),
+                .selection-grid td:nth-child(2) {
+                    width: 80px;
+                }
+
+                .selection-grid th:nth-child(3),
+                .selection-grid td:nth-child(3),
+                .selection-grid th:nth-child(4),
+                .selection-grid td:nth-child(4),
+                .selection-grid th:nth-child(5),
+                .selection-grid td:nth-child(5) {
+                    width: 60px;
+                }
+            }
         }
 
         /* Modal components */
@@ -1054,17 +1167,6 @@
             margin-bottom: 15px;
             color: #555;
             font-size: 1rem;
-        }
-
-        .grid-container {
-            margin-bottom: 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            background-color: #fff;
-            max-height: 400px;
-            overflow-y: auto;
-            width: 100%;
-            overflow-x: auto;
         }
 
         .selection-checkbox {
