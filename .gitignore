@@ -9,3 +9,5 @@ bin/
 
 # Configuration files
 Web.config
+
+Properties/
