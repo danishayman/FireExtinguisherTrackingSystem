@@ -6,7 +6,6 @@
     <title>INARI - Fire Extinguisher Tracking System</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #007bff;
@@ -131,38 +130,6 @@
             font-weight: 700;
             margin: 0.5rem 0;
             color: var(--text-color);
-        }
-
-        .chart-section {
-            background-color: #fff;
-            padding: clamp(1.5rem, 3vw, 2rem);
-            border-radius: var(--radius);
-            box-shadow: var(--card-shadow);
-            width: 100%;
-            margin: 0 auto;
-            box-sizing: border-box;
-            height: auto;
-        }
-
-        .chart-section h3 {
-            margin: 0 0 1.5rem 0;
-            color: var(--text-color);
-            font-size: clamp(1.2rem, 2vw, 1.5rem);
-            text-align: center;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--primary-color);
-            width: 100%;
-        }
-
-        .chart-container {
-            width: 100%;
-            height: clamp(250px, 40vh, 400px);
-            max-width: 600px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
         }
 
         .plants-section {
@@ -356,14 +323,6 @@
                     </div>
                 </div>
 
-                <div class="chart-section">
-                    <h3>Fire Extinguisher Types</h3>
-                    <div class="chart-container">
-                        <canvas id="feTypeChart"></canvas>
-                        <asp:HiddenField ID="hdnChartData" runat="server" />
-                    </div>
-                </div>
-
                 <div class="plants-section">
                     <h3>Plant Statistics</h3>
                     <div class="plants-grid">
@@ -413,58 +372,5 @@
             </div>
         </div>
     </form>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Get chart data from hidden field
-            var chartDataString = document.getElementById('<%= hdnChartData.ClientID %>').value;
-            var chartData = chartDataString.split(',').map(function (item) {
-                return parseInt(item, 10);
-            });
-
-            // Create chart
-            var ctx = document.getElementById('feTypeChart').getContext('2d');
-            var feTypeChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['ABC Type', 'CO2 Type'],
-                    datasets: [{
-                        data: chartData,
-                        backgroundColor: [
-                            '#4e73df',
-                            '#1cc88a'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '70%',
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function (tooltipItem) {
-                                    var label = tooltipItem.label || '';
-                                    var value = tooltipItem.raw || 0;
-                                    var total = tooltipItem.dataset.data.reduce((a, b) => a + b, 0);
-                                    var percentage = Math.round((value / total) * 100);
-                                    return label + ': ' + value + ' (' + percentage + '%)';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        });
-    </script>
 </body>
 </html> 

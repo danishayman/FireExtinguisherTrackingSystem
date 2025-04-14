@@ -13,7 +13,6 @@ namespace FETS.Pages.PublicDashboard
             {
                 LoadTotalStatusCounts();
                 LoadPlantStatistics();
-                LoadChartData();
             }
         }
 
@@ -90,43 +89,6 @@ ORDER BY p.PlantName", conn))
 
                         rptPlants.DataSource = dt;
                         rptPlants.DataBind();
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Loads fire extinguisher type distribution data for the dashboard chart
-        /// </summary>
-        private void LoadChartData()
-        {
-            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand(@"
-                    SELECT fet.TypeName as Type, COUNT(fe.FEID) as Count
-                    FROM FireExtinguisherTypes fet
-                    LEFT JOIN FireExtinguishers fe ON fet.TypeID = fe.TypeID
-                    GROUP BY fet.TypeName
-                    ORDER BY fet.TypeName", conn))
-                {
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        int abcCount = 0;
-                        int co2Count = 0;
-
-                        while (reader.Read())
-                        {
-                            string type = reader["Type"].ToString();
-                            int count = Convert.ToInt32(reader["Count"]);
-
-                            if (type == "ABC") abcCount = count;
-                            else if (type == "CO2") co2Count = count;
-                        }
-
-                        // Store chart data as comma-separated values for JavaScript processing
-                        hdnChartData.Value = $"{abcCount},{co2Count}";
                     }
                 }
             }
