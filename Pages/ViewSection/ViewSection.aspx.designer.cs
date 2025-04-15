@@ -123,6 +123,24 @@ namespace FETS.Pages.ViewSection
         protected global::System.Web.UI.WebControls.HiddenField hdnSelectedFEIDForService;
 
         /// <summary>
+        /// lblServiceRemarks control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblServiceRemarks;
+
+        /// <summary>
+        /// txtServiceRemarks control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtServiceRemarks;
+
+        /// <summary>
         /// btnConfirmSendToService control.
         /// </summary>
         /// <remarks>

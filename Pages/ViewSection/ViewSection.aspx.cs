@@ -403,6 +403,9 @@ namespace FETS.Pages.ViewSection
             int feId;
             if (int.TryParse(hdnSelectedFEIDForService.Value, out feId))
             {
+                // Get the remarks text
+                string remarks = txtServiceRemarks.Text.Trim();
+                
                 // Get FE details for email
                 string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -414,7 +417,8 @@ namespace FETS.Pages.ViewSection
                             p.PlantName,
                             l.LevelName,
                             fe.Location,
-                            t.TypeName
+                            t.TypeName,
+                            fe.Remarks
                         FROM FireExtinguishers fe
                         INNER JOIN Plants p ON fe.PlantID = p.PlantID
                         INNER JOIN Levels l ON fe.LevelID = l.LevelID
@@ -433,6 +437,11 @@ namespace FETS.Pages.ViewSection
                                 string level = reader["LevelName"].ToString();
                                 string location = reader["Location"].ToString();
                                 string type = reader["TypeName"].ToString();
+                                
+                                // Use the new remarks if provided, otherwise use existing remarks
+                                string emailRemarks = !string.IsNullOrEmpty(remarks) 
+                                    ? remarks 
+                                    : (reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null);
 
                                 // Send email using the template
                                 string subject = "Fire Extinguisher Sent for Service";
@@ -441,7 +450,8 @@ namespace FETS.Pages.ViewSection
                                     plant,
                                     level,
                                     location,
-                                    type
+                                    type,
+                                    emailRemarks
                                 );
 
                                 var (success, message) = EmailService.SendEmail("", subject, body, "Service");
@@ -471,6 +481,8 @@ namespace FETS.Pages.ViewSection
 
         private void SendSingleToService(int feId)
         {
+            string remarks = txtServiceRemarks.Text.Trim();
+            
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -483,15 +495,19 @@ namespace FETS.Pages.ViewSection
                     underServiceStatusId = (int)cmd.ExecuteScalar();
                 }
 
-                // Update fire extinguisher status
+                // Update fire extinguisher status and remarks
                 using (SqlCommand cmd = new SqlCommand(
-                    "UPDATE FireExtinguishers SET StatusID = @StatusID WHERE FEID = @FEID", conn))
+                    "UPDATE FireExtinguishers SET StatusID = @StatusID, Remarks = @Remarks WHERE FEID = @FEID", conn))
                 {
                     cmd.Parameters.AddWithValue("@StatusID", underServiceStatusId);
                     cmd.Parameters.AddWithValue("@FEID", feId);
+                    cmd.Parameters.AddWithValue("@Remarks", string.IsNullOrEmpty(remarks) ? (object)DBNull.Value : remarks);
                     cmd.ExecuteNonQuery();
                 }
             }
+            
+            // Clear the remarks textbox
+            txtServiceRemarks.Text = string.Empty;
         }
 
         /// <summary>
@@ -732,6 +748,7 @@ namespace FETS.Pages.ViewSection
                         fe.Location,
                         fe.DateExpired,
                         s.StatusName,
+                        fe.Remarks,
                         CASE 
                             WHEN fe.DateExpired < GETDATE() THEN 'Expired'
                             ELSE 'Expiring Soon'
@@ -1403,7 +1420,8 @@ namespace FETS.Pages.ViewSection
                         p.PlantName,
                         l.LevelName,
                         fe.Location,
-                        t.TypeName
+                        t.TypeName,
+                        fe.Remarks
                     FROM FireExtinguishers fe
                     INNER JOIN Plants p ON fe.PlantID = p.PlantID
                     INNER JOIN Levels l ON fe.LevelID = l.LevelID
@@ -1453,6 +1471,7 @@ namespace FETS.Pages.ViewSection
         protected void btnConfirmSelection_Click(object sender, EventArgs e)
         {
             List<int> selectedFEIDs = new List<int>();
+            Dictionary<int, string> feRemarks = new Dictionary<int, string>();
             
             foreach (GridViewRow row in gvServiceSelection.Rows)
             {
@@ -1461,6 +1480,13 @@ namespace FETS.Pages.ViewSection
                 {
                     int feId = Convert.ToInt32(gvServiceSelection.DataKeys[row.RowIndex].Value);
                     selectedFEIDs.Add(feId);
+                    
+                    // Get the remarks from the textbox
+                    TextBox txtRemarks = (TextBox)row.FindControl("txtRemarks");
+                    if (txtRemarks != null)
+                    {
+                        feRemarks[feId] = txtRemarks.Text.Trim();
+                    }
                 }
             }
 
@@ -1495,6 +1521,10 @@ namespace FETS.Pages.ViewSection
                         {
                             while (reader.Read())
                             {
+                                int feId = Convert.ToInt32(reader["FEID"]);
+                                string remarks = feRemarks.ContainsKey(feId) ? feRemarks[feId] : 
+                                               (reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null);
+                                
                                 extinguisherDetails.Add(new FireExtinguisherServiceInfo
                                 {
                                     SerialNumber = reader["SerialNumber"].ToString(),
@@ -1502,21 +1532,28 @@ namespace FETS.Pages.ViewSection
                                     Level = reader["LevelName"].ToString(),
                                     Location = reader["Location"].ToString(),
                                     Type = reader["TypeName"].ToString(),
-                                    Remarks = reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null
+                                    Remarks = remarks
                                 });
                             }
                         }
                     }
                     
-                    // Update status to "Under Service" for all selected extinguishers
-                    string updateQuery = $@"
-                        UPDATE FireExtinguishers
-                        SET StatusID = (SELECT StatusID FROM Status WHERE StatusName = 'Under Service')
-                        WHERE FEID IN ({feIdList})";
-                    
-                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
+                    // Update each fire extinguisher individually to set status and remarks
+                    foreach (int feId in selectedFEIDs)
                     {
-                        updateCmd.ExecuteNonQuery();
+                        string updateQuery = @"
+                            UPDATE FireExtinguishers
+                            SET StatusID = (SELECT StatusID FROM Status WHERE StatusName = 'Under Service'),
+                                Remarks = @Remarks
+                            WHERE FEID = @FEID";
+                        
+                        using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
+                        {
+                            updateCmd.Parameters.AddWithValue("@FEID", feId);
+                            updateCmd.Parameters.AddWithValue("@Remarks", 
+                                feRemarks.ContainsKey(feId) ? (object)feRemarks[feId] : DBNull.Value);
+                            updateCmd.ExecuteNonQuery();
+                        }
                     }
                 }
                 
@@ -1943,7 +1980,7 @@ namespace FETS.Pages.ViewSection
                 {
                     query += " AND fe.PlantID = @UserPlantID";
                 }
-                    
+                        
                 query += " ORDER BY fe.SerialNumber";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
