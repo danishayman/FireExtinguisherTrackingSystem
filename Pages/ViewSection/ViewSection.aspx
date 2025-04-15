@@ -284,12 +284,33 @@
                                                                     OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
                                                             </div>
                                                             <div class="filter-group">
+                                                                <asp:Label ID="lblFilterType" runat="server" Text="Type:"
+                                                                    AssociatedControlID="ddlFilterType"></asp:Label>
+                                                                <asp:DropDownList ID="ddlFilterType" runat="server"
+                                                                    CssClass="form-control" AutoPostBack="true"
+                                                                    OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
+                                                            </div>
+                                                            <div class="filter-group">
+                                                                <asp:Label ID="lblFilterMonth" runat="server" Text="Expiry Month:"
+                                                                    AssociatedControlID="ddlFilterMonth"></asp:Label>
+                                                                <asp:DropDownList ID="ddlFilterMonth" runat="server"
+                                                                    CssClass="form-control" AutoPostBack="true"
+                                                                    OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
+                                                            </div>
+                                                            <div class="filter-group">
+                                                                <asp:Label ID="lblFilterYear" runat="server" Text="Expiry Year:"
+                                                                    AssociatedControlID="ddlFilterYear"></asp:Label>
+                                                                <asp:DropDownList ID="ddlFilterYear" runat="server"
+                                                                    CssClass="form-control" AutoPostBack="true"
+                                                                    OnSelectedIndexChanged="ApplyFilters"></asp:DropDownList>
+                                                            </div>
+                                                            <div class="filter-group">
                                                                 <asp:Label ID="lblSearch" runat="server" Text="Search:"
                                                                     AssociatedControlID="txtSearch"></asp:Label>
                                                                 <div class="search-box">
                                                                     <asp:TextBox ID="txtSearch" runat="server"
                                                                         CssClass="form-control"
-                                                                        placeholder="Serial Number or Location"></asp:TextBox>
+                                                                        placeholder="Search all fields..."></asp:TextBox>
                                                                 </div>
                                                                 <div class="button-group">
                                                                     <asp:Button ID="btnSearch" runat="server" Text="Search"
@@ -306,6 +327,12 @@
                                                         <asp:Button ID="btnCompleteServiceList" runat="server" Text="Complete Service" CssClass="btn btn-success" OnClick="btnCompleteServiceList_Click" style="margin-right: 10px;" />
                                                         <asp:Button ID="btnShowSelection" runat="server" Text="Send to Service" CssClass="btn btn-warning" OnClick="btnShowSelection_Click" OnClientClick="showServiceSelectionPanel(); return true;" />
                                                     </div>
+                                                    
+                                                    <!-- Add result count display -->
+                                                    <div id="divResultCount" runat="server" class="result-count" style="margin-bottom: 10px; font-weight: 500;">
+                                                        <asp:Label ID="lblResultCount" runat="server" Text="0"></asp:Label> fire extinguisher(s) found
+                                                    </div>
+                                                    
                                                     <div class="grid-wrapper" style="width: 100%; overflow-x: auto;">
                                                         <asp:GridView ID="gvFireExtinguishers" runat="server"
                                                             AutoGenerateColumns="False" CssClass="grid-view"
@@ -1238,15 +1265,16 @@
             opacity: 0;
             transform: translateY(-20px);
         }
-
-        /* Empty message */
-        .empty-data-message {
-            padding: 15px;
-            text-align: center;
-            color: #666;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
+        
+        /* Result Count Style */
+        .result-count {
+            background-color: #e9f4fe;
+            padding: 8px 12px;
             border-radius: 4px;
+            border-left: 4px solid #1e88e5;
+            color: #37474f;
+            font-size: 15px;
+            display: inline-block;
         }
 
         /* Media Queries for Responsive Design */
@@ -1928,6 +1956,17 @@
     .toast-notification.hide {
         opacity: 0;
         transform: translateY(-20px);
+    }
+    
+    /* Result Count Style */
+    .result-count {
+        background-color: #e9f4fe;
+        padding: 8px 12px;
+        border-radius: 4px;
+        border-left: 4px solid #1e88e5;
+        color: #37474f;
+        font-size: 15px;
+        display: inline-block;
     }
     
     /* Better table behavior on small screens */

@@ -34,6 +34,8 @@ namespace FETS.Pages.ViewSection
         protected GridView gvServiceSelection;
         protected Panel pnlServiceSelection;
         protected UpdatePanel upServiceSelection;
+        protected System.Web.UI.HtmlControls.HtmlGenericControl divResultCount;
+        protected Label lblResultCount;
 
         private string SortExpression
         {
@@ -225,6 +227,41 @@ namespace FETS.Pages.ViewSection
                         }
                     }
                 }
+                
+                // Load Fire Extinguisher Types
+                using (SqlCommand cmd = new SqlCommand("SELECT TypeID, TypeName FROM FireExtinguisherTypes ORDER BY TypeName", conn))
+                {
+                    ddlFilterType.Items.Clear();
+                    ddlFilterType.Items.Add(new ListItem("-- All Types --", ""));
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            ddlFilterType.Items.Add(new ListItem(
+                                reader["TypeName"].ToString(),
+                                reader["TypeID"].ToString()
+                            ));
+                        }
+                    }
+                }
+                
+                // Load Month Filter
+                ddlFilterMonth.Items.Clear();
+                ddlFilterMonth.Items.Add(new ListItem("-- All Months --", ""));
+                for (int i = 1; i <= 12; i++)
+                {
+                    string monthName = new DateTime(2000, i, 1).ToString("MMMM");
+                    ddlFilterMonth.Items.Add(new ListItem(monthName, i.ToString()));
+                }
+                
+                // Load Year Filter
+                ddlFilterYear.Items.Clear();
+                ddlFilterYear.Items.Add(new ListItem("-- All Years --", ""));
+                int currentYear = DateTime.Now.Year;
+                for (int i = currentYear; i <= currentYear + 5; i++)
+                {
+                    ddlFilterYear.Items.Add(new ListItem(i.ToString(), i.ToString()));
+                }
             }
         }
 
@@ -299,9 +336,55 @@ namespace FETS.Pages.ViewSection
                     baseQuery += " AND fe.LevelID = @LevelID";
                 if (!string.IsNullOrEmpty(ddlFilterStatus.SelectedValue))
                     baseQuery += " AND fe.StatusID = @StatusID";
+                if (!string.IsNullOrEmpty(ddlFilterType.SelectedValue))
+                    baseQuery += " AND fe.TypeID = @TypeID";
+                if (!string.IsNullOrEmpty(ddlFilterMonth.SelectedValue))
+                    baseQuery += " AND MONTH(fe.DateExpired) = @Month";
+                if (!string.IsNullOrEmpty(ddlFilterYear.SelectedValue))
+                    baseQuery += " AND YEAR(fe.DateExpired) = @Year";
                 if (!string.IsNullOrEmpty(txtSearch.Text))
-                    baseQuery += " AND (fe.SerialNumber LIKE @Search OR fe.Location LIKE @Search)";
+                    baseQuery += @" AND (
+                        fe.SerialNumber LIKE @Search OR 
+                        p.PlantName LIKE @Search OR 
+                        l.LevelName LIKE @Search OR
+                        fe.Location LIKE @Search OR
+                        t.TypeName LIKE @Search OR
+                        s.StatusName LIKE @Search OR
+                        fe.Remarks LIKE @Search
+                    )";
 
+                // First get the count of filtered records
+                string countQuery = "SELECT COUNT(*) FROM (" + baseQuery + ") AS FilteredResults";
+                int filteredCount = 0;
+
+                using (SqlCommand countCmd = new SqlCommand(countQuery, conn))
+                {
+                    // Add parameters to count query
+                    if (!IsAdministrator && UserPlantID.HasValue)
+                    {
+                        countCmd.Parameters.AddWithValue("@UserPlantID", UserPlantID.Value);
+                    }
+
+                    if (!string.IsNullOrEmpty(ddlFilterPlant.SelectedValue))
+                        countCmd.Parameters.AddWithValue("@PlantID", ddlFilterPlant.SelectedValue);
+                    if (!string.IsNullOrEmpty(ddlFilterLevel.SelectedValue))
+                        countCmd.Parameters.AddWithValue("@LevelID", ddlFilterLevel.SelectedValue);
+                    if (!string.IsNullOrEmpty(ddlFilterStatus.SelectedValue))
+                        countCmd.Parameters.AddWithValue("@StatusID", ddlFilterStatus.SelectedValue);
+                    if (!string.IsNullOrEmpty(ddlFilterType.SelectedValue))
+                        countCmd.Parameters.AddWithValue("@TypeID", ddlFilterType.SelectedValue);
+                    if (!string.IsNullOrEmpty(ddlFilterMonth.SelectedValue))
+                        countCmd.Parameters.AddWithValue("@Month", ddlFilterMonth.SelectedValue);
+                    if (!string.IsNullOrEmpty(ddlFilterYear.SelectedValue))
+                        countCmd.Parameters.AddWithValue("@Year", ddlFilterYear.SelectedValue);
+                    if (!string.IsNullOrEmpty(txtSearch.Text))
+                        countCmd.Parameters.AddWithValue("@Search", "%" + txtSearch.Text + "%");
+
+                    conn.Open();
+                    filteredCount = (int)countCmd.ExecuteScalar();
+                }
+
+                // Add the order by for the data query
                 baseQuery += " ORDER BY fe.DateExpired ASC";
 
                 using (SqlCommand cmd = new SqlCommand(baseQuery, conn))
@@ -319,6 +402,12 @@ namespace FETS.Pages.ViewSection
                         cmd.Parameters.AddWithValue("@LevelID", ddlFilterLevel.SelectedValue);
                     if (!string.IsNullOrEmpty(ddlFilterStatus.SelectedValue))
                         cmd.Parameters.AddWithValue("@StatusID", ddlFilterStatus.SelectedValue);
+                    if (!string.IsNullOrEmpty(ddlFilterType.SelectedValue))
+                        cmd.Parameters.AddWithValue("@TypeID", ddlFilterType.SelectedValue);
+                    if (!string.IsNullOrEmpty(ddlFilterMonth.SelectedValue))
+                        cmd.Parameters.AddWithValue("@Month", ddlFilterMonth.SelectedValue);
+                    if (!string.IsNullOrEmpty(ddlFilterYear.SelectedValue))
+                        cmd.Parameters.AddWithValue("@Year", ddlFilterYear.SelectedValue);
                     if (!string.IsNullOrEmpty(txtSearch.Text))
                         cmd.Parameters.AddWithValue("@Search", "%" + txtSearch.Text + "%");
 
@@ -330,6 +419,10 @@ namespace FETS.Pages.ViewSection
                         gvFireExtinguishers.DataBind();
                     }
                 }
+
+                // Display the count of filtered results
+                lblResultCount.Text = filteredCount.ToString();
+                divResultCount.Visible = true;
             }
         }
 
@@ -390,6 +483,9 @@ namespace FETS.Pages.ViewSection
             // Now we can safely set the selected index
             ddlFilterLevel.SelectedIndex = 0;
             ddlFilterStatus.SelectedIndex = 0;
+            ddlFilterType.SelectedIndex = 0;
+            ddlFilterMonth.SelectedIndex = 0;
+            ddlFilterYear.SelectedIndex = 0;
             txtSearch.Text = string.Empty;
             ApplyFilters(sender, e);
         }
@@ -997,6 +1093,7 @@ namespace FETS.Pages.ViewSection
                 LoadDropDownLists();
                 LoadFireExtinguishers();
                 LoadMonitoringPanels();
+                divResultCount.Visible = false; // Hide result count initially
             }
         }
 
@@ -1943,7 +2040,7 @@ namespace FETS.Pages.ViewSection
                 {
                     query += " AND fe.PlantID = @UserPlantID";
                 }
-                    
+                        
                 query += " ORDER BY fe.SerialNumber";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
