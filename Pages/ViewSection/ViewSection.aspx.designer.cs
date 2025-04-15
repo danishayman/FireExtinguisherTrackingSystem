@@ -13,6 +13,44 @@ namespace FETS.Pages.ViewSection
         protected global::System.Web.UI.WebControls.DropDownList ddlFilterLevel;
         protected global::System.Web.UI.WebControls.Label lblFilterStatus;
         protected global::System.Web.UI.WebControls.DropDownList ddlFilterStatus;
+        protected global::System.Web.UI.WebControls.Label lblFilterType;
+        protected global::System.Web.UI.WebControls.DropDownList ddlFilterType;
+        
+        /// <summary>
+        /// lblFilterMonth control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblFilterMonth;
+        
+        /// <summary>
+        /// ddlFilterMonth control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlFilterMonth;
+        
+        /// <summary>
+        /// lblFilterYear control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblFilterYear;
+        
+        /// <summary>
+        /// ddlFilterYear control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlFilterYear;
         protected global::System.Web.UI.WebControls.Label lblSearch;
         protected global::System.Web.UI.WebControls.TextBox txtSearch;
         protected global::System.Web.UI.WebControls.Button btnSearch;
