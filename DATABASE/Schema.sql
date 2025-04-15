@@ -175,3 +175,13 @@ CROSS APPLY (
 ) n(LevelName)
 WHERE p.PlantName = N'Plant 55';
 GO 
+
+
+
+
+
+
+
+
+
+ALTER TABLE [FETS].[dbo].[FireExtinguishers] ADD Replacement NVARCHAR(50)
