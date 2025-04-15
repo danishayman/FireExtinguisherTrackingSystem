@@ -395,6 +395,11 @@
                                                                     <ItemStyle HorizontalAlign="Center" />
                                                                     <HeaderStyle HorizontalAlign="Center" />
                                                                 </asp:TemplateField>
+                                                                <asp:BoundField DataField="Replacement" HeaderText="Replacement"
+                                                                    SortExpression="Replacement">
+                                                                    <ItemStyle HorizontalAlign="Center" />
+                                                                    <HeaderStyle HorizontalAlign="Center" />
+                                                                </asp:BoundField>
                                                                 <asp:BoundField DataField="Remarks" HeaderText="Remarks"
                                                                     SortExpression="Remarks">
                                                                     <ItemStyle HorizontalAlign="Center" />
@@ -468,6 +473,21 @@
                             <asp:BoundField DataField="LevelName" HeaderText="Level" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
                             <asp:BoundField DataField="TypeName" HeaderText="Type" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
                             <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="250px" />
+                            <asp:TemplateField HeaderText="Replacement" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="150px">
+                                <ItemTemplate>
+                                    <asp:DropDownList ID="ddlReplacement" runat="server" CssClass="form-control">
+                                        <asp:ListItem Text="-- Select --" Value=""></asp:ListItem>
+                                        <asp:ListItem Text="Loan" Value="Loan"></asp:ListItem>
+                                        <asp:ListItem Text="Standby Available" Value="Standby Available"></asp:ListItem>
+                                        <asp:ListItem Text="Standby Not Available" Value="Standby Not Available"></asp:ListItem>
+                                    </asp:DropDownList>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                            <asp:TemplateField HeaderText="Remarks" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="200px">
+                                <ItemTemplate>
+                                    <asp:TextBox ID="txtRemarks" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="2" Text='<%# Eval("Remarks") %>'></asp:TextBox>
+                                </ItemTemplate>
+                            </asp:TemplateField>
                         </Columns>
                         <EmptyDataTemplate>
                             <div class="empty-data-message">No fire extinguishers available to send for service.</div>
@@ -500,9 +520,24 @@
                                 <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                 <asp:BoundField DataField="DateExpired" HeaderText="Expiry Date" DataFormatString="{0:dd/MM/yy}" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                 <asp:BoundField DataField="StatusName" HeaderText="Status" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                <asp:BoundField DataField="Replacement" HeaderText="Replacement" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                <asp:BoundField DataField="Remarks" HeaderText="Remarks" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                             </Columns>
                         </asp:GridView>
                         <p>This will change their status to "Under Service".</p>
+                    </div>
+                    <div class="form-group">
+                        <asp:Label ID="lblServiceReplacement" runat="server" Text="Replacement:" AssociatedControlID="ddlServiceReplacement"></asp:Label>
+                        <asp:DropDownList ID="ddlServiceReplacement" runat="server" CssClass="form-control">
+                            <asp:ListItem Text="-- Select --" Value=""></asp:ListItem>
+                            <asp:ListItem Text="Loan" Value="Loan"></asp:ListItem>
+                            <asp:ListItem Text="Standby Available" Value="Standby Available"></asp:ListItem>
+                            <asp:ListItem Text="Standby Not Available" Value="Standby Not Available"></asp:ListItem>
+                        </asp:DropDownList>
+                    </div>
+                    <div class="form-group">
+                        <asp:Label ID="lblServiceRemarks" runat="server" Text="Service Remarks:" AssociatedControlID="txtServiceRemarks"></asp:Label>
+                        <asp:TextBox ID="txtServiceRemarks" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3" placeholder="Enter service remarks here..."></asp:TextBox>
                     </div>
                     <div class="button-group mt-3">
                         <asp:Button ID="btnConfirmSendToService" runat="server" Text="Confirm" CssClass="btn btn-warning" OnClick="btnConfirmSendToService_Click" UseSubmitBehavior="false" />

@@ -21,6 +21,7 @@ namespace FETS
             string location,
             string type,
             string remarks = null,
+            string replacement = null,
             DateTime? estimatedReturnDate = null)
         {
             // Path to the template file
@@ -33,6 +34,11 @@ namespace FETS
             string remarksRow = string.IsNullOrEmpty(remarks) 
                 ? string.Empty 
                 : "<tr>\r\n                        <th>Remarks</th>\r\n                        <td>" + remarks + "</td>\r\n                    </tr>";
+                
+            // Generate replacement row if replacement exists
+            string replacementRow = string.IsNullOrEmpty(replacement) 
+                ? string.Empty 
+                : "<tr>\r\n                        <th>Replacement</th>\r\n                        <td>" + replacement + "</td>\r\n                    </tr>";
             
             // Set default estimated return date if not provided (14 days from now)
             DateTime returnDate = estimatedReturnDate ?? DateTime.Now.AddDays(21);
@@ -43,7 +49,7 @@ namespace FETS
                                .Replace("{Level}", level)
                                .Replace("{Location}", location)
                                .Replace("{Type}", type)
-                               .Replace("{RemarksRow}", remarksRow)
+                               .Replace("{RemarksRow}", remarksRow + replacementRow)
                                .Replace("{ServiceDate}", DateTime.Now.ToString("MMMM dd, yyyy"))
                                .Replace("{EstimatedReturnDate}", returnDate.ToString("MMMM dd, yyyy"))
                                .Replace("{SystemUrl}", "https://yourcompany.com/FETS")
@@ -75,13 +81,21 @@ namespace FETS
                             <th>Level</th>
                             <th>Location</th>
                             <th>Type</th>
+                            <th>Replacement</th>
                         </tr>
                     </thead>
                     <tbody>");
             
             foreach (var extinguisher in extinguishers)
             {
-                tableContent.Append("<tr>\r\n                            <td>" + extinguisher.SerialNumber + "</td>\r\n                            <td>" + extinguisher.Plant + "</td>\r\n                            <td>" + extinguisher.Level + "</td>\r\n                            <td>" + extinguisher.Location + "</td>\r\n                            <td>" + extinguisher.Type + "</td>\r\n                        </tr>");
+                string replacement = !string.IsNullOrEmpty(extinguisher.Replacement) ? extinguisher.Replacement : "-";
+                tableContent.Append("<tr>\r\n                            <td>" + extinguisher.SerialNumber + 
+                                   "</td>\r\n                            <td>" + extinguisher.Plant + 
+                                   "</td>\r\n                            <td>" + extinguisher.Level + 
+                                   "</td>\r\n                            <td>" + extinguisher.Location + 
+                                   "</td>\r\n                            <td>" + extinguisher.Type + 
+                                   "</td>\r\n                            <td>" + replacement + 
+                                   "</td>\r\n                        </tr>");
             }
             
             tableContent.Append(@"
@@ -262,6 +276,7 @@ namespace FETS
         public string Level { get; set; }
         public string Location { get; set; }
         public string Type { get; set; }
+        public string Replacement { get; set; }
         public string Remarks { get; set; }
     }
 
