@@ -638,6 +638,16 @@
                         </div>
                         
                         <div class="form-group">
+                            <asp:Label ID="lblReplacement" runat="server" Text="Replacement:" AssociatedControlID="ddlReplacement"></asp:Label>
+                            <asp:DropDownList ID="ddlReplacement" runat="server" CssClass="form-control">
+                                <asp:ListItem Text="-- Select --" Value=""></asp:ListItem>
+                                <asp:ListItem Text="Loan" Value="Loan"></asp:ListItem>
+                                <asp:ListItem Text="Standby Available" Value="Standby Available"></asp:ListItem>
+                                <asp:ListItem Text="Standby Not Available" Value="Standby Not Available"></asp:ListItem>
+                            </asp:DropDownList>
+                        </div>
+                        
+                        <div class="form-group">
                             <asp:Label ID="lblExpiryDate" runat="server" Text="Expiry Date:" AssociatedControlID="txtExpiryDate"></asp:Label>
                             <asp:TextBox ID="txtExpiryDate" runat="server" CssClass="form-control" TextMode="Date"></asp:TextBox>
                             <asp:RequiredFieldValidator ID="rfvExpiryDate" runat="server" 

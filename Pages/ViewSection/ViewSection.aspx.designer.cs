@@ -290,6 +290,7 @@ namespace FETS.Pages.ViewSection
         protected global::System.Web.UI.WebControls.TextBox txtExpiryDate;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvExpiryDate;
         protected global::System.Web.UI.WebControls.TextBox txtRemarks;
+        protected global::System.Web.UI.WebControls.DropDownList ddlReplacement;
         protected global::System.Web.UI.WebControls.Button btnSaveEdit;
     }
 } 

@@ -1789,7 +1789,8 @@ namespace FETS.Pages.ViewSection
                         fe.TypeID, 
                         fe.StatusID, 
                         fe.DateExpired, 
-                        fe.Remarks
+                        fe.Remarks,
+                        fe.Replacement
                     FROM FireExtinguishers fe
                     WHERE fe.FEID = @FEID";
 
@@ -1831,6 +1832,17 @@ namespace FETS.Pages.ViewSection
                             txtExpiryDate.Text = expiryDate.ToString("yyyy-MM-dd");
                             
                             txtRemarks.Text = reader["Remarks"] as string ?? string.Empty;
+                            
+                            // Set replacement value if it exists
+                            string replacement = reader["Replacement"] as string;
+                            if (!string.IsNullOrEmpty(replacement))
+                            {
+                                ddlReplacement.SelectedValue = replacement;
+                            }
+                            else
+                            {
+                                ddlReplacement.SelectedIndex = 0; // Select the -- Select -- option
+                            }
                         }
                         else if (!IsAdministrator && UserPlantID.HasValue)
                         {
@@ -2002,7 +2014,8 @@ namespace FETS.Pages.ViewSection
                             TypeID = @TypeID,
                             StatusID = @StatusID,
                             DateExpired = @DateExpired,
-                            Remarks = @Remarks
+                            Remarks = @Remarks,
+                            Replacement = @Replacement
                         WHERE FEID = @FEID";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
@@ -2032,6 +2045,15 @@ namespace FETS.Pages.ViewSection
                         else
                         {
                             cmd.Parameters.AddWithValue("@Remarks", txtRemarks.Text.Trim());
+                        }
+                        
+                        if (string.IsNullOrEmpty(ddlReplacement.SelectedValue))
+                        {
+                            cmd.Parameters.AddWithValue("@Replacement", DBNull.Value);
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@Replacement", ddlReplacement.SelectedValue);
                         }
 
                         int rowsAffected = cmd.ExecuteNonQuery();
@@ -2571,3 +2593,4 @@ namespace FETS.Pages.ViewSection
         }
     }
 }
+
