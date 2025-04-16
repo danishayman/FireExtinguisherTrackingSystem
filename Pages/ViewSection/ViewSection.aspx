@@ -225,7 +225,7 @@
                                                                                     HeaderStyle-HorizontalAlign="Center">
                                                                                     <ItemTemplate>
                                                                                         <%# Eval("DateSentService") != DBNull.Value ? 
-                                                                                            String.Format("{0:dd/MM/yy HH:mm}", Eval("DateSentService")) : 
+                                                                                            String.Format("{0:HH:mm dd/MM/yy}", Eval("DateSentService")) : 
                                                                                             "N/A" %>
                                                                                     </ItemTemplate>
                                                                                 </asp:TemplateField>
