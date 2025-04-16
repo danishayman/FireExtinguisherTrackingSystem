@@ -50,3 +50,35 @@ GO
 
 INSERT INTO Users (Username, PasswordHash, Role, PlantID)
 VALUES ('admin', HASHBYTES('SHA2_256', CONVERT(NVARCHAR(50), 'admin123')), 'Administrator', NULL);
+
+-- Rename DateServiced columns to new names
+-- 1. First create new columns
+ALTER TABLE FireExtinguishers
+ADD DateSentService DATETIME NULL;
+
+-- 2. Copy data from old columns to new ones
+UPDATE FireExtinguishers
+SET DateSentService = DateServiced;
+
+-- 3. Drop old columns
+ALTER TABLE FireExtinguishers
+DROP COLUMN DateServiced;
+
+-- 1. For ServiceReminders, rename the column and add a new one
+-- First add new column
+ALTER TABLE ServiceReminders
+ADD DateCompleteService DATETIME NULL;
+
+-- 2. Copy data from old column to new one
+UPDATE ServiceReminders
+SET DateCompleteService = DateServiced;
+
+-- 3. Drop old DateServiced column
+ALTER TABLE ServiceReminders
+DROP COLUMN DateServiced;
+
+-- 4. Update index
+DROP INDEX IX_ServiceReminders_ReminderDate ON ServiceReminders;
+
+CREATE INDEX IX_ServiceReminders_ReminderDate 
+ON ServiceReminders(ReminderDate, ReminderSent);
