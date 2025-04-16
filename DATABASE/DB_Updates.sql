@@ -15,18 +15,11 @@ CREATE TABLE ServiceReminders (
 
 -- Create index for efficient querying
 CREATE INDEX IX_ServiceReminders_ReminderDate 
-ON ServiceReminders(ReminderDate, ReminderSent); 
+ON ServiceReminders(ReminderDate, ReminderSent);
 
-
-
-
-
-
-
-
-
-
-
+-- Drop the DateCreated column from ServiceReminders table
+ALTER TABLE ServiceReminders
+DROP COLUMN DateCreated;
 
 -- First drop the Users table if it exists
 IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Users]'))
