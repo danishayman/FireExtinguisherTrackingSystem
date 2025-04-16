@@ -18,6 +18,22 @@ CREATE INDEX IX_ServiceReminders_ReminderDate
 ON ServiceReminders(ReminderDate, ReminderSent);
 
 -- Drop the DateCreated column from ServiceReminders table
+-- First drop the default constraint
+DECLARE @constraintName NVARCHAR(128)
+SELECT @constraintName = name 
+FROM sys.default_constraints 
+WHERE parent_object_id = OBJECT_ID('ServiceReminders')
+AND parent_column_id = (
+    SELECT column_id 
+    FROM sys.columns 
+    WHERE object_id = OBJECT_ID('ServiceReminders')
+    AND name = 'DateCreated'
+)
+
+IF @constraintName IS NOT NULL
+    EXEC('ALTER TABLE ServiceReminders DROP CONSTRAINT ' + @constraintName)
+
+-- Then drop the column
 ALTER TABLE ServiceReminders
 DROP COLUMN DateCreated;
 
