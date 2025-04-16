@@ -598,12 +598,13 @@ namespace FETS.Pages.ViewSection
 
                 // Update fire extinguisher status, remarks and replacement
                 using (SqlCommand cmd = new SqlCommand(
-                    "UPDATE FireExtinguishers SET StatusID = @StatusID, Remarks = @Remarks, Replacement = @Replacement WHERE FEID = @FEID", conn))
+                    "UPDATE FireExtinguishers SET StatusID = @StatusID, Remarks = @Remarks, Replacement = @Replacement, DateSentService = @DateSentService WHERE FEID = @FEID", conn))
                 {
                     cmd.Parameters.AddWithValue("@StatusID", underServiceStatusId);
                     cmd.Parameters.AddWithValue("@FEID", feId);
                     cmd.Parameters.AddWithValue("@Remarks", string.IsNullOrEmpty(remarks) ? (object)DBNull.Value : remarks);
                     cmd.Parameters.AddWithValue("@Replacement", string.IsNullOrEmpty(replacement) ? (object)DBNull.Value : replacement);
+                    cmd.Parameters.AddWithValue("@DateSentService", DateTime.Now);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -799,6 +800,7 @@ namespace FETS.Pages.ViewSection
                         fe.Location,
                         t.TypeName,
                         fe.DateExpired,
+                        fe.DateSentService,
                         s.StatusName
                     FROM FireExtinguishers fe
                     INNER JOIN Status s ON fe.StatusID = s.StatusID
@@ -1039,7 +1041,8 @@ namespace FETS.Pages.ViewSection
                                     fe.Location,
                                     t.TypeName,
                                     fe.DateExpired,
-                                    s.StatusName
+                                    s.StatusName,
+                                    fe.DateSentService
                                 FROM FireExtinguishers fe
                                 INNER JOIN Status s ON fe.StatusID = s.StatusID
                                 INNER JOIN Plants p ON fe.PlantID = p.PlantID
@@ -1430,7 +1433,7 @@ namespace FETS.Pages.ViewSection
             {
                 conn.Open();
 
-                // First update the status to "Under Service"
+                // First update the status to "Under Service" and set DateSentService
                 int underServiceStatusId;
                 using (SqlCommand cmd = new SqlCommand("SELECT StatusID FROM Status WHERE StatusName = 'Under Service'", conn))
                 {
@@ -1438,10 +1441,11 @@ namespace FETS.Pages.ViewSection
                 }
 
                 using (SqlCommand cmd = new SqlCommand(
-                    "UPDATE FireExtinguishers SET StatusID = @StatusID WHERE FEID = @FEID", conn))
+                    "UPDATE FireExtinguishers SET StatusID = @StatusID, DateSentService = @DateSentService WHERE FEID = @FEID", conn))
                 {
                     cmd.Parameters.AddWithValue("@StatusID", underServiceStatusId);
                     cmd.Parameters.AddWithValue("@FEID", extinguisherId);
+                    cmd.Parameters.AddWithValue("@DateSentService", DateTime.Now);
                     cmd.ExecuteNonQuery();
                 }
 
@@ -1663,7 +1667,8 @@ namespace FETS.Pages.ViewSection
                             UPDATE FireExtinguishers
                             SET StatusID = (SELECT StatusID FROM Status WHERE StatusName = 'Under Service'),
                                 Remarks = @Remarks,
-                                Replacement = @Replacement
+                                Replacement = @Replacement,
+                                DateSentService = @DateSentService
                             WHERE FEID = @FEID";
                         
                         using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
@@ -1673,6 +1678,7 @@ namespace FETS.Pages.ViewSection
                                 feRemarks.ContainsKey(feId) ? (object)feRemarks[feId] : DBNull.Value);
                             updateCmd.Parameters.AddWithValue("@Replacement", 
                                 feReplacements.ContainsKey(feId) ? (object)feReplacements[feId] : DBNull.Value);
+                            updateCmd.Parameters.AddWithValue("@DateSentService", DateTime.Now);
                             updateCmd.ExecuteNonQuery();
                         }
                     }
@@ -2227,26 +2233,24 @@ namespace FETS.Pages.ViewSection
                                             UPDATE FireExtinguishers
                                             SET StatusID = (SELECT StatusID FROM Status WHERE StatusName = 'Active'),
                                                 DateExpired = @NewExpiryDate,
-                                                Replacement = NULL,
-                                                DateServiced = @DateServiced
+                                                Replacement = NULL
                                             WHERE FEID = @FEID";
                                             
                                         using (SqlCommand cmd = new SqlCommand(updateQuery, conn, transaction))
                                         {
                                             cmd.Parameters.AddWithValue("@FEID", feId);
                                             cmd.Parameters.AddWithValue("@NewExpiryDate", newExpiryDate);
-                                            cmd.Parameters.AddWithValue("@DateServiced", serviceDate);
                                             cmd.ExecuteNonQuery();
                                         }
 
                                         // Add service reminder for follow-up
                                         DateTime reminderDate = serviceDate.AddDays(7); // Remind in one week
                                         using (SqlCommand cmd = new SqlCommand(
-                                            "INSERT INTO ServiceReminders (FEID, DateServiced, ReminderDate) VALUES (@FEID, @DateServiced, @ReminderDate)", 
+                                            "INSERT INTO ServiceReminders (FEID, DateCompleteService, ReminderDate) VALUES (@FEID, @DateCompleteService, @ReminderDate)", 
                                             conn, transaction))
                                         {
                                             cmd.Parameters.AddWithValue("@FEID", feId);
-                                            cmd.Parameters.AddWithValue("@DateServiced", serviceDate);
+                                            cmd.Parameters.AddWithValue("@DateCompleteService", serviceDate);
                                             cmd.Parameters.AddWithValue("@ReminderDate", reminderDate);
                                             cmd.ExecuteNonQuery();
                                         }

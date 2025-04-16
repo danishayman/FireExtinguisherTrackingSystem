@@ -220,6 +220,15 @@
                                                                                     DataFormatString="{0:dd/MM/yy}"
                                                                                     ItemStyle-HorizontalAlign="Center"
                                                                                     HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:TemplateField HeaderText="Date Sent To Service"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center">
+                                                                                    <ItemTemplate>
+                                                                                        <%# Eval("DateSentService") != DBNull.Value ? 
+                                                                                            String.Format("{0:dd/MM/yy HH:mm}", Eval("DateSentService")) : 
+                                                                                            "N/A" %>
+                                                                                    </ItemTemplate>
+                                                                                </asp:TemplateField>
                                                                             </Columns>
                                                                         </asp:GridView>
                                                                     </div>
