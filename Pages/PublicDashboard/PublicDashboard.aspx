@@ -67,15 +67,17 @@
             text-align: center;
             width: 100%;
             border-bottom: 2px solid var(--primary-color);
+            font-weight: bold;
         }
 
         .dashboard-header h3 {
             margin: 0.75rem 0 0 0;
-            color: #000000;
+            color: red;
             font-size: clamp(1.2rem, 2vw, 1.5rem);
             font-weight: 500;
             text-align: center;
             width: 100%;
+            font-weight: bold;  
         }
 
         .logo-container {
@@ -181,6 +183,7 @@
             flex-direction: column;
             transition: var(--transition);
             border: 1px solid var(--border-color);
+            align-items: center;
         }
 
         .plant-card:hover {
@@ -420,8 +423,8 @@
                 <div class="logo-container">
                     <img src="<%=ResolveUrl("~/Uploads/misc/logo.jpeg")%>" alt="INARI Logo" class="logo" />
                 </div>
-                <h2>Environment, Health and Safety Department (EHS)</h2>
-                <h3>Fire Extinguisher Tracking System</h3>
+                <h2>ENVIRONMENT, HEALTH AND SAFETY DEPARTMENT (EHS)</h2>
+                <h3>FIRE EXTINGUISHER TRACKING SYSTEM</h3>
             </div>
 
             <!-- Total FE counter section -->
@@ -480,7 +483,7 @@
                 </div>
 
                 <div class="plants-section">
-                    <h3>Plant Statistics &amp; Next Expiration Dates</h3>
+                <h3>Plant Statistics </h3>
                     <div class="plants-grid">
                         <asp:Repeater ID="rptPlants" runat="server">
                             <ItemTemplate>
@@ -724,6 +727,44 @@
                         }
                     }
                 });
+                
+                // Add color legend below the Next Expiry Chart
+                const legendContainer = document.createElement('div');
+                legendContainer.style.display = 'flex';
+                legendContainer.style.justifyContent = 'center';
+                legendContainer.style.marginTop = '15px';
+                legendContainer.style.gap = '15px';
+                legendContainer.style.flexWrap = 'wrap';
+                
+                const legendItems = [
+                    { color: 'rgba(220, 53, 69, 0.8)', text: 'Less than 30 days' },
+                    { color: 'rgba(255, 193, 7, 0.8)', text: '30-60 days' },
+                    { color: 'rgba(40, 167, 69, 0.8)', text: 'More than 60 days' }
+                ];
+                
+                legendItems.forEach(item => {
+                    const legendItem = document.createElement('div');
+                    legendItem.style.display = 'flex';
+                    legendItem.style.alignItems = 'center';
+                    legendItem.style.gap = '5px';
+                    
+                    const colorBox = document.createElement('div');
+                    colorBox.style.width = '16px';
+                    colorBox.style.height = '16px';
+                    colorBox.style.backgroundColor = item.color;
+                    colorBox.style.borderRadius = '3px';
+                    
+                    const text = document.createElement('span');
+                    text.textContent = item.text;
+                    text.style.fontSize = '12px';
+                    text.style.color = 'var(--text-secondary)';
+                    
+                    legendItem.appendChild(colorBox);
+                    legendItem.appendChild(text);
+                    legendContainer.appendChild(legendItem);
+                });
+                
+                document.getElementById('nextExpiryChart').parentNode.appendChild(legendContainer);
             });
         </script>
     </form>

@@ -41,6 +41,8 @@
             position: absolute;
             top: 0;
             left: 0;
+            /* Ensure the fire extinguisher (which is on the right side) is always visible */
+            object-position: 70% center;
         }
 
         /* Right panel styling */
@@ -61,13 +63,13 @@
         /* Logo container styling */
         .logo-container {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             width: 100%;
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100px;
+            height: auto;
             overflow: visible;
         }
 
@@ -75,8 +77,9 @@
             height: auto;
             display: block;
             position: relative;
-            top: 6rem;
-            width: 50%;
+            width: 60%;
+            max-width: 220px;
+            margin: 0 auto;
         }
 
         /* Login container styling */
@@ -249,43 +252,91 @@
         /* Responsive logo styling */
         @media (min-width: 1600px) {
             .logo {
-                width: 50%;
-                top: 12rem;
+                max-width: 240px;
             }
         }
 
         @media (max-width: 1440px) {
             .logo {
-                width: 50%;
-                top: 8rem;
+                max-width: 220px;
             }
         }
 
         @media (max-width: 1080px) {
             .logo {
-                width: 50%;
-                top: 6rem;
+                max-width: 200px;
             }
         }
 
         @media (max-width: 1024px) {
             .logo {
-                width: 40%;
-                top: 5rem;
+                max-width: 180px;
             }
         }
 
         @media (max-width: 768px) {
             .logo {
-                width: 140px;
-                top: 10px;
+                max-width: 160px;
             }
         }
 
         @media (max-width: 480px) {
             .logo {
-                width: 120px;
-                top: 5px;
+                max-width: 140px;
+            }
+        }
+
+        /* Media queries for image positioning */
+        @media (max-width: 1200px) {
+            .left-panel img {
+                object-position: 80% center;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .left-panel img {
+                object-position: 90% center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .left-panel img {
+                object-position: right center;
+            }
+        }
+
+        /* For very small screens */
+        @media (max-width: 576px) {
+            .left-panel {
+                min-width: 40%;
+            }
+            
+            .right-panel {
+                width: 60%;
+                padding: 0 20px;
+            }
+            
+            .login-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        /* Handle mobile view in portrait orientation */
+        @media (max-width: 480px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .left-panel {
+                flex: none;
+                height: 30vh;
+                width: 100%;
+            }
+            
+            .right-panel {
+                width: 100%;
+                height: 70vh;
+                box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.1);
             }
         }
     </style>
