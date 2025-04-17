@@ -408,7 +408,7 @@
             <div class="data-entry-form">
                 <h3 class="text-center">Add New Fire Extinguisher</h3>
                 
-                <!-- Serial Number and Plant Selection -->
+                <!-- Serial Number Row -->
                 <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
@@ -419,7 +419,10 @@
                             </asp:RequiredFieldValidator>
                         </div>
                     </div>
+                </div>
 
+                <!-- Plant Selection and Area Code -->
+                <div class="form-row">
                     <div class="form-col">
                         <div class="form-group">
                             <asp:Label ID="lblPlant" runat="server" Text="Plant:" AssociatedControlID="ddlPlant"></asp:Label>
@@ -430,6 +433,13 @@
                                 ErrorMessage="Plant is required." CssClass="validation-error" Display="Dynamic"
                                 InitialValue="">
                             </asp:RequiredFieldValidator>
+                        </div>
+                    </div>
+                    
+                    <div class="form-col">
+                        <div class="form-group">
+                            <asp:Label ID="lblAreaCode" runat="server" Text="Area Code:" AssociatedControlID="txtAreaCode"></asp:Label>
+                            <asp:TextBox ID="txtAreaCode" runat="server" CssClass="form-control"></asp:TextBox>
                         </div>
                     </div>
                 </div>
@@ -590,6 +600,10 @@
                     <tr>
                         <td>Serial Number:</td>
                         <td><asp:Label ID="lblConfirmSerialNumber" runat="server"></asp:Label></td>
+                    </tr>
+                    <tr>
+                        <td>Area Code:</td>
+                        <td><asp:Label ID="lblConfirmAreaCode" runat="server"></asp:Label></td>
                     </tr>
                     <tr>
                         <td>Plant:</td>

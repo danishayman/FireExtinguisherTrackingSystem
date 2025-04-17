@@ -396,6 +396,7 @@ namespace FETS.Pages.DataEntry
 
             // Populate confirmation dialog fields
             lblConfirmSerialNumber.Text = txtSerialNumber.Text.Trim();
+            lblConfirmAreaCode.Text = txtAreaCode.Text.Trim();
             lblConfirmPlant.Text = ddlPlant.SelectedItem.Text;
             lblConfirmLevel.Text = ddlLevel.SelectedItem.Text;
             lblConfirmLocation.Text = txtLocation.Text.Trim();
@@ -451,10 +452,11 @@ namespace FETS.Pages.DataEntry
                     }
 
                     // Insert new fire extinguisher record
-                    string insertQuery = "INSERT INTO FireExtinguishers (SerialNumber, PlantID, LevelID, Location, TypeID, DateExpired, Remarks, StatusID) VALUES (@SerialNumber, @PlantID, @LevelID, @Location, @TypeID, @DateExpired, @Remarks, @StatusID)";
+                    string insertQuery = "INSERT INTO FireExtinguishers (SerialNumber, AreaCode, PlantID, LevelID, Location, TypeID, DateExpired, Remarks, StatusID) VALUES (@SerialNumber, @AreaCode, @PlantID, @LevelID, @Location, @TypeID, @DateExpired, @Remarks, @StatusID)";
                     using (SqlCommand cmd = new SqlCommand(insertQuery, conn))
                     {
                         cmd.Parameters.AddWithValue("@SerialNumber", txtSerialNumber.Text.Trim());
+                        cmd.Parameters.AddWithValue("@AreaCode", string.IsNullOrEmpty(txtAreaCode.Text) ? DBNull.Value : (object)txtAreaCode.Text.Trim());
                         cmd.Parameters.AddWithValue("@PlantID", plantId);
                         cmd.Parameters.AddWithValue("@LevelID", levelId);
                         cmd.Parameters.AddWithValue("@Location", txtLocation.Text.Trim());
@@ -493,6 +495,7 @@ namespace FETS.Pages.DataEntry
         private void ClearForm()
         {
             txtSerialNumber.Text = "";
+            txtAreaCode.Text = "";
             txtLocation.Text = "";
             txtExpiryDate.Text = "";
             txtRemarks.Text = "";

@@ -313,7 +313,7 @@ namespace FETS.Pages.ViewSection
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 string baseQuery = @"
-                    SELECT fe.FEID, fe.SerialNumber, p.PlantName, l.LevelName, 
+                    SELECT fe.FEID, fe.SerialNumber, fe.AreaCode, p.PlantName, l.LevelName, 
                            fe.Location, t.TypeName, fe.DateExpired, s.StatusName,
                            s.ColorCode, fe.Remarks, fe.Replacement
                     FROM FireExtinguishers fe
@@ -848,6 +848,7 @@ namespace FETS.Pages.ViewSection
                     SELECT 
                         fe.FEID,
                         fe.SerialNumber,
+                        fe.AreaCode,
                         p.PlantName,
                         l.LevelName,
                         fe.Location,
@@ -980,6 +981,7 @@ namespace FETS.Pages.ViewSection
                                 SELECT 
                                     fe.FEID,
                                     fe.SerialNumber,
+                                    fe.AreaCode,
                                     p.PlantName,
                                     l.LevelName,
                                     fe.Location,
@@ -1008,6 +1010,7 @@ namespace FETS.Pages.ViewSection
                                 SELECT 
                                     fe.FEID,
                                     fe.SerialNumber,
+                                    fe.AreaCode,
                                     p.PlantName,
                                     l.LevelName,
                                     fe.Location,
@@ -1036,6 +1039,7 @@ namespace FETS.Pages.ViewSection
                                 SELECT 
                                     fe.FEID,
                                     fe.SerialNumber,
+                                    fe.AreaCode,
                                     p.PlantName,
                                     l.LevelName,
                                     fe.Location,
@@ -1789,6 +1793,7 @@ namespace FETS.Pages.ViewSection
                 string query = @"
                     SELECT 
                         fe.SerialNumber, 
+                        fe.AreaCode,
                         fe.PlantID, 
                         fe.LevelID, 
                         fe.Location, 
@@ -1820,6 +1825,11 @@ namespace FETS.Pages.ViewSection
                         {
                             hdnEditFEID.Value = feId.ToString();
                             txtSerialNumber.Text = reader["SerialNumber"].ToString();
+                            // Check if we have access to the AreaCode field in the UI
+                            if (txtAreaCode != null)
+                            {
+                                txtAreaCode.Text = reader["AreaCode"].ToString();
+                            }
                             
                             // Set the plant dropdown
                             string plantId = reader["PlantID"].ToString();
@@ -2014,6 +2024,7 @@ namespace FETS.Pages.ViewSection
                         UPDATE FireExtinguishers 
                         SET 
                             SerialNumber = @SerialNumber,
+                            AreaCode = @AreaCode,
                             PlantID = @PlantID,
                             LevelID = @LevelID,
                             Location = @Location,
@@ -2028,6 +2039,17 @@ namespace FETS.Pages.ViewSection
                     {
                         cmd.Parameters.AddWithValue("@FEID", feId);
                         cmd.Parameters.AddWithValue("@SerialNumber", txtSerialNumber.Text.Trim());
+                        
+                        // Add AreaCode parameter if the control exists, otherwise use empty string
+                        if (txtAreaCode != null)
+                        {
+                            cmd.Parameters.AddWithValue("@AreaCode", txtAreaCode.Text.Trim());
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@AreaCode", string.Empty);
+                        }
+                        
                         cmd.Parameters.AddWithValue("@PlantID", ddlPlant.SelectedValue);
                         cmd.Parameters.AddWithValue("@LevelID", ddlLevel.SelectedValue);
                         cmd.Parameters.AddWithValue("@Location", txtLocation.Text.Trim());
@@ -2113,6 +2135,7 @@ namespace FETS.Pages.ViewSection
                     SELECT 
                         fe.FEID,
                         fe.SerialNumber,
+                        fe.AreaCode,
                         p.PlantName,
                         l.LevelName,
                         fe.Location,

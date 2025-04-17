@@ -98,3 +98,7 @@ DROP INDEX IX_ServiceReminders_ReminderDate ON ServiceReminders;
 
 CREATE INDEX IX_ServiceReminders_ReminderDate 
 ON ServiceReminders(ReminderDate, ReminderSent);
+
+//AREACODE
+ALTER TABLE FireExtinguishers
+ADD AreaCode varchar(20);
