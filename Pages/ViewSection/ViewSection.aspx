@@ -81,6 +81,10 @@
                                                                                     HeaderText="Serial Number"
                                                                                     ItemStyle-HorizontalAlign="Center"
                                                                                     HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="AreaCode"
+                                                                                    HeaderText="Area Code"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
                                                                                 <asp:BoundField DataField="PlantName"
                                                                                     HeaderText="Plant"
                                                                                     ItemStyle-HorizontalAlign="Center"
@@ -140,6 +144,10 @@
                                                                                     HeaderText="Serial Number"
                                                                                     ItemStyle-HorizontalAlign="Center"
                                                                                     HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="AreaCode"
+                                                                                    HeaderText="Area Code"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
                                                                                 <asp:BoundField DataField="PlantName"
                                                                                     HeaderText="Plant"
                                                                                     ItemStyle-HorizontalAlign="Center"
@@ -197,6 +205,10 @@
                                                                                 </asp:TemplateField>
                                                                                 <asp:BoundField DataField="SerialNumber"
                                                                                     HeaderText="Serial Number"
+                                                                                    ItemStyle-HorizontalAlign="Center"
+                                                                                    HeaderStyle-HorizontalAlign="Center" />
+                                                                                <asp:BoundField DataField="AreaCode"
+                                                                                    HeaderText="Area Code"
                                                                                     ItemStyle-HorizontalAlign="Center"
                                                                                     HeaderStyle-HorizontalAlign="Center" />
                                                                                 <asp:BoundField DataField="PlantName"
@@ -368,6 +380,12 @@
                                                                     <ItemStyle HorizontalAlign="Center" />
                                                                     <HeaderStyle HorizontalAlign="Center" />
                                                                 </asp:BoundField>
+                                                                <asp:BoundField DataField="AreaCode"
+                                                                    HeaderText="Area Code"
+                                                                    SortExpression="AreaCode">
+                                                                    <ItemStyle HorizontalAlign="Center" />
+                                                                    <HeaderStyle HorizontalAlign="Center" />
+                                                                </asp:BoundField>
                                                                 <asp:BoundField DataField="PlantName" HeaderText="Plant"
                                                                     SortExpression="PlantName">
                                                                     <ItemStyle HorizontalAlign="Center" />
@@ -478,6 +496,7 @@
                                 </ItemTemplate>
                             </asp:TemplateField>
                             <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="150px" />
+                            <asp:BoundField DataField="AreaCode" HeaderText="Area Code" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
                             <asp:BoundField DataField="PlantName" HeaderText="Plant" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="150px" />
                             <asp:BoundField DataField="LevelName" HeaderText="Level" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
                             <asp:BoundField DataField="TypeName" HeaderText="Type" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" HeaderStyle-Width="120px" />
@@ -523,6 +542,7 @@
                         <asp:GridView ID="gvServiceConfirmation" runat="server" AutoGenerateColumns="False" CssClass="confirmation-grid">
                             <Columns>
                                 <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                <asp:BoundField DataField="AreaCode" HeaderText="Area Code" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                 <asp:BoundField DataField="PlantName" HeaderText="Plant" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                 <asp:BoundField DataField="LevelName" HeaderText="Level" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                 <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
@@ -579,6 +599,11 @@
                                 CssClass="validation-error" 
                                 Display="Dynamic">
                             </asp:RequiredFieldValidator>
+                        </div>
+                        
+                        <div class="form-group">
+                            <asp:Label ID="lblAreaCode" runat="server" Text="Area Code:" AssociatedControlID="txtAreaCode"></asp:Label>
+                            <asp:TextBox ID="txtAreaCode" runat="server" CssClass="form-control"></asp:TextBox>
                         </div>
                         
                         <div class="form-group">
@@ -712,6 +737,7 @@
                                     </asp:TemplateField>
                                     <asp:BoundField DataField="FEID" HeaderText="ID" Visible="false" />
                                     <asp:BoundField DataField="SerialNumber" HeaderText="Serial Number" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
+                                    <asp:BoundField DataField="AreaCode" HeaderText="Area Code" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                     <asp:BoundField DataField="PlantName" HeaderText="Plant" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                     <asp:BoundField DataField="LevelName" HeaderText="Level" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />
                                     <asp:BoundField DataField="Location" HeaderText="Location" ItemStyle-HorizontalAlign="Center" HeaderStyle-HorizontalAlign="Center" />

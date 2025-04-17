@@ -18,6 +18,9 @@ namespace FETS.Pages.DataEntry
         protected global::System.Web.UI.WebControls.TextBox txtSerialNumber;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvSerialNumber;
         
+        protected global::System.Web.UI.WebControls.Label lblAreaCode;
+        protected global::System.Web.UI.WebControls.TextBox txtAreaCode;
+        
         protected global::System.Web.UI.WebControls.Label lblPlant;
         protected global::System.Web.UI.WebControls.DropDownList ddlPlant;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvPlant;
@@ -48,6 +51,7 @@ namespace FETS.Pages.DataEntry
         // Confirmation panel and its controls
         protected global::System.Web.UI.WebControls.Panel pnlConfirmation;
         protected global::System.Web.UI.WebControls.Label lblConfirmSerialNumber;
+        protected global::System.Web.UI.WebControls.Label lblConfirmAreaCode;
         protected global::System.Web.UI.WebControls.Label lblConfirmPlant;
         protected global::System.Web.UI.WebControls.Label lblConfirmLevel;
         protected global::System.Web.UI.WebControls.Label lblConfirmLocation;

@@ -276,6 +276,7 @@ namespace FETS.Pages.ViewSection
         protected global::System.Web.UI.WebControls.Panel pnlEditFireExtinguisher;
         protected global::System.Web.UI.WebControls.HiddenField hdnEditFEID;
         protected global::System.Web.UI.WebControls.TextBox txtSerialNumber;
+        protected global::System.Web.UI.WebControls.TextBox txtAreaCode;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvSerialNumber;
         protected global::System.Web.UI.WebControls.DropDownList ddlPlant;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvPlant;
