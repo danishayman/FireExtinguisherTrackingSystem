@@ -36,6 +36,9 @@ namespace FETS.Pages.ViewSection
         protected UpdatePanel upServiceSelection;
         protected System.Web.UI.HtmlControls.HtmlGenericControl divResultCount;
         protected Label lblResultCount;
+        protected Panel pnlMapLayout;
+        protected Repeater rptMaps;
+        protected Panel pnlNoMaps;
 
         private string SortExpression
         {
@@ -103,6 +106,11 @@ namespace FETS.Pages.ViewSection
                 LoadMonitoringPanels();
                 LoadFireExtinguishers();
                 
+                // Load plant maps only for non-admin users
+                if (!IsAdministrator && UserPlantID.HasValue)
+                {
+                    LoadPlantMaps();
+                }
             }
             
         }
@@ -2536,9 +2544,8 @@ namespace FETS.Pages.ViewSection
             int count = 0;
             foreach (DataColumn column in dt.Columns)
             {
-                if (column.ColumnName != "FEID" && column.ColumnName != "StatusID" && 
-                    column.ColumnName != "PlantID" && column.ColumnName != "LevelID" && 
-                    column.ColumnName != "TypeID")
+                if (column.ColumnName != "FEID" && column.ColumnName != "PlantID" && column.ColumnName != "LevelID" && 
+                    column.ColumnName != "TypeID" && column.ColumnName != "StatusID" && column.ColumnName != "IsVisible")
                 {
                     count++;
                 }
@@ -2617,6 +2624,209 @@ namespace FETS.Pages.ViewSection
             }
             
             return dt;
+        }
+        
+        /// <summary>
+        /// Loads maps for the user's assigned plant to display below the fire extinguisher list
+        /// </summary>
+        private void LoadPlantMaps()
+        {
+            if (!UserPlantID.HasValue)
+                return;
+                
+            string connectionString = GetConnectionString();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = @"
+                    SELECT TOP 100 m.MapID, m.PlantID, m.LevelID, m.ImagePath, m.UploadDate,
+                           p.PlantName, l.LevelName
+                    FROM MapImages m WITH (NOLOCK)
+                    INNER JOIN Plants p WITH (NOLOCK) ON m.PlantID = p.PlantID
+                    INNER JOIN Levels l WITH (NOLOCK) ON m.LevelID = l.LevelID AND m.PlantID = l.PlantID
+                    WHERE m.PlantID = @PlantID
+                    ORDER BY l.LevelName ASC, m.UploadDate DESC";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@PlantID", UserPlantID.Value);
+
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dt = new DataTable();
+                        adapter.Fill(dt);
+                        
+                        // Log the number of maps found
+                        System.Diagnostics.Debug.WriteLine($"Found {dt.Rows.Count} maps for plant ID {UserPlantID.Value}");
+                        
+                        pnlMapLayout.Visible = true; // Always show the map section for regular users
+                        
+                        if (dt.Rows.Count > 0)
+                        {
+                            // Log the first map's details
+                            var firstMap = dt.Rows[0];
+                            System.Diagnostics.Debug.WriteLine($"First map: Level={firstMap["LevelName"]}, ImagePath={firstMap["ImagePath"]}");
+                            
+                            rptMaps.DataSource = dt;
+                            rptMaps.DataBind();
+                            rptMaps.Visible = true;
+                            
+                            // Hide the "no maps" message
+                            if (pnlNoMaps != null)
+                                pnlNoMaps.Visible = false;
+                            
+                            // Register client script to initialize the map carousel
+                            string script = @"
+                            var currentMapIndex = 0;
+                            var mapItems = [];
+                            
+                            function initMapCarousel() {
+                                mapItems = document.querySelectorAll('.map-data-item');
+                                if (mapItems.length > 0) {
+                                    loadMapByIndex(0);
+                                    var plantNameField = document.getElementById('plantNameHidden');
+                                    if (plantNameField) {
+                                        plantNameField.value = mapItems[0].getAttribute('data-plant');
+                                    }
+                                    updateNavButtons();
+                                } else {
+                                    var prevBtn = document.getElementById('btnPrevMap');
+                                    var nextBtn = document.getElementById('btnNextMap');
+                                    if (prevBtn) prevBtn.style.display = 'none';
+                                    if (nextBtn) nextBtn.style.display = 'none';
+                                }
+                            }
+                            
+                            function loadMapByIndex(index) {
+                                if (index >= 0 && index < mapItems.length) {
+                                    var mapItem = mapItems[index];
+                                    var imageUrl = mapItem.getAttribute('data-image-url');
+                                    var levelName = mapItem.getAttribute('data-level');
+                                    var updateDate = mapItem.getAttribute('data-update-date');
+                                    
+                                    var imgElement = document.getElementById('currentMapImage');
+                                    var titleElement = document.getElementById('mapLevelTitle');
+                                    var dateElement = document.getElementById('mapLastUpdated');
+                                    
+                                    if (imgElement) imgElement.src = imageUrl;
+                                    if (titleElement) titleElement.innerText = levelName;
+                                    if (dateElement) dateElement.innerText = 'Last Updated: ' + updateDate;
+                                    
+                                    currentMapIndex = index;
+                                    updateNavButtons();
+                                }
+                            }
+                            
+                            function updateNavButtons() {
+                                var prevBtn = document.getElementById('btnPrevMap');
+                                var nextBtn = document.getElementById('btnNextMap');
+                                
+                                if (prevBtn) {
+                                    prevBtn.disabled = (currentMapIndex === 0);
+                                    prevBtn.style.opacity = (currentMapIndex === 0) ? '0.5' : '1';
+                                }
+                                
+                                if (nextBtn) {
+                                    nextBtn.disabled = (currentMapIndex === mapItems.length - 1);
+                                    nextBtn.style.opacity = (currentMapIndex === mapItems.length - 1) ? '0.5' : '1';
+                                }
+                            }
+                            
+                            function prevMap() {
+                                if (currentMapIndex > 0) {
+                                    loadMapByIndex(currentMapIndex - 1);
+                                }
+                            }
+                            
+                            function nextMap() {
+                                if (currentMapIndex < mapItems.length - 1) {
+                                    loadMapByIndex(currentMapIndex + 1);
+                                }
+                            }
+                            
+                            // Initialize on page load
+                            window.addEventListener('load', function() {
+                                setTimeout(initMapCarousel, 500);
+                            });";
+                            
+                            // Register the script with the page
+                            ScriptManager.RegisterStartupScript(this, GetType(), "MapCarouselScript", script, true);
+                            
+                            // Load the first map data to initialize the display
+                            if (dt.Rows.Count > 0)
+                            {
+                                string imageUrl = ResolveUrl($"~/Uploads/Maps/{firstMap["ImagePath"]}");
+                                string levelName = firstMap["LevelName"].ToString();
+                                string updateDate = Convert.ToDateTime(firstMap["UploadDate"]).ToString("MM/dd/yyyy");
+                                
+                                // Set initial values using JavaScript
+                                string initScript = $@"
+                                window.addEventListener('load', function() {{
+                                    var imgElement = document.getElementById('currentMapImage');
+                                    var titleElement = document.getElementById('mapLevelTitle');
+                                    var dateElement = document.getElementById('mapLastUpdated');
+                                    var plantNameField = document.getElementById('plantNameHidden');
+                                    
+                                    if (imgElement) imgElement.src = '{imageUrl}';
+                                    if (titleElement) titleElement.innerText = '{levelName}';
+                                    if (dateElement) dateElement.innerText = 'Last Updated: {updateDate}';
+                                    if (plantNameField) plantNameField.value = '{firstMap["PlantName"]}';
+                                }});";
+                                
+                                ScriptManager.RegisterStartupScript(this, GetType(), "InitMapDisplay", initScript, true);
+                            }
+                        }
+                        else
+                        {
+                            // No maps found - show the "no maps" message
+                            rptMaps.Visible = false;
+                            if (pnlNoMaps != null)
+                                pnlNoMaps.Visible = true;
+                            
+                            // Hide navigation buttons
+                            string hideNavScript = @"
+                            window.addEventListener('load', function() {
+                                var prevBtn = document.getElementById('btnPrevMap');
+                                var nextBtn = document.getElementById('btnNextMap');
+                                if (prevBtn) prevBtn.style.display = 'none';
+                                if (nextBtn) nextBtn.style.display = 'none';
+                            });";
+                            
+                            ScriptManager.RegisterStartupScript(this, GetType(), "HideNavButtons", hideNavScript, true);
+                        }
+                    }
+                }
+            }
+        }
+        
+        
+        /// <summary>
+        /// Gets the URL for a map image based on its file path
+        /// </summary>
+        protected string GetMapImageUrl(string imagePath)
+        {
+            return $"~/Uploads/Maps/{imagePath}";
+        }
+        
+        /// <summary>
+        /// Handles clicking on the View Map button in the map repeater
+        /// </summary>
+        protected void rptMaps_ItemCommand(object source, RepeaterCommandEventArgs e)
+        {
+            if (e.CommandName == "ViewMap")
+            {
+                string[] arguments = e.CommandArgument.ToString().Split('|');
+                if (arguments.Length == 3)
+                {
+                    string mapUrl = arguments[0];
+                    string plantName = arguments[1];
+                    string levelName = arguments[2];
+                    
+                    // Use JavaScript to open the map modal
+                    string script = $"openMapModal('{mapUrl}', '{plantName}', '{levelName}');";
+                    ScriptManager.RegisterStartupScript(this, GetType(), "openMapModal", script, true);
+                }
+            }
         }
     }
 }

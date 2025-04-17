@@ -460,6 +460,56 @@
                                             </ContentTemplate>
                                         </asp:UpdatePanel>
                                         
+                                        <!-- Map Layout Section -->
+                                        <asp:Panel ID="pnlMapLayout" runat="server" CssClass="map-layout-container" Visible="false">
+                                            <div class="map-section">
+                                                <h3 class="section-title">Plant Map Layout</h3>
+                                                
+                                                <div class="map-carousel">
+                                                    <div class="map-carousel-controls">
+                                                        <button type="button" id="btnPrevMap" class="map-nav-button map-prev" onclick="prevMap(); return false;">
+                                                            <i class="fas fa-chevron-left"></i>
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    <div class="map-carousel-container">
+                                                        <div id="mapLevelTitle" class="map-level-title">Level 1</div>
+                                                        <div id="mapLastUpdated" class="map-date">Last Updated: </div>
+                                                        <div class="map-display-container">
+                                                            <img id="currentMapImage" src="" alt="Plant Map" class="map-display-image" 
+                                                                onclick="openMapModal(this.src, document.getElementById('plantNameHidden').value, document.getElementById('mapLevelTitle').innerText);" />
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="map-carousel-controls">
+                                                        <button type="button" id="btnNextMap" class="map-nav-button map-next" onclick="nextMap(); return false;">
+                                                            <i class="fas fa-chevron-right"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Hidden elements to store map data -->
+                                                <input type="hidden" id="plantNameHidden" value="" />
+                                                <div id="mapDataContainer" style="display: none;">
+                                                    <asp:Repeater ID="rptMaps" runat="server">
+                                                        <ItemTemplate>
+                                                            <div class="map-data-item" 
+                                                                data-image-url="<%# ResolveUrl("~/Uploads/Maps/" + Eval("ImagePath")) %>"
+                                                                data-level="<%# Eval("LevelName") %>" 
+                                                                data-update-date="<%# Eval("UploadDate", "{0:MM/dd/yyyy}") %>"
+                                                                data-plant="<%# Eval("PlantName") %>">
+                                                            </div>
+                                                        </ItemTemplate>
+                                                    </asp:Repeater>
+                                                </div>
+                                                
+                                                <asp:Panel ID="pnlNoMaps" runat="server" CssClass="no-maps-message" Visible="false">
+                                                    <p>No maps have been uploaded for this plant yet.</p>
+                                                </asp:Panel>
+                                            </div>
+                                        </asp:Panel>
+                                        
+                                        
                                         <!-- Export to Excel button outside UpdatePanel -->
                                         <div class="export-button-container" style="margin: 20px 0; text-align: right;">
                                             <asp:Button ID="btnExportToExcel" runat="server" Text="Export to Excel" 
@@ -1600,9 +1650,144 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+
+        /* Map Layout Styles */
+        .map-layout-container {
+            width: 100%;
+            margin: 20px 0;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-section h3.section-title {
+            text-align: center;
+            margin: 0 0 20px 0;
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 600;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        /* Carousel styles */
+        .map-carousel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .map-carousel-controls {
+            flex: 0 0 60px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .map-nav-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .map-nav-button:hover {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
+
+        .map-nav-button:active {
+            transform: scale(0.95);
+        }
+
+        .map-carousel-container {
+            flex: 1;
+            max-width: 90%;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .map-level-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .map-date {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .map-display-container {
+            background-color: #f5f5f5;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 500px;
+            overflow: hidden;
+        }
+
+        .map-display-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .map-display-image:hover {
+            transform: scale(1.02);
+        }
+
+        /* Import Font Awesome for icons if not already imported */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
+        
+        /* No maps message */
+        .no-maps-message {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px dashed #dee2e6;
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .map-display-container {
+                height: 350px;
+            }
+            
+            .map-carousel-container {
+                padding: 0 10px;
+            }
+        }
     </style>
 
         <script type="text/javascript">
+            // Global variables for map carousel
+            var currentMapIndex = 0;
+            var mapItems = [];
+            
             document.addEventListener('DOMContentLoaded', function() {
                 // Initialize responsive adjustments
                 initResponsiveUI();
@@ -1639,6 +1824,8 @@
                         enhanceMonitoringPagination();
                         // Hide loading indicator
                         hideLoadingOverlay();
+                        // Initialize map carousel after postback
+                        initMapCarousel();
                     });
                     
                     // Add error handling for AJAX requests
@@ -1652,321 +1839,119 @@
                     });
                 }
 
-                function enhanceMonitoringPagination() {
-                    // Add click handling for pagination links
-                    document.querySelectorAll('.grid-pager a').forEach(function(link) {
-                        link.addEventListener('click', function() {
-                            showLoadingOverlay();
-                        });
-                    });
-                }
-                
-                function showLoadingOverlay() {
-                    // Create loading overlay if it doesn't exist
-                    if (!document.getElementById('loadingOverlay')) {
-                        var overlay = document.createElement('div');
-                        overlay.id = 'loadingOverlay';
-                        overlay.innerHTML = '<div class="spinner"></div><div class="loading-text">Loading...</div>';
-                        document.body.appendChild(overlay);
-                        
-                        // Add styles if not already defined
-                        if (!document.getElementById('loadingOverlayStyles')) {
-                            var style = document.createElement('style');
-                            style.id = 'loadingOverlayStyles';
-                            style.innerHTML = `
-                                #loadingOverlay {
-                                    position: fixed;
-                                    top: 0;
-                                    left: 0;
-                                    width: 100%;
-                                    height: 100%;
-                                    background-color: rgba(0, 0, 0, 0.5);
-                                    display: flex;
-                                    flex-direction: column;
-                                    justify-content: center;
-                                    align-items: center;
-                                    z-index: 9999;
-                                }
-                                .spinner {
-                                    border: 4px solid rgba(255, 255, 255, 0.3);
-                                    border-radius: 50%;
-                                    border-top: 4px solid #fff;
-                                    width: 40px;
-                                    height: 40px;
-                                    animation: spin 1s linear infinite;
-                                }
-                                .loading-text {
-                                    color: white;
-                                    margin-top: 10px;
-                                    font-weight: bold;
-                                }
-                                @keyframes spin {
-                                    0% { transform: rotate(0deg); }
-                                    100% { transform: rotate(360deg); }
-                                }
-                            `;
-                            document.head.appendChild(style);
-                        }
-                    }
-                    
-                    document.getElementById('loadingOverlay').style.display = 'flex';
-                }
-                
-                function hideLoadingOverlay() {
-                    var overlay = document.getElementById('loadingOverlay');
-                    if (overlay) {
-                        overlay.style.display = 'none';
-                    }
-                }
-
-                function initResponsiveUI() {
-                    // Check if user is on touch device
-                    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-                    
-                    // Apply touch-specific adjustments
-                    if (isTouchDevice) {
-                        // Increase touch targets for better mobile experience
-                        document.querySelectorAll('.btn, .tab-button, .form-control').forEach(function(elem) {
-                            elem.classList.add('touch-friendly');
-                        });
-                        
-                        // Add specific handling for tables on touch devices
-                        document.querySelectorAll('.grid-view, .monitoring-grid').forEach(function(table) {
-                            table.classList.add('touch-table');
-                            
-                            // Add horizontal swipe indication for tables if they overflow
-                            if (table.scrollWidth > table.clientWidth) {
-                                const container = table.parentElement;
-                                const indicator = document.createElement('div');
-                                indicator.className = 'swipe-indicator';
-                                indicator.innerHTML = '<i class="swipe-icon">↔</i> Swipe to view more';
-                                container.insertBefore(indicator, table);
-                                
-                                // Hide indicator after user has swiped
-                                table.addEventListener('scroll', function() {
-                                    indicator.style.opacity = '0';
-                                    setTimeout(function() {
-                                        indicator.style.display = 'none';
-                                    }, 300);
-                                });
-                            }
-                        });
-                    }
-                    
-                    // Check sidebar state on page load
-                    const sidebarState = localStorage.getItem('sidebarState');
-                    if (sidebarState === 'collapsed') {
-                        document.body.classList.add('sidebar-collapsed');
-                    } else {
-                        document.body.classList.remove('sidebar-collapsed');
-                    }
-                    
-                    // Make button interactions more responsive
-                    document.querySelectorAll('.btn').forEach(function(btn) {
-                        btn.addEventListener('mousedown', function() {
-                            this.classList.add('btn-active');
-                        });
-                        
-                        btn.addEventListener('mouseup mouseleave', function() {
-                            this.classList.remove('btn-active');
-                        });
-                    });
-                    
-                    // Ensure grid views are properly scrollable on mobile
-                    makeTableResponsive();
-                }
-                
-                function makeTableResponsive() {
-                    document.querySelectorAll('.grid-view, .monitoring-grid').forEach(function(table) {
-                        const parent = table.parentElement;
-                        
-                        // If table is wider than container, ensure container allows horizontal scrolling
-                        if (table.scrollWidth > parent.clientWidth) {
-                            parent.style.overflowX = 'auto';
-                            parent.style.WebkitOverflowScrolling = 'touch'; // For smooth scrolling on iOS
-                        }
-                    });
-                }
-
-                // Listen for sidebar state changes
-                window.addEventListener('storage', function(e) {
-                    if (e.key === 'sidebarState') {
-                        if (e.newValue === 'collapsed') {
-                            document.body.classList.add('sidebar-collapsed');
-                        } else {
-                            document.body.classList.remove('sidebar-collapsed');
-                        }
-                        // Adjust table containers after sidebar state changes
-                        makeTableResponsive();
-                    }
-                });
-                
-                // Add a custom event listener for sidebar toggle
-                document.addEventListener('sidebarToggled', function(e) {
-                    if (e.detail.collapsed) {
-                        document.body.classList.add('sidebar-collapsed');
-                    } else {
-                        document.body.classList.remove('sidebar-collapsed');
-                    }
-                    // Adjust table containers after sidebar toggle
-                    makeTableResponsive();
-                });
-                
-                // Handle window resize events
-                let resizeTimer;
-                window.addEventListener('resize', function() {
-                    clearTimeout(resizeTimer);
-                    resizeTimer = setTimeout(function() {
-                        makeTableResponsive();
-                    }, 250);
-                });
+                // Initialize map carousel on page load
+                initMapCarousel();
             });
-
-            function showEditPanel(button) {
-                var feId = button.getAttribute('data-feid') || button.getAttribute('CommandArgument');
-                document.getElementById('<%= hdnEditFEID.ClientID %>').value = feId;
-                
-                // Display the panel
-                document.getElementById('<%= pnlEditFireExtinguisher.ClientID %>').style.display = 'flex';
-                document.getElementById('modalOverlay').style.display = 'block';
-                
-                // Call server-side method to load fire extinguisher details
-                var postbackArg = 'LoadFireExtinguisherDetails:' + feId;
-                __doPostBack('<%= Page.UniqueID %>', postbackArg);
-                
-                return false;
-            }
-
-            function hideEditPanel() {
-                document.getElementById('<%= pnlEditFireExtinguisher.ClientID %>').style.display = 'none';
-                document.getElementById('modalOverlay').style.display = 'none';
-                return false;
-            }
-
-            function showSendToServiceConfirmation(feId) {
-                // Set the hidden field value
-                document.getElementById('<%= hdnSelectedFEIDForService.ClientID %>').value = feId;
-                
-                // Show the panel and overlay
-                document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'flex';
-                document.getElementById('modalOverlay').style.display = 'block';
-                
-                return false;
-            }
-
-            function hideSendToServicePanel() {
-                document.getElementById('<%= pnlSendToService.ClientID %>').style.display = 'none';
-                document.getElementById('modalOverlay').style.display = 'none';
-                return false;
-            }
-
-            // Close modal when clicking outside
-            document.getElementById('modalOverlay').onclick = function() {
-                hideEditPanel();
-                hideSendToServicePanel();
-                hideCompleteServicePanel();
-            };
-
-            // Prevent modal from closing when clicking inside it
-            document.querySelectorAll('.modal-panel').forEach(function(panel) {
-                panel.onclick = function(event) {
-                    event.stopPropagation();
-                };
-            });
-
-            function showNotification(message, type = 'success', duration = 3000) {
-                // Create notification element
-                const notification = document.createElement('div');
-                notification.className = `toast-notification ${type === 'error' ? 'error' : ''}`;
-                notification.innerHTML = message;
-                
-                // Add to DOM
-                document.body.appendChild(notification);
-                
-                // Trigger animation
-                setTimeout(() => {
-                    notification.classList.add('show');
-                }, 10);
-                
-                // Auto-hide after duration
-                setTimeout(() => {
-                    notification.classList.add('hide');
-                    setTimeout(() => {
-                        document.body.removeChild(notification);
-                    }, 300);
-                }, duration);
-            }
-
-            // Service Selection Panel functions
-            function showServiceSelectionPanel() {
-                document.getElementById('modalOverlay').style.display = 'block';
-                return true; // Allow the postback to occur
-            }
             
-            function hideServiceSelectionPanel() {
-                document.getElementById('modalOverlay').style.display = 'none';
-                return true; // Allow the postback to occur
-            }
-            
-            // Complete Service Panel functions
-            function showCompleteServicePanel() {
-                document.getElementById('modalOverlay').style.display = 'block';
-                return true; // Allow the postback to occur
-            }
-            
-            function hideCompleteServicePanel() {
-                document.getElementById('modalOverlay').style.display = 'none';
-                return true; // Allow the postback to occur
-            }
-            
-            // Add select all functionality for the service selection grid
-            function toggleAllCheckboxes(checkbox) {
-                const grid = document.getElementById('<%= gvServiceSelection.ClientID %>');
-                if (!grid) return;
+            // Map Carousel functions
+            function initMapCarousel() {
+                // Get all map data items
+                mapItems = document.querySelectorAll('.map-data-item');
                 
-                const checkboxes = grid.getElementsByTagName('input');
-                for (let i = 0; i < checkboxes.length; i++) {
-                    if (checkboxes[i].type === 'checkbox' && checkboxes[i] !== checkbox) {
-                        checkboxes[i].checked = checkbox.checked;
-                    }
-                }
-            }
-
-            // Complete Service Panel functions
-            function toggleAllCompleteCheckboxes(checkbox) {
-                const grid = document.getElementById('<%= gvCompleteService.ClientID %>');
-                if (!grid) return;
+                // Reset the current index
+                currentMapIndex = 0;
                 
-                const checkboxes = grid.getElementsByTagName('input');
-                for (let i = 0; i < checkboxes.length; i++) {
-                    if (checkboxes[i].type === 'checkbox' && checkboxes[i] !== checkbox) {
-                        checkboxes[i].checked = checkbox.checked;
-                    }
+                // If we have maps, load the first one
+                if (mapItems.length > 0) {
+                    loadMapByIndex(0);
+                    document.getElementById('plantNameHidden').value = mapItems[0].getAttribute('data-plant');
+                    updateNavButtons();
+                } else {
+                    // Hide navigation buttons if no maps
+                    document.getElementById('btnPrevMap').style.display = 'none';
+                    document.getElementById('btnNextMap').style.display = 'none';
                 }
             }
             
-            function validateCompleteServiceSelection() {
-                const grid = document.getElementById('<%= gvCompleteService.ClientID %>');
-                if (!grid) return false;
-                
-                let anyChecked = false;
-                const checkboxes = grid.getElementsByTagName('input');
-                
-                for (let i = 0; i < checkboxes.length; i++) {
-                    if (checkboxes[i].type === 'checkbox' && 
-                        checkboxes[i].id !== 'chkSelectAllComplete' && 
-                        checkboxes[i].checked) {
-                        anyChecked = true;
-                        break;
-                    }
+            function loadMapByIndex(index) {
+                if (index >= 0 && index < mapItems.length) {
+                    var mapItem = mapItems[index];
+                    
+                    // Get data attributes
+                    var imageUrl = mapItem.getAttribute('data-image-url');
+                    var levelName = mapItem.getAttribute('data-level');
+                    var updateDate = mapItem.getAttribute('data-update-date');
+                    
+                    // Update the UI
+                    document.getElementById('currentMapImage').src = imageUrl;
+                    document.getElementById('mapLevelTitle').innerText = levelName;
+                    document.getElementById('mapLastUpdated').innerText = 'Last Updated: ' + updateDate;
+                    
+                    // Update current index
+                    currentMapIndex = index;
+                    
+                    // Update navigation button states
+                    updateNavButtons();
                 }
+            }
+            
+            function updateNavButtons() {
+                // Disable prev button if we're at the first map
+                document.getElementById('btnPrevMap').disabled = (currentMapIndex === 0);
+                document.getElementById('btnPrevMap').style.opacity = (currentMapIndex === 0) ? '0.5' : '1';
                 
-                if (!anyChecked) {
-                    showNotification('Please select at least one fire extinguisher to complete service for.', 'error');
-                    return false;
+                // Disable next button if we're at the last map
+                document.getElementById('btnNextMap').disabled = (currentMapIndex === mapItems.length - 1);
+                document.getElementById('btnNextMap').style.opacity = (currentMapIndex === mapItems.length - 1) ? '0.5' : '1';
+            }
+            
+            function prevMap() {
+                if (currentMapIndex > 0) {
+                    loadMapByIndex(currentMapIndex - 1);
                 }
+            }
+            
+            function nextMap() {
+                if (currentMapIndex < mapItems.length - 1) {
+                    loadMapByIndex(currentMapIndex + 1);
+                }
+            }
+            
+            // Map Modal Functions
+            function openMapModal(imageUrl, plantName, levelName) {
+                var modal = document.getElementById('mapModal');
+                var fullScreenMap = document.getElementById('fullScreenMap');
+                var modalTitle = document.getElementById('mapModalTitle');
                 
-                return true;
+                // Set the map image source
+                fullScreenMap.src = imageUrl;
+                
+                // Set the modal title
+                modalTitle.innerText = plantName + ' - ' + levelName + ' Map';
+                
+                // Show the modal
+                modal.style.display = 'block';
+                
+                // Disable scrolling on the body
+                document.body.style.overflow = 'hidden';
+                
+                // Add escape key listener
+                document.addEventListener('keydown', closeModalOnEscape);
+            }
+            
+            function closeMapModal() {
+                var modal = document.getElementById('mapModal');
+                modal.style.display = 'none';
+                
+                // Re-enable scrolling on the body
+                document.body.style.overflow = 'auto';
+                
+                // Remove escape key listener
+                document.removeEventListener('keydown', closeModalOnEscape);
+            }
+            
+            function closeModalOnEscape(e) {
+                if (e.key === 'Escape') {
+                    closeMapModal();
+                }
+            }
+            
+            // Close modal when clicking outside of it
+            window.onclick = function(event) {
+                var modal = document.getElementById('mapModal');
+                if (event.target == modal) {
+                    closeMapModal();
+                }
             }
         </script>
 
