@@ -1,4 +1,6 @@
 # 🧯 Fire Extinguisher Tracking System (FETS)
+![FETS System Overview](Uploads/misc/image.png)
+*FETS main system interface showing fire extinguisher tracking dashboard*
 
 ## 📖 Project Description
 The Fire Extinguisher Tracking System (FETS) is a comprehensive web-based solution designed to help organizations effectively manage and monitor fire extinguishers across multiple facilities. The system enables tracking of extinguisher locations, expiry dates, service history, and inspection status, ensuring compliance with safety regulations and helping prevent potential safety risks.
@@ -102,16 +104,34 @@ Key capabilities include:
    - Complete service process with new expiry dates
    - Export data to Excel for reporting
 
+   ![Service Management Interface](Uploads/misc/image-1.png)
+   *Fire extinguisher management interface with monitoring and service capabilities*
+
 4. **Map Layout**: Visual representation of extinguisher locations within facilities
    - Interactive map with zoom and pan controls
    - Markers showing exact extinguisher positions
    - Quick search and filter functionality
+   
+   ![Facility Map](Uploads/misc/front-gate.jpg)
+   *Sample facility layout for locating fire extinguishers*
 
 ### Action Buttons
 The main action buttons are arranged in this order:
 1. **Send to Service**: Select and send extinguishers for maintenance
 2. **Complete Service**: Update extinguishers that have completed servicing
 3. **Export to Excel**: Generate reports for compliance and documentation
+
+### Email Notifications
+The system automatically sends notifications for extinguishers requiring attention:
+
+![Email Notification](Uploads/misc/image-2.png)
+*Email notification template for expired or soon-to-expire fire extinguishers*
+
+### Warning Indicators
+The system uses clear visual indicators to highlight safety concerns:
+
+![Warning Indicator](Uploads/misc/warning.png)
+*Warning indicator for fire extinguishers requiring immediate attention*
 
 ## 📋 Project Structure
 The application follows a standard ASP.NET Web Forms structure:
