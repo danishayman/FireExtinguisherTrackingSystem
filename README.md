@@ -107,13 +107,29 @@ Key capabilities include:
    ![Service Management Interface](Uploads/misc/image-1.png)
    *Fire extinguisher management interface with monitoring and service capabilities*
 
-4. **Map Layout**: Visual representation of extinguisher locations within facilities
+4. **View Map**: Detailed interactive view of fire extinguisher locations
+   - Zoom and pan controls for map navigation
+   - Clickable extinguisher markers with detailed information
+   - Search functionality to find specific extinguishers
+   
+   ![View Map Interface](Uploads/misc/view map.png)
+   *Interactive map view showing fire extinguisher positions with detailed information*
+
+5. **Map Layout**: Visual representation of extinguisher locations within facilities
    - Interactive map with zoom and pan controls
    - Markers showing exact extinguisher positions
    - Quick search and filter functionality
    
    ![Facility Map](Uploads/misc/front-gate.jpg)
    *Sample facility layout for locating fire extinguishers*
+
+6. **Public Dashboard**: At-a-glance overview accessible to all staff
+   - Simplified view of extinguisher status across facilities
+   - No login required for basic monitoring
+   - Quick access to critical safety information
+   
+   ![Public Dashboard](Uploads/misc/logo.jpeg)
+   *Public dashboard showing organization branding and essential fire safety information*
 
 ### Action Buttons
 The main action buttons are arranged in this order:
@@ -126,12 +142,6 @@ The system automatically sends notifications for extinguishers requiring attenti
 
 ![Email Notification](Uploads/misc/image-2.png)
 *Email notification template for expired or soon-to-expire fire extinguishers*
-
-### Warning Indicators
-The system uses clear visual indicators to highlight safety concerns:
-
-![Warning Indicator](Uploads/misc/warning.png)
-*Warning indicator for fire extinguishers requiring immediate attention*
 
 ## 📋 Project Structure
 The application follows a standard ASP.NET Web Forms structure:
