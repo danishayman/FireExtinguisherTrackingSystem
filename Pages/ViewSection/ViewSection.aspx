@@ -345,8 +345,9 @@
                                                     </div>
                                                     
                                                     <div class="button-container" style="margin-bottom: 15px; text-align: right;">
+                                                        <asp:Button ID="btnShowSelection" runat="server" Text="Send to Service" CssClass="btn btn-warning" OnClick="btnShowSelection_Click" OnClientClick="showServiceSelectionPanel(); return true;" style="margin-right: 10px;" />
                                                         <asp:Button ID="btnCompleteServiceList" runat="server" Text="Complete Service" CssClass="btn btn-success" OnClick="btnCompleteServiceList_Click" style="margin-right: 10px;" />
-                                                        <asp:Button ID="btnShowSelection" runat="server" Text="Send to Service" CssClass="btn btn-warning" OnClick="btnShowSelection_Click" OnClientClick="showServiceSelectionPanel(); return true;" />
+                                                        <asp:Button ID="btnExportToExcel" runat="server" Text="Export to Excel" CssClass="btn btn-info" OnClick="btnExportToExcel_Click" />
                                                     </div>
                                                     
                                                     <!-- Add result count display -->
@@ -509,12 +510,6 @@
                                             </div>
                                         </asp:Panel>
                                         
-                                        
-                                        <!-- Export to Excel button outside UpdatePanel -->
-                                        <div class="export-button-container" style="margin: 20px 0; text-align: right;">
-                                            <asp:Button ID="btnExportToExcel" runat="server" Text="Export to Excel" 
-                                                CssClass="btn btn-info" OnClick="btnExportToExcel_Click" />
-                                        </div>
                                     </div>
                                 </div>
                             </div>
