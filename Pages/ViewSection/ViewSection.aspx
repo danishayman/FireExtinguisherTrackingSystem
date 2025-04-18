@@ -462,8 +462,8 @@
                                         </asp:UpdatePanel>
                                         
                                         <!-- Map Layout Section -->
-                                        <asp:Panel ID="pnlMapLayout" runat="server" CssClass="map-layout-container" Visible="false">
-                                            <div class="map-section">
+                                        <asp:Panel ID="pnlMapLayout" runat="server" CssClass="map-section" Visible="false">
+                                            <div class="grid-section">
                                                 <h3 class="section-title">Plant Map Layout</h3>
                                                 
                                                 <div class="map-carousel">
@@ -1647,26 +1647,11 @@
         }
 
         /* Map Layout Styles */
-        .map-layout-container {
+        .map-section {
             width: 100%;
             margin: 20px 0;
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        .map-section h3.section-title {
-            text-align: center;
-            margin: 0 0 20px 0;
-            color: #333;
-            font-size: 1.5rem;
-            font-weight: 600;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #007bff;
-        }
-
-        /* Carousel styles */
         .map-carousel {
             display: flex;
             align-items: center;
