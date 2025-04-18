@@ -128,8 +128,14 @@ Key capabilities include:
    - No login required for basic monitoring
    - Quick access to critical safety information
    
-   ![Public Dashboard](Uploads/misc/publicdashboard1.jpg)
-   *Public dashboard interface showing extinguisher status distribution and quick access controls*
+   ![Public Dashboard - Main View](Uploads/misc/publicdashboard1.jpg)
+   *Public dashboard main interface showing extinguisher status distribution*
+   
+   ![Public Dashboard - Status View](Uploads/misc/publicdashboard2.jpg)
+   *Public dashboard status view with color-coded indicators*
+   
+   ![Public Dashboard - Detail View](Uploads/misc/publicdashboard3.jpg)
+   *Public dashboard detailed information display for specific extinguishers*
 
 ### Action Buttons
 The main action buttons are arranged in this order:
