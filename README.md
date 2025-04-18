@@ -104,14 +104,15 @@ Key capabilities include:
    - Complete service process with new expiry dates
    - Export data to Excel for reporting
 
-   ![Service Management Interface](Uploads/misc/mapupload.png)
+   ![Service Management Interface](Uploads/misc/felist.png)
    *Fire extinguisher management interface with monitoring and service capabilities*
 
 4. **View Map**: Detailed interactive view of fire extinguisher locations
 
    -Upload Maps and assign their respective plants and levels
    
-   ![View Map Interface](Uploads/misc/view map.png)
+   ![View Map Interface](Uploads/misc/mapupload.png)
+   ![View Map Interface](Uploads/misc/viewmap.png)
    *Interactive map view showing fire extinguisher positions with detailed information*
 
 5. **Map Layout**: Visual representation of extinguisher locations within facilities
