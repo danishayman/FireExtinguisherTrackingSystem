@@ -1,5 +1,5 @@
 # 🧯 Fire Extinguisher Tracking System (FETS)
-![FETS System Overview](Uploads/misc/image.png)
+![FETS System Overview](Uploads/misc/login.png)
 *FETS main system interface showing fire extinguisher tracking dashboard*
 
 ## 📖 Project Description
@@ -104,13 +104,12 @@ Key capabilities include:
    - Complete service process with new expiry dates
    - Export data to Excel for reporting
 
-   ![Service Management Interface](Uploads/misc/image-1.png)
+   ![Service Management Interface](Uploads/misc/mapupload.png)
    *Fire extinguisher management interface with monitoring and service capabilities*
 
 4. **View Map**: Detailed interactive view of fire extinguisher locations
-   - Zoom and pan controls for map navigation
-   - Clickable extinguisher markers with detailed information
-   - Search functionality to find specific extinguishers
+
+   -Upload Maps and assign their respective plants and levels
    
    ![View Map Interface](Uploads/misc/view map.png)
    *Interactive map view showing fire extinguisher positions with detailed information*
@@ -120,7 +119,7 @@ Key capabilities include:
    - Markers showing exact extinguisher positions
    - Quick search and filter functionality
    
-   ![Facility Map](Uploads/misc/front-gate.jpg)
+   ![Facility Map](Uploads/misc/login.png)
    *Sample facility layout for locating fire extinguishers*
 
 6. **Public Dashboard**: At-a-glance overview accessible to all staff
