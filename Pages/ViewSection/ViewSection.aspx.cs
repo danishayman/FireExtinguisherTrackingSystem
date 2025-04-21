@@ -591,11 +591,36 @@ namespace FETS.Pages.ViewSection
         {
             string remarks = txtServiceRemarks.Text.Trim();
             string replacement = ddlServiceReplacement.SelectedValue;
+            string serialNumber = "";
+            string plantName = "";
+            string levelName = "";
+            string location = "";
             
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
+
+                // Get fire extinguisher details for logging
+                using (SqlCommand cmd = new SqlCommand(@"
+                    SELECT fe.SerialNumber, p.PlantName, l.LevelName, fe.Location
+                    FROM FireExtinguishers fe
+                    JOIN Plants p ON fe.PlantID = p.PlantID
+                    JOIN Levels l ON fe.LevelID = l.LevelID
+                    WHERE fe.FEID = @FEID", conn))
+                {
+                    cmd.Parameters.AddWithValue("@FEID", feId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            serialNumber = reader["SerialNumber"].ToString();
+                            plantName = reader["PlantName"].ToString();
+                            levelName = reader["LevelName"].ToString();
+                            location = reader["Location"].ToString();
+                        }
+                    }
+                }
 
                 // Get the 'Under Service' status ID
                 int underServiceStatusId;
@@ -615,6 +640,23 @@ namespace FETS.Pages.ViewSection
                     cmd.Parameters.AddWithValue("@DateSentService", DateTime.Now);
                     cmd.ExecuteNonQuery();
                 }
+                
+                // Log the send to service activity
+                string description = $"Sent fire extinguisher to service - SN: {serialNumber}, Plant: {plantName}, Level: {levelName}, Location: {location}";
+                if (!string.IsNullOrEmpty(remarks))
+                {
+                    description += $", Remarks: {remarks}";
+                }
+                if (!string.IsNullOrEmpty(replacement) && replacement != "No")
+                {
+                    description += $", Replacement: {replacement}";
+                }
+                
+                FETS.Models.ActivityLogger.LogActivity(
+                    action: "SendToService", 
+                    description: description, 
+                    entityType: "FireExtinguisher", 
+                    entityId: feId.ToString());
             }
             
             // Clear the inputs
@@ -1485,6 +1527,12 @@ namespace FETS.Pages.ViewSection
         {
             LinkButton btn = (LinkButton)sender;
             string extinguisherId = btn.CommandArgument;
+            int feId = Convert.ToInt32(extinguisherId);
+            string serialNumber = "";
+            string plantName = "";
+            string levelName = "";
+            string location = "";
+            string typeName = "";
 
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -1531,11 +1579,11 @@ namespace FETS.Pages.ViewSection
                     {
                         if (reader.Read())
                         {
-                            string serialNumber = reader["SerialNumber"].ToString();
-                            string plant = reader["PlantName"].ToString();
-                            string level = reader["LevelName"].ToString();
-                            string location = reader["Location"].ToString();
-                            string type = reader["TypeName"].ToString();
+                            serialNumber = reader["SerialNumber"].ToString();
+                            plantName = reader["PlantName"].ToString();
+                            levelName = reader["LevelName"].ToString();
+                            location = reader["Location"].ToString();
+                            typeName = reader["TypeName"].ToString();
                             string remarks = reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null;
                             string status = reader["StatusName"].ToString();
 
@@ -1543,10 +1591,10 @@ namespace FETS.Pages.ViewSection
                             string subject = $"Fire Extinguisher {serialNumber} Sent for Service";
                             string body = EmailTemplateManager.GetServiceEmailTemplate(
                                 serialNumber,
-                                plant,
-                                level,
+                                plantName,
+                                levelName,
                                 location,
-                                type,
+                                typeName,
                                 remarks
                             );
 
@@ -1565,6 +1613,14 @@ namespace FETS.Pages.ViewSection
                         }
                     }
                 }
+                
+                // Log the send to service activity
+                string description = $"Sent fire extinguisher to service - SN: {serialNumber}, Plant: {plantName}, Level: {levelName}, Location: {location}, Type: {typeName}";
+                FETS.Models.ActivityLogger.LogActivity(
+                    action: "SendToService", 
+                    description: description, 
+                    entityType: "FireExtinguisher", 
+                    entityId: feId.ToString());
             }
 
             // Refresh the page data
@@ -1670,6 +1726,7 @@ namespace FETS.Pages.ViewSection
             {
                 // Get details for all selected fire extinguishers
                 List<FireExtinguisherServiceInfo> extinguisherDetails = new List<FireExtinguisherServiceInfo>();
+                Dictionary<int, string> extinguisherDescriptions = new Dictionary<int, string>();
                 string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
                 
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -1700,6 +1757,12 @@ namespace FETS.Pages.ViewSection
                             while (reader.Read())
                             {
                                 int feId = Convert.ToInt32(reader["FEID"]);
+                                string serialNumber = reader["SerialNumber"].ToString();
+                                string plant = reader["PlantName"].ToString();
+                                string level = reader["LevelName"].ToString();
+                                string location = reader["Location"].ToString();
+                                string type = reader["TypeName"].ToString();
+                                
                                 string remarks = feRemarks.ContainsKey(feId) ? feRemarks[feId] : 
                                                (reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null);
                                 
@@ -1708,15 +1771,27 @@ namespace FETS.Pages.ViewSection
                                 
                                 extinguisherDetails.Add(new FireExtinguisherServiceInfo
                                 {
-                                    SerialNumber = reader["SerialNumber"].ToString(),
+                                    SerialNumber = serialNumber,
                                     AreaCode = reader["AreaCode"].ToString(),
-                                    Plant = reader["PlantName"].ToString(),
-                                    Level = reader["LevelName"].ToString(),
-                                    Location = reader["Location"].ToString(),
-                                    Type = reader["TypeName"].ToString(),
+                                    Plant = plant,
+                                    Level = level,
+                                    Location = location,
+                                    Type = type,
                                     Remarks = remarks,
                                     Replacement = replacement
                                 });
+                                
+                                // Create description for activity log
+                                string description = $"Sent fire extinguisher to service - SN: {serialNumber}, Plant: {plant}, Level: {level}, Location: {location}, Type: {type}";
+                                if (!string.IsNullOrEmpty(remarks))
+                                {
+                                    description += $", Remarks: {remarks}";
+                                }
+                                if (!string.IsNullOrEmpty(replacement) && replacement != "No")
+                                {
+                                    description += $", Replacement: {replacement}";
+                                }
+                                extinguisherDescriptions[feId] = description;
                             }
                         }
                     }
@@ -1741,8 +1816,26 @@ namespace FETS.Pages.ViewSection
                                 feReplacements.ContainsKey(feId) ? (object)feReplacements[feId] : DBNull.Value);
                             updateCmd.Parameters.AddWithValue("@DateSentService", DateTime.Now);
                             updateCmd.ExecuteNonQuery();
+                            
+                            // Log the activity for each fire extinguisher
+                            if (extinguisherDescriptions.ContainsKey(feId))
+                            {
+                                FETS.Models.ActivityLogger.LogActivity(
+                                    action: "SendToService", 
+                                    description: extinguisherDescriptions[feId], 
+                                    entityType: "FireExtinguisher", 
+                                    entityId: feId.ToString());
+                            }
                         }
                     }
+                    
+                    // Log the batch operation
+                    string batchDescription = $"Sent {selectedFEIDs.Count} fire extinguishers to service in batch";
+                    FETS.Models.ActivityLogger.LogActivity(
+                        action: "BatchSendToService", 
+                        description: batchDescription, 
+                        entityType: "FireExtinguisher", 
+                        entityId: string.Join(",", selectedFEIDs));
                 }
                 
                 // Send email with the professional template
@@ -2374,6 +2467,8 @@ namespace FETS.Pages.ViewSection
             bool anySuccess = false;
             List<string> errors = new List<string>();
             List<FireExtinguisherServiceInfo> completedExtinguishers = new List<FireExtinguisherServiceInfo>();
+            List<int> completedFeIds = new List<int>(); // Track completed FEIDs for batch logging
+            Dictionary<int, string> completionDescriptions = new Dictionary<int, string>(); // Track descriptions for activity logging
             DateTime serviceDate = DateTime.Now;
             DateTime newExpiryDate = DateTime.Now.AddYears(1); // Default value
             
@@ -2400,6 +2495,7 @@ namespace FETS.Pages.ViewSection
                                 }
                                 
                                 int feId = Convert.ToInt32(gvCompleteService.DataKeys[row.RowIndex].Value);
+                                completedFeIds.Add(feId); // Add to list for batch logging
                                 TextBox txtNewExpiryDate = (TextBox)row.FindControl("txtNewExpiryDate");
                                 
                                 if (txtNewExpiryDate != null && !string.IsNullOrEmpty(txtNewExpiryDate.Text))
@@ -2429,17 +2525,32 @@ namespace FETS.Pages.ViewSection
                                             {
                                                 if (reader.Read())
                                                 {
+                                                    string serialNumber = reader["SerialNumber"].ToString();
+                                                    string plant = reader["Plant"].ToString();
+                                                    string level = reader["Level"].ToString();
+                                                    string location = reader["Location"].ToString();
+                                                    string type = reader["Type"].ToString();
+                                                    string remarks = reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null;
+                                                    
                                                     // Add to the list of completed extinguishers
                                                     completedExtinguishers.Add(new FireExtinguisherServiceInfo
                                                     {
-                                                        SerialNumber = reader["SerialNumber"].ToString(),
+                                                        SerialNumber = serialNumber,
                                                         AreaCode = reader["AreaCode"].ToString(),
-                                                        Plant = reader["Plant"].ToString(),
-                                                        Level = reader["Level"].ToString(),
-                                                        Location = reader["Location"].ToString(),
-                                                        Type = reader["Type"].ToString(),
-                                                        Remarks = reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null
+                                                        Plant = plant,
+                                                        Level = level,
+                                                        Location = location,
+                                                        Type = type,
+                                                        Remarks = remarks
                                                     });
+                                                    
+                                                    // Create description for activity log
+                                                    string description = $"Completed service for fire extinguisher - SN: {serialNumber}, Plant: {plant}, Level: {level}, Location: {location}, Type: {type}, New Expiry Date: {newExpiryDate.ToString("yyyy-MM-dd")}";
+                                                    if (!string.IsNullOrEmpty(remarks))
+                                                    {
+                                                        description += $", Remarks: {remarks}";
+                                                    }
+                                                    completionDescriptions[feId] = description;
                                                 }
                                             }
                                         }
@@ -2483,6 +2594,30 @@ namespace FETS.Pages.ViewSection
                                     errors.Add($"No expiry date provided for extinguisher ID {feId}");
                                 }
                             }
+                        }
+                        
+                        // Log activities for each completed service
+                        foreach (int feId in completedFeIds)
+                        {
+                            if (completionDescriptions.ContainsKey(feId))
+                            {
+                                FETS.Models.ActivityLogger.LogActivity(
+                                    action: "CompleteService", 
+                                    description: completionDescriptions[feId], 
+                                    entityType: "FireExtinguisher", 
+                                    entityId: feId.ToString());
+                            }
+                        }
+                        
+                        // Log batch operation if multiple extinguishers were processed
+                        if (completedFeIds.Count > 1)
+                        {
+                            string batchDescription = $"Completed service for {completedFeIds.Count} fire extinguishers in batch";
+                            FETS.Models.ActivityLogger.LogActivity(
+                                action: "BatchCompleteService", 
+                                description: batchDescription, 
+                                entityType: "FireExtinguisher", 
+                                entityId: string.Join(",", completedFeIds));
                         }
                         
                         // If we have any completed extinguishers, send the email
