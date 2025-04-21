@@ -1,6 +1,7 @@
 using System;
 using System.Web.UI;
 using System.Web.Security;
+using FETS.Models;
 
 namespace FETS
 {
@@ -17,6 +18,13 @@ namespace FETS
                 if (Context.User.Identity.IsAuthenticated)
                 {
                     lblUsername.Text = Context.User.Identity.Name;
+
+                    // Show Activity Logs link only to administrators
+                    string userRole = RoleHelper.GetUserRole();
+                    System.Diagnostics.Debug.WriteLine(string.Format("User role from RoleHelper: '{0}'", userRole));
+                    System.Diagnostics.Debug.WriteLine(string.Format("Is admin: {0}", userRole.Equals("Administrator", StringComparison.OrdinalIgnoreCase)));
+                    
+                    liActivityLogs.Visible = RoleHelper.IsUserInRole("Administrator");
 
                     // Highlight the current page in the navigation sidebar
                     SetActivePage();
@@ -48,6 +56,7 @@ namespace FETS
             btnViewSection.CssClass = "nav-link";
             btnMapLayout.CssClass = "nav-link";
             btnProfile.CssClass = "nav-link";
+            btnActivityLogs.CssClass = "nav-link";
 
             // Set active class for the current page
             if (currentUrl.Contains("/dashboard/"))
@@ -69,6 +78,10 @@ namespace FETS
             else if (currentUrl.Contains("/profile/"))
             {
                 btnProfile.CssClass = "nav-link active"; // Settings button (still links to Profile page)
+            }
+            else if (currentUrl.Contains("/admin/activitylogs"))
+            {
+                btnActivityLogs.CssClass = "nav-link active";
             }
         }
 
@@ -101,10 +114,33 @@ namespace FETS
         }
 
         /// <summary>
+        /// Navigate to the Activity Logs page
+        /// </summary>
+        protected void btnActivityLogs_Click(object sender, EventArgs e)
+        {
+            // Only allow administrators to access activity logs
+            if (RoleHelper.IsUserInRole("Administrator"))
+            {
+                Response.Redirect("~/Pages/Admin/ActivityLogs.aspx");
+            }
+        }
+
+        /// <summary>
         /// Signs out the current user and redirects to login page
         /// </summary>
         protected void btnLogout_Click(object sender, EventArgs e)
         {
+            try
+            {
+                // Log logout action before signing out
+                ActivityLogger.LogActivity("Logout", "User logged out");
+            }
+            catch (Exception ex)
+            {
+                // Don't let logging failure prevent logout
+                System.Diagnostics.Debug.WriteLine(string.Format("Error logging logout: {0}", ex.Message));
+            }
+
             FormsAuthentication.SignOut();
             Response.Redirect("~/Pages/Login/Login.aspx");
         }

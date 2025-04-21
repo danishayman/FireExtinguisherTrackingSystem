@@ -13,6 +13,10 @@ namespace FETS.Pages.MapLayout
 {
     public partial class MapLayout : System.Web.UI.Page
     {
+        // Properties to store user's assigned plant and role
+        private int? UserPlantID { get; set; }
+        private bool IsAdministrator { get; set; }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!User.Identity.IsAuthenticated)
@@ -21,10 +25,47 @@ namespace FETS.Pages.MapLayout
                 return;
             }
 
+            // Get user's assigned plant and role
+            GetUserPlantAndRole();
+
             if (!IsPostBack)
             {
                 LoadDropDownLists();
                 LoadMaps();
+            }
+        }
+
+        /// <summary>
+        /// Gets the current user's assigned plant and role from the database
+        /// </summary>
+        private void GetUserPlantAndRole()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("SELECT PlantID, Role FROM Users WHERE Username = @Username", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Username", User.Identity.Name);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            // Get the user's plant ID
+                            if (!reader.IsDBNull(reader.GetOrdinal("PlantID")))
+                            {
+                                UserPlantID = reader.GetInt32(reader.GetOrdinal("PlantID"));
+                            }
+                            else
+                            {
+                                UserPlantID = null;
+                            }
+
+                            // Check if user is an administrator
+                            IsAdministrator = reader["Role"].ToString() == "Administrator";
+                        }
+                    }
+                }
             }
         }
 
@@ -37,40 +78,166 @@ namespace FETS.Pages.MapLayout
                 if (dtPlants == null)
                 {
                     string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+                    
+                    // For upload dropdown - restrict to user's plant if not admin
+                    string uploadPlantQuery = @"SELECT PlantID, PlantName FROM Plants WITH (NOLOCK)";
+                    if (!IsAdministrator && UserPlantID.HasValue)
+                    {
+                        uploadPlantQuery += " WHERE PlantID = @UserPlantID";
+                    }
+                    uploadPlantQuery += " ORDER BY PlantName";
+                    
+                    DataTable dtUploadPlants = new DataTable();
                     using (SqlConnection conn = new SqlConnection(connectionString))
                     {
                         conn.Open();
-                        using (SqlCommand cmd = new SqlCommand(@"
-                            SELECT PlantID, PlantName 
-                            FROM Plants WITH (NOLOCK)
-                            ORDER BY PlantName", conn))
+                        using (SqlCommand cmd = new SqlCommand(uploadPlantQuery, conn))
+                        {
+                            if (!IsAdministrator && UserPlantID.HasValue)
+                            {
+                                cmd.Parameters.AddWithValue("@UserPlantID", UserPlantID.Value);
+                            }
+                            
+                            using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                            {
+                                adapter.Fill(dtUploadPlants);
+                            }
+                        }
+                        
+                        // For filter dropdown - always get all plants
+                        using (SqlCommand cmd = new SqlCommand(
+                            @"SELECT PlantID, PlantName FROM Plants WITH (NOLOCK) ORDER BY PlantName", conn))
                         {
                             using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                             {
                                 dtPlants = new DataTable();
                                 adapter.Fill(dtPlants);
                                 
-                                // Cache the results for 1 hour
+                                // Cache all plants for the filter dropdown
                                 Cache.Insert("Plants", dtPlants, null, DateTime.Now.AddHours(1), Cache.NoSlidingExpiration);
                             }
                         }
                     }
+                    
+                    // Clear dropdowns
+                    ddlPlant.Items.Clear();
+                    ddlFilterPlant.Items.Clear();
+                    
+                    // Configure upload plant dropdown (restricted for non-admin)
+                    if (!IsAdministrator && UserPlantID.HasValue)
+                    {
+                        // No "Select Plant" option for non-admin users
+                        ddlPlant.Enabled = false;
+                    }
+                    else
+                    {
+                        // For admins, add the select option
+                        ddlPlant.Items.Add(new ListItem("-- Select Plant --", ""));
+                        ddlPlant.Enabled = true;
+                    }
+                    
+                    // Add plants to the upload dropdown
+                    foreach (DataRow row in dtUploadPlants.Rows)
+                    {
+                        ddlPlant.Items.Add(new ListItem(
+                            row["PlantName"].ToString(),
+                            row["PlantID"].ToString()
+                        ));
+                    }
+                    
+                    // Configure filter plant dropdown (always show all plants)
+                    ddlFilterPlant.Items.Add(new ListItem("-- All Plants --", ""));
+                    ddlFilterPlant.Enabled = true;
+                    
+                    // Add all plants to the filter dropdown
+                    foreach (DataRow row in dtPlants.Rows)
+                    {
+                        ddlFilterPlant.Items.Add(new ListItem(
+                            row["PlantName"].ToString(),
+                            row["PlantID"].ToString()
+                        ));
+                    }
+                    
+                    // For regular users with assigned plant, auto-select their plant in the upload dropdown
+                    if (!IsAdministrator && UserPlantID.HasValue)
+                    {
+                        // Set the selected value to user's plant for upload dropdown
+                        if (ddlPlant.Items.FindByValue(UserPlantID.Value.ToString()) != null)
+                        {
+                            ddlPlant.SelectedValue = UserPlantID.Value.ToString();
+                            
+                            // Trigger the plant change event to load levels
+                            ddlPlant_SelectedIndexChanged(ddlPlant, EventArgs.Empty);
+                        }
+                    }
+                    
+                    return;
                 }
 
-                // Populate dropdowns from DataTable
+                // Using cached plants data
                 ddlPlant.Items.Clear();
-                ddlPlant.Items.Add(new ListItem("-- Select Plant --", ""));
                 ddlFilterPlant.Items.Clear();
-                ddlFilterPlant.Items.Add(new ListItem("-- All Plants --", ""));
-
-                foreach (DataRow row in dtPlants.Rows)
+                
+                // For non-admin users with assigned plant, restrict upload dropdown
+                if (!IsAdministrator && UserPlantID.HasValue)
                 {
-                    ListItem item = new ListItem(
-                        row["PlantName"].ToString(),
-                        row["PlantID"].ToString()
-                    );
-                    ddlPlant.Items.Add(item);
-                    ddlFilterPlant.Items.Add(item);
+                    // Don't add "Select Plant" option for upload dropdown
+                    ddlPlant.Enabled = false;
+                    
+                    // For filter dropdown - allow all plants
+                    ddlFilterPlant.Items.Add(new ListItem("-- All Plants --", ""));
+                    ddlFilterPlant.Enabled = true;
+                    
+                    // Add only the assigned plant to the upload dropdown
+                    foreach (DataRow row in dtPlants.Rows)
+                    {
+                        if (Convert.ToInt32(row["PlantID"]) == UserPlantID.Value)
+                        {
+                            ddlPlant.Items.Add(new ListItem(
+                                row["PlantName"].ToString(),
+                                row["PlantID"].ToString()
+                            ));
+                        }
+                        
+                        // Add all plants to the filter dropdown
+                        ddlFilterPlant.Items.Add(new ListItem(
+                            row["PlantName"].ToString(),
+                            row["PlantID"].ToString()
+                        ));
+                    }
+                }
+                else
+                {
+                    // For admins or users without assigned plant - no restrictions
+                    ddlPlant.Items.Add(new ListItem("-- Select Plant --", ""));
+                    ddlPlant.Enabled = true;
+                    
+                    ddlFilterPlant.Items.Add(new ListItem("-- All Plants --", ""));
+                    ddlFilterPlant.Enabled = true;
+                    
+                    // Add all plants to both dropdowns
+                    foreach (DataRow row in dtPlants.Rows)
+                    {
+                        ListItem item = new ListItem(
+                            row["PlantName"].ToString(),
+                            row["PlantID"].ToString()
+                        );
+                        ddlPlant.Items.Add(item);
+                        ddlFilterPlant.Items.Add(item);
+                    }
+                }
+                
+                // For regular users with assigned plant, auto-select their plant in the upload dropdown
+                if (!IsAdministrator && UserPlantID.HasValue)
+                {
+                    // Set the selected value to user's plant for the upload dropdown
+                    if (ddlPlant.Items.FindByValue(UserPlantID.Value.ToString()) != null)
+                    {
+                        ddlPlant.SelectedValue = UserPlantID.Value.ToString();
+                        
+                        // Trigger the plant change event to load levels
+                        ddlPlant_SelectedIndexChanged(ddlPlant, EventArgs.Empty);
+                    }
                 }
             }
             catch (Exception ex)
@@ -190,7 +357,8 @@ namespace FETS.Pages.MapLayout
                     conn.Open();
                     string insertQuery = @"
                         INSERT INTO MapImages (PlantID, LevelID, ImagePath, UploadDate)
-                        VALUES (@PlantID, @LevelID, @ImagePath, GETDATE())";
+                        VALUES (@PlantID, @LevelID, @ImagePath, GETDATE());
+                        SELECT SCOPE_IDENTITY();";
 
                     using (SqlCommand cmd = new SqlCommand(insertQuery, conn))
                     {
@@ -198,7 +366,20 @@ namespace FETS.Pages.MapLayout
                         cmd.Parameters.AddWithValue("@LevelID", ddlLevel.SelectedValue);
                         cmd.Parameters.AddWithValue("@ImagePath", fileName);
 
-                        cmd.ExecuteNonQuery();
+                        // Get the inserted MapID for activity logging
+                        int mapId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                        // Get plant and level names for the log description
+                        string plantName = ddlPlant.SelectedItem.Text;
+                        string levelName = ddlLevel.SelectedItem.Text;
+                        
+                        // Log the upload activity
+                        string description = $"Uploaded new map for Plant: {plantName}, Level: {levelName}";
+                        FETS.Models.ActivityLogger.LogActivity(
+                            action: "Upload", 
+                            description: description, 
+                            entityType: "Map", 
+                            entityId: mapId.ToString());
 
                         lblMessage.Text = "Map uploaded successfully.";
                         lblMessage.CssClass = "message success";
@@ -284,12 +465,28 @@ namespace FETS.Pages.MapLayout
             {
                 conn.Open();
 
-                // Get the image path first
+                // Get the image path and plant details first
                 string imagePath = string.Empty;
-                using (SqlCommand cmd = new SqlCommand("SELECT ImagePath FROM MapImages WHERE MapID = @MapID", conn))
+                string plantName = string.Empty;
+                string levelName = string.Empty;
+                
+                using (SqlCommand cmd = new SqlCommand(@"
+                    SELECT m.ImagePath, p.PlantName, l.LevelName 
+                    FROM MapImages m
+                    JOIN Plants p ON m.PlantID = p.PlantID
+                    JOIN Levels l ON m.LevelID = l.LevelID
+                    WHERE m.MapID = @MapID", conn))
                 {
                     cmd.Parameters.AddWithValue("@MapID", mapId);
-                    imagePath = (string)cmd.ExecuteScalar();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            imagePath = reader["ImagePath"].ToString();
+                            plantName = reader["PlantName"].ToString();
+                            levelName = reader["LevelName"].ToString();
+                        }
+                    }
                 }
 
                 // Delete the database record
@@ -308,6 +505,14 @@ namespace FETS.Pages.MapLayout
                         File.Delete(filePath);
                     }
                 }
+                
+                // Log the map deletion activity
+                string description = $"Deleted map for Plant: {plantName}, Level: {levelName}";
+                FETS.Models.ActivityLogger.LogActivity(
+                    action: "Delete", 
+                    description: description, 
+                    entityType: "Map", 
+                    entityId: mapId.ToString());
 
                 LoadMaps();
             }

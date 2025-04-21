@@ -10,7 +10,7 @@ using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using System.Collections.Generic;
-using FETS;
+using FETS.Models;
 
 namespace FETS.Pages.ViewSection
 {
@@ -591,11 +591,36 @@ namespace FETS.Pages.ViewSection
         {
             string remarks = txtServiceRemarks.Text.Trim();
             string replacement = ddlServiceReplacement.SelectedValue;
+            string serialNumber = "";
+            string plantName = "";
+            string levelName = "";
+            string location = "";
             
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
+
+                // Get fire extinguisher details for logging
+                using (SqlCommand cmd = new SqlCommand(@"
+                    SELECT fe.SerialNumber, p.PlantName, l.LevelName, fe.Location
+                    FROM FireExtinguishers fe
+                    JOIN Plants p ON fe.PlantID = p.PlantID
+                    JOIN Levels l ON fe.LevelID = l.LevelID
+                    WHERE fe.FEID = @FEID", conn))
+                {
+                    cmd.Parameters.AddWithValue("@FEID", feId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            serialNumber = reader["SerialNumber"].ToString();
+                            plantName = reader["PlantName"].ToString();
+                            levelName = reader["LevelName"].ToString();
+                            location = reader["Location"].ToString();
+                        }
+                    }
+                }
 
                 // Get the 'Under Service' status ID
                 int underServiceStatusId;
@@ -615,6 +640,23 @@ namespace FETS.Pages.ViewSection
                     cmd.Parameters.AddWithValue("@DateSentService", DateTime.Now);
                     cmd.ExecuteNonQuery();
                 }
+                
+                // Log the send to service activity
+                string description = $"Sent fire extinguisher to service - SN: {serialNumber}, Plant: {plantName}, Level: {levelName}, Location: {location}";
+                if (!string.IsNullOrEmpty(remarks))
+                {
+                    description += $", Remarks: {remarks}";
+                }
+                if (!string.IsNullOrEmpty(replacement) && replacement != "No")
+                {
+                    description += $", Replacement: {replacement}";
+                }
+                
+                FETS.Models.ActivityLogger.LogActivity(
+                    action: "SendToService", 
+                    description: description, 
+                    entityType: "FireExtinguisher", 
+                    entityId: feId.ToString());
             }
             
             // Clear the inputs
@@ -1207,25 +1249,71 @@ namespace FETS.Pages.ViewSection
         private void DeleteFireExtinguisher(int feId)
         {
             string connectionString = GetConnectionString();
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            
+            // First get the fire extinguisher details for logging
+            string serialNumber = "";
+            string plantName = "";
+            string location = "";
+            
+            try
             {
-                conn.Open();
-                
-                // First, delete related records from ServiceReminders table
-                using (SqlCommand cmdDeleteReminders = new SqlCommand(
-                    "DELETE FROM ServiceReminders WHERE FEID = @FEID", conn))
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    cmdDeleteReminders.Parameters.AddWithValue("@FEID", feId);
-                    cmdDeleteReminders.ExecuteNonQuery();
+                    conn.Open();
+                    
+                    // Get fire extinguisher details before deletion
+                    using (SqlCommand cmdGetDetails = new SqlCommand(
+                        @"SELECT 
+                            fe.SerialNumber, 
+                            p.PlantName,
+                            fe.Location
+                        FROM FireExtinguishers fe
+                        JOIN Plants p ON fe.PlantID = p.PlantID
+                        WHERE fe.FEID = @FEID", conn))
+                    {
+                        cmdGetDetails.Parameters.AddWithValue("@FEID", feId);
+                        using (SqlDataReader reader = cmdGetDetails.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                serialNumber = reader["SerialNumber"].ToString();
+                                plantName = reader["PlantName"].ToString();
+                                location = reader["Location"].ToString();
+                            }
+                        }
+                    }
+                    
+                    // First, delete related records from ServiceReminders table
+                    using (SqlCommand cmdDeleteReminders = new SqlCommand(
+                        "DELETE FROM ServiceReminders WHERE FEID = @FEID", conn))
+                    {
+                        cmdDeleteReminders.Parameters.AddWithValue("@FEID", feId);
+                        cmdDeleteReminders.ExecuteNonQuery();
+                    }
+                    
+                    // Then delete the fire extinguisher
+                    using (SqlCommand cmdDeleteFE = new SqlCommand(
+                        "DELETE FROM FireExtinguishers WHERE FEID = @FEID", conn))
+                    {
+                        cmdDeleteFE.Parameters.AddWithValue("@FEID", feId);
+                        cmdDeleteFE.ExecuteNonQuery();
+                    }
+                    
+                    // Log the deletion activity
+                    string description = $"Deleted fire extinguisher SN: {serialNumber}, Plant: {plantName}, Location: {location}";
+                    FETS.Models.ActivityLogger.LogActivity(
+                        action: "Delete", 
+                        description: description, 
+                        entityType: "FireExtinguisher", 
+                        entityId: feId.ToString());
                 }
-                
-                // Then delete the fire extinguisher
-                using (SqlCommand cmdDeleteFE = new SqlCommand(
-                    "DELETE FROM FireExtinguishers WHERE FEID = @FEID", conn))
-                {
-                    cmdDeleteFE.Parameters.AddWithValue("@FEID", feId);
-                    cmdDeleteFE.ExecuteNonQuery();
-                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but continue with UI update
+                System.Diagnostics.Debug.WriteLine($"Error in DeleteFireExtinguisher: {ex.Message}");
+                ScriptManager.RegisterStartupScript(this, GetType(), "deleteError",
+                    $"showNotification('❌ Error deleting fire extinguisher: {ex.Message.Replace("'", "\\'")}', 'error');", true);
             }
             
             // Reload the grids after deletion
@@ -1439,6 +1527,12 @@ namespace FETS.Pages.ViewSection
         {
             LinkButton btn = (LinkButton)sender;
             string extinguisherId = btn.CommandArgument;
+            int feId = Convert.ToInt32(extinguisherId);
+            string serialNumber = "";
+            string plantName = "";
+            string levelName = "";
+            string location = "";
+            string typeName = "";
 
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -1485,11 +1579,11 @@ namespace FETS.Pages.ViewSection
                     {
                         if (reader.Read())
                         {
-                            string serialNumber = reader["SerialNumber"].ToString();
-                            string plant = reader["PlantName"].ToString();
-                            string level = reader["LevelName"].ToString();
-                            string location = reader["Location"].ToString();
-                            string type = reader["TypeName"].ToString();
+                            serialNumber = reader["SerialNumber"].ToString();
+                            plantName = reader["PlantName"].ToString();
+                            levelName = reader["LevelName"].ToString();
+                            location = reader["Location"].ToString();
+                            typeName = reader["TypeName"].ToString();
                             string remarks = reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null;
                             string status = reader["StatusName"].ToString();
 
@@ -1497,10 +1591,10 @@ namespace FETS.Pages.ViewSection
                             string subject = $"Fire Extinguisher {serialNumber} Sent for Service";
                             string body = EmailTemplateManager.GetServiceEmailTemplate(
                                 serialNumber,
-                                plant,
-                                level,
+                                plantName,
+                                levelName,
                                 location,
-                                type,
+                                typeName,
                                 remarks
                             );
 
@@ -1519,6 +1613,14 @@ namespace FETS.Pages.ViewSection
                         }
                     }
                 }
+                
+                // Log the send to service activity
+                string description = $"Sent fire extinguisher to service - SN: {serialNumber}, Plant: {plantName}, Level: {levelName}, Location: {location}, Type: {typeName}";
+                FETS.Models.ActivityLogger.LogActivity(
+                    action: "SendToService", 
+                    description: description, 
+                    entityType: "FireExtinguisher", 
+                    entityId: feId.ToString());
             }
 
             // Refresh the page data
@@ -1624,6 +1726,7 @@ namespace FETS.Pages.ViewSection
             {
                 // Get details for all selected fire extinguishers
                 List<FireExtinguisherServiceInfo> extinguisherDetails = new List<FireExtinguisherServiceInfo>();
+                Dictionary<int, string> extinguisherDescriptions = new Dictionary<int, string>();
                 string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
                 
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -1654,6 +1757,12 @@ namespace FETS.Pages.ViewSection
                             while (reader.Read())
                             {
                                 int feId = Convert.ToInt32(reader["FEID"]);
+                                string serialNumber = reader["SerialNumber"].ToString();
+                                string plant = reader["PlantName"].ToString();
+                                string level = reader["LevelName"].ToString();
+                                string location = reader["Location"].ToString();
+                                string type = reader["TypeName"].ToString();
+                                
                                 string remarks = feRemarks.ContainsKey(feId) ? feRemarks[feId] : 
                                                (reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null);
                                 
@@ -1662,15 +1771,27 @@ namespace FETS.Pages.ViewSection
                                 
                                 extinguisherDetails.Add(new FireExtinguisherServiceInfo
                                 {
-                                    SerialNumber = reader["SerialNumber"].ToString(),
+                                    SerialNumber = serialNumber,
                                     AreaCode = reader["AreaCode"].ToString(),
-                                    Plant = reader["PlantName"].ToString(),
-                                    Level = reader["LevelName"].ToString(),
-                                    Location = reader["Location"].ToString(),
-                                    Type = reader["TypeName"].ToString(),
+                                    Plant = plant,
+                                    Level = level,
+                                    Location = location,
+                                    Type = type,
                                     Remarks = remarks,
                                     Replacement = replacement
                                 });
+                                
+                                // Create description for activity log
+                                string description = $"Sent fire extinguisher to service - SN: {serialNumber}, Plant: {plant}, Level: {level}, Location: {location}, Type: {type}";
+                                if (!string.IsNullOrEmpty(remarks))
+                                {
+                                    description += $", Remarks: {remarks}";
+                                }
+                                if (!string.IsNullOrEmpty(replacement) && replacement != "No")
+                                {
+                                    description += $", Replacement: {replacement}";
+                                }
+                                extinguisherDescriptions[feId] = description;
                             }
                         }
                     }
@@ -1695,8 +1816,26 @@ namespace FETS.Pages.ViewSection
                                 feReplacements.ContainsKey(feId) ? (object)feReplacements[feId] : DBNull.Value);
                             updateCmd.Parameters.AddWithValue("@DateSentService", DateTime.Now);
                             updateCmd.ExecuteNonQuery();
+                            
+                            // Log the activity for each fire extinguisher
+                            if (extinguisherDescriptions.ContainsKey(feId))
+                            {
+                                FETS.Models.ActivityLogger.LogActivity(
+                                    action: "SendToService", 
+                                    description: extinguisherDescriptions[feId], 
+                                    entityType: "FireExtinguisher", 
+                                    entityId: feId.ToString());
+                            }
                         }
                     }
+                    
+                    // Log the batch operation
+                    string batchDescription = $"Sent {selectedFEIDs.Count} fire extinguishers to service in batch";
+                    FETS.Models.ActivityLogger.LogActivity(
+                        action: "BatchSendToService", 
+                        description: batchDescription, 
+                        entityType: "FireExtinguisher", 
+                        entityId: string.Join(",", selectedFEIDs));
                 }
                 
                 // Send email with the professional template
@@ -2027,11 +2166,132 @@ namespace FETS.Pages.ViewSection
                     throw new Exception("Invalid fire extinguisher ID.");
                 }
 
+                // First, get the original values to compare for change tracking
+                Dictionary<string, string> originalValues = new Dictionary<string, string>();
+                Dictionary<string, string> newValues = new Dictionary<string, string>();
+                List<string> changedFields = new List<string>();
+                string serialNumber = string.Empty;
+
                 string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    string query = @"
+
+                    // Get original values
+                    string getQuery = @"
+                        SELECT 
+                            fe.SerialNumber,
+                            fe.AreaCode,
+                            fe.PlantID,
+                            p.PlantName,
+                            fe.LevelID,
+                            l.LevelName,
+                            fe.Location,
+                            fe.TypeID,
+                            t.TypeName,
+                            fe.StatusID,
+                            s.StatusName,
+                            fe.DateExpired,
+                            fe.Remarks,
+                            fe.Replacement
+                        FROM FireExtinguishers fe
+                        LEFT JOIN Plants p ON fe.PlantID = p.PlantID
+                        LEFT JOIN Levels l ON fe.LevelID = l.LevelID
+                        LEFT JOIN FireExtinguisherTypes t ON fe.TypeID = t.TypeID
+                        LEFT JOIN Status s ON fe.StatusID = s.StatusID
+                        WHERE fe.FEID = @FEID";
+
+                    using (SqlCommand cmd = new SqlCommand(getQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@FEID", feId);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                // Store original values for comparison later
+                                originalValues["SerialNumber"] = reader["SerialNumber"].ToString();
+                                originalValues["AreaCode"] = reader["AreaCode"].ToString();
+                                originalValues["PlantID"] = reader["PlantID"].ToString();
+                                originalValues["PlantName"] = reader["PlantName"].ToString();
+                                originalValues["LevelID"] = reader["LevelID"].ToString();
+                                originalValues["LevelName"] = reader["LevelName"].ToString();
+                                originalValues["Location"] = reader["Location"].ToString();
+                                originalValues["TypeID"] = reader["TypeID"].ToString();
+                                originalValues["TypeName"] = reader["TypeName"].ToString();
+                                originalValues["StatusID"] = reader["StatusID"].ToString();
+                                originalValues["StatusName"] = reader["StatusName"].ToString();
+                                originalValues["DateExpired"] = Convert.ToDateTime(reader["DateExpired"]).ToString("yyyy-MM-dd");
+                                originalValues["Remarks"] = reader["Remarks"] as string ?? string.Empty;
+                                originalValues["Replacement"] = reader["Replacement"] as string ?? string.Empty;
+
+                                serialNumber = originalValues["SerialNumber"];
+                            }
+                            else
+                            {
+                                throw new Exception("Fire extinguisher not found.");
+                            }
+                        }
+                    }
+
+                    // Now get the new values from form controls
+                    newValues["SerialNumber"] = txtSerialNumber.Text.Trim();
+                    newValues["AreaCode"] = txtAreaCode != null ? txtAreaCode.Text.Trim() : string.Empty;
+                    newValues["PlantID"] = ddlPlant.SelectedValue;
+                    newValues["PlantName"] = ddlPlant.SelectedItem.Text;
+                    newValues["LevelID"] = ddlLevel.SelectedValue;
+                    newValues["LevelName"] = ddlLevel.SelectedItem.Text;
+                    newValues["Location"] = txtLocation.Text.Trim();
+                    newValues["TypeID"] = ddlType.SelectedValue;
+                    newValues["TypeName"] = ddlType.SelectedItem.Text;
+                    newValues["StatusID"] = ddlStatus.SelectedValue;
+                    newValues["StatusName"] = ddlStatus.SelectedItem.Text;
+                    
+                    DateTime expiryDate;
+                    if (DateTime.TryParse(txtExpiryDate.Text, out expiryDate))
+                    {
+                        newValues["DateExpired"] = expiryDate.ToString("yyyy-MM-dd");
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid expiry date format.");
+                    }
+                    
+                    newValues["Remarks"] = txtRemarks.Text.Trim();
+                    newValues["Replacement"] = string.IsNullOrEmpty(ddlReplacement.SelectedValue) ? string.Empty : ddlReplacement.SelectedValue;
+
+                    // Compare old and new values to build change log
+                    if (originalValues["SerialNumber"] != newValues["SerialNumber"])
+                        changedFields.Add($"Serial Number: {originalValues["SerialNumber"]} → {newValues["SerialNumber"]}");
+                    
+                    if (originalValues["AreaCode"] != newValues["AreaCode"])
+                        changedFields.Add($"Area Code: {originalValues["AreaCode"]} → {newValues["AreaCode"]}");
+                    
+                    if (originalValues["PlantID"] != newValues["PlantID"])
+                        changedFields.Add($"Plant: {originalValues["PlantName"]} → {newValues["PlantName"]}");
+                    
+                    if (originalValues["LevelID"] != newValues["LevelID"])
+                        changedFields.Add($"Level: {originalValues["LevelName"]} → {newValues["LevelName"]}");
+                    
+                    if (originalValues["Location"] != newValues["Location"])
+                        changedFields.Add($"Location: {originalValues["Location"]} → {newValues["Location"]}");
+                    
+                    if (originalValues["TypeID"] != newValues["TypeID"])
+                        changedFields.Add($"Type: {originalValues["TypeName"]} → {newValues["TypeName"]}");
+                    
+                    if (originalValues["StatusID"] != newValues["StatusID"])
+                        changedFields.Add($"Status: {originalValues["StatusName"]} → {newValues["StatusName"]}");
+                    
+                    if (originalValues["DateExpired"] != newValues["DateExpired"])
+                        changedFields.Add($"Expiry Date: {originalValues["DateExpired"]} → {newValues["DateExpired"]}");
+                    
+                    if (originalValues["Remarks"] != newValues["Remarks"])
+                        changedFields.Add($"Remarks: {originalValues["Remarks"]} → {newValues["Remarks"]}");
+                    
+                    if (originalValues["Replacement"] != newValues["Replacement"])
+                        changedFields.Add($"Replacement: {originalValues["Replacement"]} → {newValues["Replacement"]}");
+
+                    // Now update the database with new values
+                    string updateQuery = @"
                         UPDATE FireExtinguishers 
                         SET 
                             SerialNumber = @SerialNumber,
@@ -2046,53 +2306,34 @@ namespace FETS.Pages.ViewSection
                             Replacement = @Replacement
                         WHERE FEID = @FEID";
 
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
                     {
                         cmd.Parameters.AddWithValue("@FEID", feId);
-                        cmd.Parameters.AddWithValue("@SerialNumber", txtSerialNumber.Text.Trim());
+                        cmd.Parameters.AddWithValue("@SerialNumber", newValues["SerialNumber"]);
+                        cmd.Parameters.AddWithValue("@AreaCode", newValues["AreaCode"]);
+                        cmd.Parameters.AddWithValue("@PlantID", newValues["PlantID"]);
+                        cmd.Parameters.AddWithValue("@LevelID", newValues["LevelID"]);
+                        cmd.Parameters.AddWithValue("@Location", newValues["Location"]);
+                        cmd.Parameters.AddWithValue("@TypeID", newValues["TypeID"]);
+                        cmd.Parameters.AddWithValue("@StatusID", newValues["StatusID"]);
+                        cmd.Parameters.AddWithValue("@DateExpired", expiryDate);
                         
-                        // Add AreaCode parameter if the control exists, otherwise use empty string
-                        if (txtAreaCode != null)
-                        {
-                            cmd.Parameters.AddWithValue("@AreaCode", txtAreaCode.Text.Trim());
-                        }
-                        else
-                        {
-                            cmd.Parameters.AddWithValue("@AreaCode", string.Empty);
-                        }
-                        
-                        cmd.Parameters.AddWithValue("@PlantID", ddlPlant.SelectedValue);
-                        cmd.Parameters.AddWithValue("@LevelID", ddlLevel.SelectedValue);
-                        cmd.Parameters.AddWithValue("@Location", txtLocation.Text.Trim());
-                        cmd.Parameters.AddWithValue("@TypeID", ddlType.SelectedValue);
-                        cmd.Parameters.AddWithValue("@StatusID", ddlStatus.SelectedValue);
-                        
-                        DateTime expiryDate;
-                        if (DateTime.TryParse(txtExpiryDate.Text, out expiryDate))
-                        {
-                            cmd.Parameters.AddWithValue("@DateExpired", expiryDate);
-                        }
-                        else
-                        {
-                            throw new Exception("Invalid expiry date format.");
-                        }
-                        
-                        if (string.IsNullOrEmpty(txtRemarks.Text))
+                        if (string.IsNullOrEmpty(newValues["Remarks"]))
                         {
                             cmd.Parameters.AddWithValue("@Remarks", DBNull.Value);
                         }
                         else
                         {
-                            cmd.Parameters.AddWithValue("@Remarks", txtRemarks.Text.Trim());
+                            cmd.Parameters.AddWithValue("@Remarks", newValues["Remarks"]);
                         }
                         
-                        if (string.IsNullOrEmpty(ddlReplacement.SelectedValue))
+                        if (string.IsNullOrEmpty(newValues["Replacement"]))
                         {
                             cmd.Parameters.AddWithValue("@Replacement", DBNull.Value);
                         }
                         else
                         {
-                            cmd.Parameters.AddWithValue("@Replacement", ddlReplacement.SelectedValue);
+                            cmd.Parameters.AddWithValue("@Replacement", newValues["Replacement"]);
                         }
 
                         int rowsAffected = cmd.ExecuteNonQuery();
@@ -2101,6 +2342,16 @@ namespace FETS.Pages.ViewSection
                             throw new Exception("Fire extinguisher not found or could not be updated.");
                         }
                     }
+                }
+
+                // Log the changes to activity log if any changes were made
+                if (changedFields.Count > 0)
+                {
+                    string changes = string.Join("; ", changedFields);
+                    string description = $"Updated fire extinguisher with serial number {serialNumber}. Changes: {changes}";
+                    
+                    // Log the activity
+                    ActivityLogger.LogActivity("Update", description, "FireExtinguisher", feId.ToString());
                 }
 
                 // Set success message in session
@@ -2216,6 +2467,8 @@ namespace FETS.Pages.ViewSection
             bool anySuccess = false;
             List<string> errors = new List<string>();
             List<FireExtinguisherServiceInfo> completedExtinguishers = new List<FireExtinguisherServiceInfo>();
+            List<int> completedFeIds = new List<int>(); // Track completed FEIDs for batch logging
+            Dictionary<int, string> completionDescriptions = new Dictionary<int, string>(); // Track descriptions for activity logging
             DateTime serviceDate = DateTime.Now;
             DateTime newExpiryDate = DateTime.Now.AddYears(1); // Default value
             
@@ -2242,6 +2495,7 @@ namespace FETS.Pages.ViewSection
                                 }
                                 
                                 int feId = Convert.ToInt32(gvCompleteService.DataKeys[row.RowIndex].Value);
+                                completedFeIds.Add(feId); // Add to list for batch logging
                                 TextBox txtNewExpiryDate = (TextBox)row.FindControl("txtNewExpiryDate");
                                 
                                 if (txtNewExpiryDate != null && !string.IsNullOrEmpty(txtNewExpiryDate.Text))
@@ -2271,17 +2525,32 @@ namespace FETS.Pages.ViewSection
                                             {
                                                 if (reader.Read())
                                                 {
+                                                    string serialNumber = reader["SerialNumber"].ToString();
+                                                    string plant = reader["Plant"].ToString();
+                                                    string level = reader["Level"].ToString();
+                                                    string location = reader["Location"].ToString();
+                                                    string type = reader["Type"].ToString();
+                                                    string remarks = reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null;
+                                                    
                                                     // Add to the list of completed extinguishers
                                                     completedExtinguishers.Add(new FireExtinguisherServiceInfo
                                                     {
-                                                        SerialNumber = reader["SerialNumber"].ToString(),
+                                                        SerialNumber = serialNumber,
                                                         AreaCode = reader["AreaCode"].ToString(),
-                                                        Plant = reader["Plant"].ToString(),
-                                                        Level = reader["Level"].ToString(),
-                                                        Location = reader["Location"].ToString(),
-                                                        Type = reader["Type"].ToString(),
-                                                        Remarks = reader["Remarks"] != DBNull.Value ? reader["Remarks"].ToString() : null
+                                                        Plant = plant,
+                                                        Level = level,
+                                                        Location = location,
+                                                        Type = type,
+                                                        Remarks = remarks
                                                     });
+                                                    
+                                                    // Create description for activity log
+                                                    string description = $"Completed service for fire extinguisher - SN: {serialNumber}, Plant: {plant}, Level: {level}, Location: {location}, Type: {type}, New Expiry Date: {newExpiryDate.ToString("yyyy-MM-dd")}";
+                                                    if (!string.IsNullOrEmpty(remarks))
+                                                    {
+                                                        description += $", Remarks: {remarks}";
+                                                    }
+                                                    completionDescriptions[feId] = description;
                                                 }
                                             }
                                         }
@@ -2325,6 +2594,30 @@ namespace FETS.Pages.ViewSection
                                     errors.Add($"No expiry date provided for extinguisher ID {feId}");
                                 }
                             }
+                        }
+                        
+                        // Log activities for each completed service
+                        foreach (int feId in completedFeIds)
+                        {
+                            if (completionDescriptions.ContainsKey(feId))
+                            {
+                                FETS.Models.ActivityLogger.LogActivity(
+                                    action: "CompleteService", 
+                                    description: completionDescriptions[feId], 
+                                    entityType: "FireExtinguisher", 
+                                    entityId: feId.ToString());
+                            }
+                        }
+                        
+                        // Log batch operation if multiple extinguishers were processed
+                        if (completedFeIds.Count > 1)
+                        {
+                            string batchDescription = $"Completed service for {completedFeIds.Count} fire extinguishers in batch";
+                            FETS.Models.ActivityLogger.LogActivity(
+                                action: "BatchCompleteService", 
+                                description: batchDescription, 
+                                entityType: "FireExtinguisher", 
+                                entityId: string.Join(",", completedFeIds));
                         }
                         
                         // If we have any completed extinguishers, send the email

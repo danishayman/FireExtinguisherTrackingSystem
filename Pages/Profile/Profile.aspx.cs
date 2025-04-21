@@ -90,7 +90,7 @@ namespace FETS.Pages.Profile
             if (!Page.IsValid)
                 return;
 
-            string username = txtNewUsername.Text.Trim();
+            string username = txtNewUsername.Text;
             string password = txtUserPassword.Text;
             string role = ddlRole.SelectedValue;
             
@@ -98,6 +98,10 @@ namespace FETS.Pages.Profile
             object plantId = ddlPlant.SelectedValue == string.Empty ? 
                 (object)DBNull.Value : 
                 Convert.ToInt32(ddlPlant.SelectedValue);
+            
+            // Get plant name for logging
+            string plantName = ddlPlant.SelectedItem.Text;
+            int newUserId = 0;
 
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -112,20 +116,42 @@ namespace FETS.Pages.Profile
                     if (count > 0)
                     {
                         ShowMessage("Username already exists.", false);
+                        
+                        // Log failed user creation attempt
+                        string failedDescription = $"Failed to create user '{username}' - Username already exists";
+                        FETS.Models.ActivityLogger.LogActivity(
+                            action: "UserCreationFailed", 
+                            description: failedDescription, 
+                            entityType: "User", 
+                            entityId: username);
+                            
                         return;
                     }
                 }
 
                 // Add new user with plant assignment
                 using (SqlCommand cmd = new SqlCommand(
-                    "INSERT INTO Users (Username, PasswordHash, Role, PlantID) VALUES (@Username, HASHBYTES('SHA2_256', @Password), @Role, @PlantID)", conn))
+                    @"INSERT INTO Users (Username, PasswordHash, Role, PlantID) 
+                    VALUES (@Username, HASHBYTES('SHA2_256', @Password), @Role, @PlantID);
+                    SELECT SCOPE_IDENTITY();", conn))
                 {
                     cmd.Parameters.AddWithValue("@Username", username);
                     cmd.Parameters.AddWithValue("@Password", password);
                     cmd.Parameters.AddWithValue("@Role", role);
                     cmd.Parameters.AddWithValue("@PlantID", plantId);
-                    cmd.ExecuteNonQuery();
+                    newUserId = Convert.ToInt32(cmd.ExecuteScalar());
                 }
+                
+                // Log user creation activity
+                string description = $"Created new user '{username}'";
+                description += $", Role: {role}";
+                description += $", Plant: {plantName}";
+                
+                FETS.Models.ActivityLogger.LogActivity(
+                    action: "UserCreated", 
+                    description: description, 
+                    entityType: "User", 
+                    entityId: newUserId.ToString());
             }
 
             ShowMessage("User added successfully!", true);
@@ -155,18 +181,53 @@ namespace FETS.Pages.Profile
         /// </summary>
         private void DeleteUser(int userId)
         {
+            string username = "";
+            string role = "";
+            string plantName = "";
+            
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
+                
+                // Get user details for logging before deletion
+                using (SqlCommand cmd = new SqlCommand(@"
+                    SELECT u.Username, u.Role, ISNULL(p.PlantName, '-- None --') AS PlantName 
+                    FROM Users u
+                    LEFT JOIN Plants p ON u.PlantID = p.PlantID
+                    WHERE u.UserID = @UserID", conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserID", userId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            username = reader["Username"].ToString();
+                            role = reader["Role"].ToString();
+                            plantName = reader["PlantName"].ToString();
+                        }
+                    }
+                }
+                
+                // Delete the user
                 using (SqlCommand cmd = new SqlCommand("DELETE FROM Users WHERE UserID = @UserID", conn))
                 {
                     cmd.Parameters.AddWithValue("@UserID", userId);
                     cmd.ExecuteNonQuery();
                 }
+                
+                // Log user deletion activity
+                string description = $"Deleted user '{username}'";
+                description += $", Role: {role}";
+                description += $", Plant: {plantName}";
+                
+                FETS.Models.ActivityLogger.LogActivity(
+                    action: "UserDeleted", 
+                    description: description, 
+                    entityType: "User", 
+                    entityId: userId.ToString());
             }
 
-            ShowMessage("User deleted successfully!", true);
             LoadUsers();
         }
 
@@ -471,8 +532,25 @@ namespace FETS.Pages.Profile
                     if (count == 0)
                     {
                         ShowMessage("Current password is incorrect.", false);
+                        
+                        // Log failed password change attempt
+                        string failedDescription = "Failed password change attempt - Current password incorrect";
+                        FETS.Models.ActivityLogger.LogActivity(
+                            action: "PasswordChangeFailed", 
+                            description: failedDescription, 
+                            entityType: "User", 
+                            entityId: username);
+                            
                         return;
                     }
+                }
+
+                // Get user ID for activity logging
+                int userId = 0;
+                using (SqlCommand cmd = new SqlCommand("SELECT UserID FROM Users WHERE Username = @Username", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Username", username);
+                    userId = Convert.ToInt32(cmd.ExecuteScalar());
                 }
 
                 // Update to new password
@@ -483,6 +561,14 @@ namespace FETS.Pages.Profile
                     cmd.Parameters.AddWithValue("@NewPassword", newPassword);
                     cmd.ExecuteNonQuery();
                 }
+                
+                // Log successful password change
+                string description = "Password changed successfully";
+                FETS.Models.ActivityLogger.LogActivity(
+                    action: "PasswordChanged", 
+                    description: description, 
+                    entityType: "User", 
+                    entityId: username);
             }
 
             ShowMessage("Password changed successfully!", true);
@@ -592,17 +678,41 @@ namespace FETS.Pages.Profile
                 return;
             
             int userId = Convert.ToInt32(hdnUserID.Value);
+            string username = txtNewUsername.Text;
             string role = ddlRole.SelectedValue;
+            string plantName = ddlPlant.SelectedItem.Text;
             
             // Get the selected plant ID (or DBNull.Value if "None" is selected)
             object plantId = ddlPlant.SelectedValue == string.Empty ? 
                 (object)DBNull.Value : 
                 Convert.ToInt32(ddlPlant.SelectedValue);
             
+            // Get original user data for comparison and logging
+            string oldRole = string.Empty;
+            string oldPlantName = string.Empty;
+            
             string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
+                
+                // Get current user info for logging changes
+                using (SqlCommand cmd = new SqlCommand(@"
+                    SELECT u.Role, ISNULL(p.PlantName, '-- None --') AS PlantName 
+                    FROM Users u
+                    LEFT JOIN Plants p ON u.PlantID = p.PlantID
+                    WHERE u.UserID = @UserID", conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserID", userId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            oldRole = reader["Role"].ToString();
+                            oldPlantName = reader["PlantName"].ToString();
+                        }
+                    }
+                }
                 
                 // Update user
                 using (SqlCommand cmd = new SqlCommand(
@@ -613,6 +723,28 @@ namespace FETS.Pages.Profile
                     cmd.Parameters.AddWithValue("@PlantID", plantId);
                     cmd.ExecuteNonQuery();
                 }
+                
+                // Log user update activity
+                string description = $"Updated user '{username}'";
+                
+                // Add role change to description if it changed
+                if (oldRole != role)
+                {
+                    description += $", Role: {oldRole} → {role}";
+                }
+                
+                // Add plant assignment change to description if it changed
+                if (oldPlantName != plantName)
+                {
+                    description += $", Plant: {oldPlantName} → {plantName}";
+                }
+                
+                // Log the activity
+                FETS.Models.ActivityLogger.LogActivity(
+                    action: "UserUpdated", 
+                    description: description, 
+                    entityType: "User", 
+                    entityId: userId.ToString());
             }
             
             ShowMessage("User updated successfully!", true);

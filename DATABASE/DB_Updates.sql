@@ -102,3 +102,26 @@ ON ServiceReminders(ReminderDate, ReminderSent);
 //AREACODE
 ALTER TABLE FireExtinguishers
 ADD AreaCode varchar(20);
+
+-- Create ActivityLogs table for tracking user activities
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ActivityLogs]'))
+BEGIN
+    CREATE TABLE [dbo].[ActivityLogs] (
+        [LogID] INT IDENTITY(1,1) PRIMARY KEY,
+        [UserID] INT NOT NULL,
+        [Action] NVARCHAR(100) NOT NULL,
+        [Description] NVARCHAR(500) NULL,
+        [EntityType] NVARCHAR(50) NULL, -- Type of entity acted upon (e.g., FireExtinguisher, User, Plant)
+        [EntityID] NVARCHAR(50) NULL,   -- ID of the entity acted upon
+        [IPAddress] NVARCHAR(50) NULL,
+        [Timestamp] DATETIME DEFAULT GETDATE(),
+        FOREIGN KEY ([UserID]) REFERENCES [Users]([UserID])
+    );
+END
+GO
+
+-- Create index for efficient querying of activity logs
+CREATE INDEX IX_ActivityLogs_UserID ON ActivityLogs(UserID);
+CREATE INDEX IX_ActivityLogs_Timestamp ON ActivityLogs(Timestamp);
+CREATE INDEX IX_ActivityLogs_EntityType_EntityID ON ActivityLogs(EntityType, EntityID);
+GO
