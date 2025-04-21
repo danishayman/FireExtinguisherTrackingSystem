@@ -28,7 +28,8 @@ namespace FETS.Pages.Login
             // Attempt to validate user credentials against the database
             if (ValidateUser(username, password))
             {
-                // Get user role for the authenticated user
+                // Get user ID and role for the authenticated user
+                int userId = GetUserId(username);
                 string userRole = GetUserRole(username);
                 
                 // Create an authentication ticket with the user's role
@@ -50,12 +51,38 @@ namespace FETS.Pages.Login
 
                 // Also store role in session for quicker access
                 Session["UserRole"] = userRole;
-
-                // Log successful login
+                
+                // Log successful login directly with user ID
                 try
                 {
-                    // We'll log this after setting the auth cookie so the user ID can be retrieved
-                    ActivityLogger.LogActivity("Login", "User logged in successfully");
+                    // Get the client's IP address
+                    string ipAddress = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+                    if (string.IsNullOrEmpty(ipAddress))
+                    {
+                        ipAddress = Request.ServerVariables["REMOTE_ADDR"];
+                    }
+
+                    // Log directly to the database
+                    string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+                    using (SqlConnection conn = new SqlConnection(connectionString))
+                    {
+                        string query = @"
+                            INSERT INTO ActivityLogs (UserID, Action, Description, EntityType, EntityID, IPAddress)
+                            VALUES (@UserID, @Action, @Description, @EntityType, @EntityID, @IPAddress)";
+
+                        using (SqlCommand cmd = new SqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@UserID", userId);
+                            cmd.Parameters.AddWithValue("@Action", "Login");
+                            cmd.Parameters.AddWithValue("@Description", "User logged in successfully");
+                            cmd.Parameters.AddWithValue("@EntityType", "User");
+                            cmd.Parameters.AddWithValue("@EntityID", userId.ToString());
+                            cmd.Parameters.AddWithValue("@IPAddress", ipAddress);
+
+                            conn.Open();
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -240,6 +267,37 @@ namespace FETS.Pages.Login
                         // Log error in production
                         System.Diagnostics.Debug.WriteLine(string.Format("Error getting user role: {0}", ex.Message));
                         return string.Empty;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the user ID from the database
+        /// </summary>
+        /// <param name="username">The username to get the ID for</param>
+        /// <returns>The user's ID or 0 if not found</returns>
+        private int GetUserId(string username)
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["FETSConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                string query = "SELECT UserID FROM Users WHERE Username = @Username";
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Username", username);
+
+                    try
+                    {
+                        conn.Open();
+                        object result = cmd.ExecuteScalar();
+                        return result != null ? Convert.ToInt32(result) : 0;
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log error in production
+                        System.Diagnostics.Debug.WriteLine(string.Format("Error getting user ID: {0}", ex.Message));
+                        return 0;
                     }
                 }
             }
