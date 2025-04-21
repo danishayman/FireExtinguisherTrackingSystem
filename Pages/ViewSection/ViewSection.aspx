@@ -471,7 +471,7 @@
                                                         <button type="button" id="btnPrevMap" class="map-nav-button map-prev" onclick="prevMap(); return false;">
                                                             <i class="fas fa-chevron-left"></i>
                                                         </button>
-                                                    </div>
+                                        </div>
                                                     
                                                     <div class="map-carousel-container">
                                                         <div id="mapLevelTitle" class="map-level-title">Level 1</div>
@@ -479,15 +479,15 @@
                                                         <div class="map-display-container">
                                                             <img id="currentMapImage" src="" alt="Plant Map" class="map-display-image" 
                                                                 onclick="openMapModal(this.src, document.getElementById('plantNameHidden').value, document.getElementById('mapLevelTitle').innerText);" />
-                                                        </div>
-                                                    </div>
+                                    </div>
+                                </div>
                                                     
                                                     <div class="map-carousel-controls">
                                                         <button type="button" id="btnNextMap" class="map-nav-button map-next" onclick="nextMap(); return false;">
                                                             <i class="fas fa-chevron-right"></i>
                                                         </button>
-                                                    </div>
-                                                </div>
+                            </div>
+                        </div>
                                                 
                                                 <!-- Hidden elements to store map data -->
                                                 <input type="hidden" id="plantNameHidden" value="" />
@@ -499,10 +499,10 @@
                                                                 data-level="<%# Eval("LevelName") %>" 
                                                                 data-update-date="<%# Eval("UploadDate", "{0:MM/dd/yyyy}") %>"
                                                                 data-plant="<%# Eval("PlantName") %>">
-                                                            </div>
+                    </div>
                                                         </ItemTemplate>
                                                     </asp:Repeater>
-                                                </div>
+                </div>
                                                 
                                                 <asp:Panel ID="pnlNoMaps" runat="server" CssClass="no-maps-message" Visible="false">
                                                     <p>No maps have been uploaded for this plant yet.</p>

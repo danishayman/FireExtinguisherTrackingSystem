@@ -1,0 +1,265 @@
+USE [FETS]
+GO
+/****** Object:  StoredProcedure [dbo].[FETS_Expiry_Email]    Script Date: 18/4/2025 2:47:45 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[FETS_Expiry_Email] AS 
+BEGIN 
+SET NOCOUNT ON;
+
+-- Debug: Start execution message
+PRINT 'Starting FETS_Expiry_Email procedure at ' + CONVERT(varchar, GETDATE(), 120);
+
+-- Declare a variable to hold the concatenated list of email addresses
+DECLARE @emailList varchar(max) = '';
+
+-- Concatenate all email addresses from the EmailRecipients table
+SELECT 
+  @emailList = @emailList + EmailAddress + ' ; ' 
+FROM 
+  [FETS].[dbo].[EmailRecipients] 
+WHERE 
+  IsActive = 1;
+
+-- Remove the trailing semicolon and space
+IF LEN(@emailList) > 0 BEGIN 
+  SET @emailList = LEFT(@emailList, LEN(@emailList) - 2);
+END
+
+-- Debug: Print email list
+PRINT 'Email recipients list: ' + ISNULL(@emailList, 'NONE');
+
+-- Create a temporary table to store extinguishers expiring in 60 days or less
+CREATE TABLE #ExpiringExtinguishers (
+    FEID int,
+    SerialNumber varchar(100),
+    PlantID int,
+    PlantName varchar(100),
+    LevelID int,
+    LevelName varchar(100),
+    Location varchar(255),
+    AreaCode varchar(50),
+    DateExpired date,
+    DaysUntilExpiry int,
+    Remarks varchar(max),
+    SeverityClass varchar(50)
+)
+
+-- Debug: Temporary table created
+PRINT 'Temporary table #ExpiringExtinguishers created';
+
+-- Insert data into temp table
+INSERT INTO #ExpiringExtinguishers (FEID, SerialNumber, PlantID, PlantName, LevelID, LevelName, Location, AreaCode, DateExpired, DaysUntilExpiry, Remarks)
+SELECT 
+    FE.FEID,
+    FE.SerialNumber,
+    FE.PlantID,
+    P.PlantName,
+    FE.LevelID,
+    L.LevelName,
+    FE.Location,
+    FE.AreaCode,
+    FE.DateExpired,
+    DATEDIFF(DAY, GETDATE(), FE.DateExpired) AS DaysUntilExpiry,
+    FE.Remarks
+FROM 
+    [FETS].[dbo].[FireExtinguishers] FE
+LEFT JOIN 
+    [FETS].[dbo].[Plants] P ON FE.PlantID = P.PlantID
+LEFT JOIN 
+    [FETS].[dbo].[Levels] L ON FE.LevelID = L.LevelID
+WHERE 
+    FE.StatusID IN (2, 3)
+    AND FE.DateExpired IS NOT NULL
+    AND DATEDIFF(DAY, GETDATE(), FE.DateExpired) <= 60
+    AND DATEDIFF(DAY, GETDATE(), FE.DateExpired) >= 0
+ORDER BY 
+    DATEDIFF(DAY, GETDATE(), FE.DateExpired);
+
+-- Debug: Data inserted into temp table
+DECLARE @insertedCount int = @@ROWCOUNT;
+PRINT 'Inserted ' + CAST(@insertedCount AS varchar) + ' records into #ExpiringExtinguishers';
+
+-- Update severity class for each extinguisher
+UPDATE #ExpiringExtinguishers
+SET SeverityClass = 
+    CASE 
+        WHEN DaysUntilExpiry <= 7 THEN 'critical'
+        WHEN DaysUntilExpiry <= 30 THEN 'warning'
+        ELSE 'info'
+    END;
+
+-- Debug: Updated severity classes
+PRINT 'Updated severity classes for records';
+
+-- Count total extinguishers
+DECLARE @totalCount int = (SELECT COUNT(*) FROM #ExpiringExtinguishers);
+DECLARE @criticalCount int = (SELECT COUNT(*) FROM #ExpiringExtinguishers WHERE SeverityClass = 'critical');
+DECLARE @warningCount int = (SELECT COUNT(*) FROM #ExpiringExtinguishers WHERE SeverityClass = 'warning');
+DECLARE @infoCount int = (SELECT COUNT(*) FROM #ExpiringExtinguishers WHERE SeverityClass = 'info');
+
+-- Debug: Print counts
+PRINT 'Extinguisher counts - Total: ' + CAST(@totalCount AS varchar) + 
+      ', Critical: ' + CAST(@criticalCount AS varchar) + 
+      ', Warning: ' + CAST(@warningCount AS varchar) + 
+      ', Info: ' + CAST(@infoCount AS varchar);
+
+-- If no extinguishers are expiring, exit the procedure
+IF @totalCount = 0
+BEGIN
+    PRINT 'No extinguishers expiring within 60 days, exiting procedure';
+    DROP TABLE #ExpiringExtinguishers;
+    RETURN;
+END
+
+-- Build the extinguisher rows HTML - More compact version
+DECLARE @extinguisherRowsHTML nvarchar(max) = '';
+
+-- Use a cursor to build the HTML rows for each extinguisher - Optimized
+DECLARE @SerialNumber varchar(100), @Plant varchar(100), @Level varchar(100), @Location varchar(255)
+DECLARE @AreaCode varchar(50), @ExpiryDate date, @DaysUntilExpiry int, @Remarks varchar(max), @SeverityClass varchar(50)
+
+DECLARE extinguisher_cursor CURSOR FOR
+SELECT 
+    SerialNumber, 
+    PlantName, 
+    LevelName, 
+    Location, 
+    AreaCode,
+    DateExpired, 
+    DaysUntilExpiry,
+    Remarks,
+    SeverityClass
+FROM 
+    #ExpiringExtinguishers
+ORDER BY
+    DaysUntilExpiry;
+
+OPEN extinguisher_cursor;
+
+FETCH NEXT FROM extinguisher_cursor INTO 
+    @SerialNumber, 
+    @Plant, 
+    @Level, 
+    @Location, 
+    @AreaCode,
+    @ExpiryDate, 
+    @DaysUntilExpiry,
+    @Remarks,
+    @SeverityClass;
+
+-- Debug: Starting cursor processing
+PRINT 'Starting to build HTML rows with cursor';
+
+DECLARE @rowCount int = 0;
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    SET @rowCount = @rowCount + 1;
+    -- More compact HTML to prevent truncation
+    SET @extinguisherRowsHTML = @extinguisherRowsHTML + 
+    '<tr class="' + @SeverityClass + '-row">' + 
+    '<td class="serial">' + @SerialNumber + '</td>' + 
+    '<td class="plant">' + @Plant + '</td>' + 
+    '<td class="level">' + @Level + '</td>' + 
+    '<td class="location">' + @Location + '</td>' + 
+    '<td class="area-code">' + ISNULL(@AreaCode, '') + '</td>' + 
+    '<td class="expiry">' + CONVERT(varchar, @ExpiryDate, 103) + '</td>' + 
+    '<td class="days">' + CAST(@DaysUntilExpiry AS varchar) + '</td>' + 
+    '<td class="remarks">' + ISNULL(@Remarks, '') + '</td>' + 
+    '</tr>';
+
+    FETCH NEXT FROM extinguisher_cursor INTO 
+        @SerialNumber, 
+        @Plant, 
+        @Level, 
+        @Location, 
+        @AreaCode,
+        @ExpiryDate, 
+        @DaysUntilExpiry,
+        @Remarks,
+        @SeverityClass;
+END
+
+CLOSE extinguisher_cursor;
+DEALLOCATE extinguisher_cursor;
+
+-- Debug: HTML rows built
+PRINT 'Built ' + CAST(@rowCount AS varchar) + ' HTML rows';
+
+-- Define the HTML content for the combined email - More compact version to prevent truncation
+DECLARE @htmlContent nvarchar(max);
+SET @htmlContent = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Fire Extinguisher Expiry Notification</title><style>
+body{font-family:Arial,sans-serif;line-height:1.6;color:#333;margin:0;padding:0}
+.container{max-width:900px;margin:0 auto;padding:20px}
+.header{background-color:#d9534f;color:white;padding:15px;text-align:center;border-radius:5px 5px 0 0}
+.content{background-color:#f9f9f9;padding:20px;border-left:1px solid #ddd;border-right:1px solid #ddd}
+.footer{background-color:#eee;padding:15px;text-align:center;font-size:12px;color:#777;border-radius:0 0 5px 5px;border:1px solid #ddd}
+table{width:100%;border-collapse:collapse;margin:20px 0;table-layout:fixed}
+th,td{padding:8px 5px;text-align:left;border-bottom:1px solid #ddd;overflow:hidden;text-overflow:ellipsis}
+th{background-color:#f2f2f2}
+th.serial,td.serial{width:10%}
+th.plant,td.plant,th.level,td.level{width:8%}
+th.location,td.location{width:28%}
+th.area-code,td.area-code{width:10%}
+th.expiry,td.expiry{width:10%}
+th.days,td.days{width:8%}
+th.remarks,td.remarks{width:18%}
+.critical-row{background-color:#f2dede}
+.warning-row{background-color:#fcf8e3}
+.info-row{background-color:#d9edf7}
+.summary-box{background-color:#f5f5f5;padding:15px;margin:15px 0;border-radius:5px;border:1px solid #ddd}
+.summary-item{display:inline-block;margin-right:20px;padding:8px 15px;border-radius:4px}
+.critical-count{background-color:#f2dede;color:#a94442;font-weight:bold}
+.warning-count{background-color:#fcf8e3;color:#8a6d3b;font-weight:bold}
+.info-count{background-color:#d9edf7;color:#31708f}
+.remarks{background-color:#f5f5f5;padding:10px;border-left:3px solid #d9534f;margin:15px 0}
+</style></head><body><div class="container"><div class="header"><h1>Fire Extinguisher Expiry Alert</h1><p>Monthly Expiry Report: ' + CONVERT(varchar, GETDATE(), 103) + '</p></div><div class="content"><p>Dear Safety Team,</p><p>This is an <strong>important notification</strong> regarding fire extinguishers that will expire within the next 60 days. Please take action to ensure continued Fire Safety Compliance.</p><div class="summary-box"><h3>Summary:</h3><div class="summary-item critical-count">Critical (≤7 days): ' + CAST(@criticalCount AS varchar) + '</div><div class="summary-item warning-count">Warning (8-30 days): ' + CAST(@warningCount AS varchar) + '</div><div class="summary-item info-count">Upcoming (31-60 days): ' + CAST(@infoCount AS varchar) + '</div><div class="summary-item">Total: ' + CAST(@totalCount AS varchar) + '</div></div><h2>Expiring Fire Extinguishers:</h2><table><thead><tr><th class="serial">Serial Number</th><th class="plant">Plant</th><th class="level">Level</th><th class="location">Location</th><th class="area-code">Area Code</th><th class="expiry">Expiry Date</th><th class="days">Days Left</th><th class="remarks">Remarks</th></tr></thead><tbody>' + @extinguisherRowsHTML + '</tbody></table><div class="remarks"><p><strong>Required Action:</strong></p><p>Please schedule maintenance or replacement for these fire extinguishers before their expiry dates. Fire extinguishers must be serviced or replaced to maintain compliance with safety regulations.</p><p><strong>Color Code:</strong></p><ul><li><span style="color:#a94442;font-weight:bold">Red</span> - Critical (7 days or less)</li><li><span style="color:#8a6d3b;font-weight:bold">Yellow</span> - Warning (8-30 days)</li><li><span style="color:#31708f">Blue</span> - Upcoming (31-60 days)</li></ul></div></div><div class="footer"><p>This is an automated message from the Fire Extinguisher Tracking System (FETS).</p><p>' + CAST(YEAR(GETDATE()) AS varchar) + ' INARI AMERTRON BHD. - Environment, Health and Safety Department (EHS)</p></div></div></body></html>';
+
+-- Debug: HTML content created
+PRINT 'HTML content created, length: ' + CAST(LEN(@htmlContent) AS varchar);
+
+-- Debug: Begin transaction
+BEGIN TRY
+    PRINT 'Attempting to insert into TAUTO_EMAIL table';
+    
+    -- Insert into the TAUTO_EMAIL table
+    INSERT INTO [AUTOREPORT].[dbo].TAUTO_EMAIL (
+        EMAIL_DESC, 
+        TOLIST, 
+        CCLIST, 
+        EMAIL_TITLE, 
+        EMAIL_CONTENT, 
+        CREATE_BY, 
+        CREATE_DATE, 
+        UPDATE_FLAG
+    ) 
+    VALUES (
+        'FETS Expiring Fire Extinguishers Report', 
+        @emailList, 
+        '', 
+        'Fire Extinguisher Expiry Alert - ' + CAST(@totalCount AS varchar) + ' units expiring soon (' + CONVERT(varchar, GETDATE(), 103) + ')', 
+        @htmlContent, 
+        'INARI PORTAL', 
+        GETDATE(), 
+        'N'
+    );
+    
+    -- Debug: Check insert result
+    IF @@ROWCOUNT > 0
+        PRINT 'SUCCESSFUL: Inserted record into TAUTO_EMAIL table';
+    ELSE
+        PRINT 'FAILED: No rows inserted into TAUTO_EMAIL table';
+        
+END TRY
+BEGIN CATCH
+    -- Debug: Print any error
+    PRINT 'ERROR: ' + ERROR_MESSAGE() + ' (Line: ' + CAST(ERROR_LINE() AS varchar) + ')';
+END CATCH
+
+-- Clean up
+DROP TABLE #ExpiringExtinguishers;
+PRINT 'Temporary table dropped, procedure completed at ' + CONVERT(varchar, GETDATE(), 120);
+
+END
