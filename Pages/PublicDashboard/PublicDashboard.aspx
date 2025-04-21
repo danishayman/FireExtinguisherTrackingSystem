@@ -3,7 +3,8 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>INARI - Fire Extinguisher Tracking System</title>
+    <title>INARI - Fire Extinguisher Tracking System
+    </title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -424,7 +425,7 @@
                     <img src="<%=ResolveUrl("~/Uploads/misc/logo.jpeg")%>" alt="INARI Logo" class="logo" />
                 </div>
                 <h2>ENVIRONMENT, HEALTH AND SAFETY DEPARTMENT (EHS)</h2>
-                <h3>FIRE EXTINGUISHER TRACKING SYSTEM</h3>
+                <h3>FIRE EXTINGUISHER TRACKING DASHBOARD</h3>
             </div>
 
             <!-- Total FE counter section -->

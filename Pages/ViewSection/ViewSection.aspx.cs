@@ -10,7 +10,7 @@ using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using System.Collections.Generic;
-using FETS;
+using FETS.Models;
 
 namespace FETS.Pages.ViewSection
 {

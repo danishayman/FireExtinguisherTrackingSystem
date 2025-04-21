@@ -142,6 +142,7 @@
     <Content Include="Pages\DataEntry\DataEntry.aspx" />
     <Content Include="Pages\ViewSection\ViewSection.aspx" />
     <Content Include="Pages\Profile\Profile.aspx" />
+    <Content Include="Pages\Admin\ActivityLogs.aspx" />
     <Content Include="EmailTemplates\ServiceEmailTemplate.html" />
     <Content Include="Pages\PublicDashboard\PublicDashboard.aspx" />
   </ItemGroup>
@@ -196,6 +197,15 @@
     </Compile>
     <Compile Include="Pages\PublicDashboard\PublicDashboard.aspx.designer.cs">
       <DependentUpon>PublicDashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RoleHelper.cs" />
+    <Compile Include="Models\ActivityLogger.cs" />
+    <Compile Include="Pages\Admin\ActivityLogs.aspx.cs">
+      <DependentUpon>ActivityLogs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Admin\ActivityLogs.aspx.designer.cs">
+      <DependentUpon>ActivityLogs.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

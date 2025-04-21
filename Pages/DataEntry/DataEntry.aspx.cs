@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using FETS.Models;
 
 namespace FETS.Pages.DataEntry
 {
@@ -466,6 +467,33 @@ namespace FETS.Pages.DataEntry
                         cmd.Parameters.AddWithValue("@StatusID", statusId);
                         cmd.ExecuteNonQuery();
 
+                        // Get the newly inserted fire extinguisher ID
+                        int newFireExtinguisherId = 0;
+                        using (SqlCommand getIdCmd = new SqlCommand("SELECT MAX(FEID) FROM FireExtinguishers WHERE SerialNumber = @SerialNumber", conn))
+                        {
+                            getIdCmd.Parameters.AddWithValue("@SerialNumber", txtSerialNumber.Text.Trim());
+                            object result = getIdCmd.ExecuteScalar();
+                            if (result != null && result != DBNull.Value)
+                            {
+                                newFireExtinguisherId = Convert.ToInt32(result);
+                            }
+                        }
+
+                        // Log the activity
+                        try
+                        {
+                            ActivityLogger.LogActivity(
+                                "Add Fire Extinguisher", 
+                                string.Format("Added fire extinguisher with serial number {0}", txtSerialNumber.Text.Trim()), 
+                                "FireExtinguisher", 
+                                newFireExtinguisherId.ToString());
+                        }
+                        catch (Exception logEx)
+                        {
+                            // Don't let logging failure prevent successful operation
+                            System.Diagnostics.Debug.WriteLine(string.Format("Error logging activity: {0}", logEx.Message));
+                        }
+
                         // Store success message and redirect to prevent form resubmission
                         Session["SuccessMessage"] = "Fire extinguisher added successfully.";
                         Response.Redirect(Request.Url.PathAndQuery, false);
@@ -567,41 +595,50 @@ namespace FETS.Pages.DataEntry
                     {
                         int plantId;
                         
-                        // Add the plant
-                        using (SqlCommand cmd = new SqlCommand(
-                            "INSERT INTO Plants (PlantName) VALUES (@PlantName); SELECT SCOPE_IDENTITY();", 
-                            conn, transaction))
+                        // Insert new plant
+                        using (SqlCommand cmd = new SqlCommand("INSERT INTO Plants (PlantName) OUTPUT INSERTED.PlantID VALUES (@PlantName)", conn))
                         {
                             cmd.Parameters.AddWithValue("@PlantName", plantName);
-                            plantId = Convert.ToInt32(cmd.ExecuteScalar());
+                            plantId = (int)cmd.ExecuteScalar();
                         }
                         
-                        // Add levels for the plant
-                        for (int i = 1; i <= levelCount; i++)
+                        if (plantId > 0)
                         {
-                            using (SqlCommand cmd = new SqlCommand(
-                                "INSERT INTO Levels (PlantID, LevelName) VALUES (@PlantID, @LevelName)",
-                                conn, transaction))
+                            // Insert levels for the plant
+                            for (int i = 1; i <= levelCount; i++)
                             {
-                                cmd.Parameters.AddWithValue("@PlantID", plantId);
-                                cmd.Parameters.AddWithValue("@LevelName", "Level " + i);
-                                cmd.ExecuteNonQuery();
+                                using (SqlCommand cmd = new SqlCommand("INSERT INTO Levels (PlantID, LevelName) VALUES (@PlantID, @LevelName)", conn))
+                                {
+                                    cmd.Parameters.AddWithValue("@PlantID", plantId);
+                                    cmd.Parameters.AddWithValue("@LevelName", string.Format("Level {0}", i));
+                                    cmd.ExecuteNonQuery();
+                                }
                             }
+
+                            // Log the activity
+                            try
+                            {
+                                ActivityLogger.LogActivity(
+                                    "Add Plant", 
+                                    string.Format("Added plant '{0}' with {1} levels", plantName, levelCount), 
+                                    "Plant", 
+                                    plantId.ToString());
+                            }
+                            catch (Exception logEx)
+                            {
+                                // Don't let logging failure prevent successful operation
+                                System.Diagnostics.Debug.WriteLine(string.Format("Error logging activity: {0}", logEx.Message));
+                            }
+
+                            // Show success message and refresh dropdown
+                            lblPlantMessage.Text = string.Format("Plant '{0}' and {1} levels added successfully.", plantName, levelCount);
+                            lblPlantMessage.CssClass = "message success";
+                            txtPlantName.Text = "";
+                            txtLevelCount.Text = "";
+
+                            // Reload dropdowns to show the new data
+                            LoadDropDownLists();
                         }
-                        
-                        // Commit the transaction
-                        transaction.Commit();
-                        
-                        // Success message
-                        lblPlantMessage.Text = string.Format("Plant '{0}' with {1} level(s) has been added.", plantName, levelCount);
-                        lblPlantMessage.CssClass = "message success";
-                        
-                        // Clear form inputs
-                        txtPlantName.Text = string.Empty;
-                        txtLevelCount.Text = "1";
-                        
-                        // Reload the plant dropdown list
-                        LoadDropDownLists();
                     }
                     catch (Exception ex)
                     {
@@ -714,6 +751,21 @@ namespace FETS.Pages.DataEntry
                                     // Commit the transaction
                                     transaction.Commit();
                                     
+                                    // Log the activity
+                                    try
+                                    {
+                                        ActivityLogger.LogActivity(
+                                            "Delete Plant", 
+                                            string.Format("Deleted plant '{0}'", ddlDeletePlant.SelectedItem.Text), 
+                                            "Plant", 
+                                            plantId.ToString());
+                                    }
+                                    catch (Exception logEx)
+                                    {
+                                        // Don't let logging failure prevent successful operation
+                                        System.Diagnostics.Debug.WriteLine(string.Format("Error logging activity: {0}", logEx.Message));
+                                    }
+
                                     // Success message
                                     lblPlantMessage.Text = string.Format(
                                         "Plant '{0}' and its {1} level(s) have been deleted successfully.", 
