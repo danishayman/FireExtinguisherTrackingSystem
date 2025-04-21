@@ -149,7 +149,42 @@ The system automatically sends notifications for extinguishers requiring attenti
 ![Email Notification](Uploads/misc/image-2.png)
 *Email notification template for expired or soon-to-expire fire extinguishers*
 
-## 📋 Project Structure
+#### Automated Email Reports
+The system uses a SQL Server stored procedure (`FETS_Expiry_Email`) to automatically generate and send detailed reports about expiring fire extinguishers:
+
+- Runs on a scheduled basis to check for extinguishers expiring within 60 days
+- Categorizes extinguishers by urgency:
+  - Critical: 7 days or less until expiry (red highlighting)
+  - Warning: 8-30 days until expiry (yellow highlighting)
+  - Upcoming: 31-60 days until expiry (blue highlighting)
+- Includes comprehensive details for each extinguisher:
+  - Serial Number
+  - Plant and Level location
+  - Specific Location description
+  - Area Code
+  - Expiry Date
+  - Days remaining until expiry
+  - Additional remarks
+
+Email recipients are managed through the `EmailRecipients` table in the database.
+
+### Email Template Layout Issues
+When implementing the email notification system, be aware that some email clients may truncate the HTML content if it exceeds certain size limits. To address this:
+
+1. The HTML table width is optimized to 900px to ensure all columns fit properly
+2. Column widths are explicitly defined for consistent rendering:
+   ```css
+   th.serial { width: 10%; }
+   th.plant, th.level { width: 8%; }
+   th.location { width: 28%; }
+   th.area-code { width: 10%; }
+   th.expiry { width: 10%; }
+   th.days { width: 8%; }
+   th.remarks { width: 18%; }
+   ```
+3. For particularly long content, table cells use `text-overflow: ellipsis` to prevent layout issues
+
+## �� Project Structure
 The application follows a standard ASP.NET Web Forms structure:
 - `Pages/`: Contains all application pages organized by functionality
 - `Assets/`: CSS styles and frontend resources
