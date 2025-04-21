@@ -1538,6 +1538,7 @@ namespace FETS.Pages.ViewSection
                     SELECT 
                         fe.FEID,
                         fe.SerialNumber,
+                        fe.AreaCode,
                         p.PlantName,
                         l.LevelName,
                         fe.Location,
@@ -1633,6 +1634,7 @@ namespace FETS.Pages.ViewSection
                         SELECT 
                             fe.FEID,
                             fe.SerialNumber,
+                            fe.AreaCode,
                             p.PlantName,
                             l.LevelName,
                             fe.Location,
@@ -1661,6 +1663,7 @@ namespace FETS.Pages.ViewSection
                                 extinguisherDetails.Add(new FireExtinguisherServiceInfo
                                 {
                                     SerialNumber = reader["SerialNumber"].ToString(),
+                                    AreaCode = reader["AreaCode"].ToString(),
                                     Plant = reader["PlantName"].ToString(),
                                     Level = reader["LevelName"].ToString(),
                                     Location = reader["Location"].ToString(),
@@ -2249,6 +2252,7 @@ namespace FETS.Pages.ViewSection
                                         string query = @"
                                             SELECT 
                                                 fe.SerialNumber,
+                                                fe.AreaCode,
                                                 p.PlantName AS Plant,
                                                 l.LevelName AS Level,
                                                 fe.Location,
@@ -2271,6 +2275,7 @@ namespace FETS.Pages.ViewSection
                                                     completedExtinguishers.Add(new FireExtinguisherServiceInfo
                                                     {
                                                         SerialNumber = reader["SerialNumber"].ToString(),
+                                                        AreaCode = reader["AreaCode"].ToString(),
                                                         Plant = reader["Plant"].ToString(),
                                                         Level = reader["Level"].ToString(),
                                                         Location = reader["Location"].ToString(),

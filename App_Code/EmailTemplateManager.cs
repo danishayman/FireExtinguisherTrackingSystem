@@ -272,6 +272,7 @@ namespace FETS
     public class FireExtinguisherServiceInfo
     {
         public string SerialNumber { get; set; }
+        public string AreaCode { get; set; }
         public string Plant { get; set; }
         public string Level { get; set; }
         public string Location { get; set; }

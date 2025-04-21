@@ -132,7 +132,6 @@
     <Content Include="Uploads\misc\front-gate.jpg" />
     <Content Include="Uploads\misc\image-1.png" />
     <Content Include="Uploads\misc\image-2.png" />
-    <Content Include="Uploads\misc\image.png" />
     <Content Include="Uploads\misc\logo.jpeg" />
     <Content Include="Uploads\misc\warning.png" />
     <Content Include="Web.config" />
