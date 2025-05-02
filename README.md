@@ -50,6 +50,46 @@ A comprehensive system for tracking, managing, and maintaining fire extinguisher
    - Status
    - Users
 
+### Web.config Configuration
+
+1. Locate the `Web.config.example` file in the root directory
+2. Create a copy of this file and rename it to `Web.config`
+3. Open the new `Web.config` file and update the following settings:
+
+#### Database Connection
+
+Update the connection string with your SQL Server credentials:
+
+```xml
+<connectionStrings>
+  <add name="FETSConnection"
+    connectionString="Data Source=YOUR_SERVER;Initial Catalog=FETS;User ID=YOUR_USERNAME;Password=YOUR_PASSWORD;Connection Timeout=30"
+    providerName="System.Data.SqlClient" />
+</connectionStrings>
+```
+
+Replace:
+- `YOUR_SERVER` with your SQL Server instance name (e.g., `localhost` or `DESKTOP-PC\SQLEXPRESS`)
+- `YOUR_USERNAME` with your SQL Server username
+- `YOUR_PASSWORD` with your SQL Server password
+
+#### Email Configuration
+
+Configure the email settings for notifications:
+
+```xml
+<system.net>
+  <mailSettings>
+    <smtp from="your-email@example.com">
+      <network host="smtp.example.com" port="587" userName="your-email@example.com"
+        password="your-email-password" enableSsl="true" />
+    </smtp>
+  </mailSettings>
+</system.net>
+```
+
+Replace with your actual email service details to enable the notification system.
+
 ### Initial Configuration
 
 After installing the database:
